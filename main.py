@@ -22,7 +22,7 @@ threading.Thread(target=run_web, daemon=True).start()
 TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
 bot = telebot.TeleBot(TOKEN)
 
-CHANNEL_USERNAME = "@aitilshunos"  # Kanalingiz nomi
+CHANNEL_USERNAME = "@Onatilidanyordam"  # Kanalingiz nomi
 
 POSTS = [
     (
