@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v4.1 (gemini-3.6-flash) Faol!"
+    return "AI Tilshunos & Metodist v4.3 (Admin & Stats) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -44,13 +44,13 @@ TELEGRAM_TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 CHANNEL_USERNAME = "@onatilidanyordam"
-ADMIN_ID = 5423849679  # Sizning Telegram ID raqamingiz
+ADMIN_ID = 5423849679
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
-# Rasmiy va amaldagi model
-CURRENT_AI_MODEL = "gemini-3.6-flash"
+CURRENT_AI_MODEL = "gemini-2.5-flash"
+USERS_FILE = "users.json"
 
 IMZO = (
     "\n\n────────────────\n"
@@ -58,8 +58,33 @@ IMZO = (
     "✨ **Pedagogik & Ilmiy bot:** @aitilshunosbot"
 )
 
+# --- FOYDALANUVCHILAR BAZASINI BOSHQARISH ---
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        return {}
+    try:
+        with open(USERS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def save_user(user):
+    users = load_users()
+    u_id = str(user.id)
+    if u_id not in users:
+        users[u_id] = {
+            "first_name": user.first_name or "",
+            "username": user.username or "",
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+        }
+        try:
+            with open(USERS_FILE, "w", encoding="utf-8") as f:
+                json.dump(users, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Foydalanuvchini saqlashda xato: {e}")
+
 # --- MENYULAR TUZILISHI ---
-def get_main_menu():
+def get_main_menu(user_id=None):
     markup = tele_types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(
         tele_types.KeyboardButton("📋 Dars ishlanmasi (Konspekt)"),
@@ -81,6 +106,9 @@ def get_main_menu():
         tele_types.KeyboardButton("🔤 Imlo va orfoepiya"),
         tele_types.KeyboardButton("🧠 BMB Quiz Test")
     )
+    # Admin uchun maxsus statistika va boshqaruv tugmasi
+    if user_id and int(user_id) == int(ADMIN_ID):
+        markup.add(tele_types.KeyboardButton("📊 Statistika (Admin)"))
     return markup
 
 def get_sub_menu(category):
@@ -164,42 +192,44 @@ SYSTEM_INSTRUCTION = (
     "Siz O'zbekiston Respublikasi maktab va litseylari Ona tili va adabiyoti fani bo'yicha "
     "bosh metodist, filolog-matnshunos olim va BMB/Milliy sertifikat bo'yicha oliy toifali ekspertisiz.\n"
     "ASOSIY TALABLAR:\n"
-    "1. Dars ishlanmasi: DTS talablari, dars maqsadi (ta'limiy, tarbiyaviy, rivojlantiruvchi), "
-    "jihozlar va 45 daqiqalik dars bosqichlari (kirish, yangi mavzu, mustahkamlash, baholash, uyga vazifa) aniq tuzilsin.\n"
-    "2. Esse tekshiruvi: 50 ballik mezon asosida (Mavzu ochilishi: 15 ball, Dalillar: 10 ball, "
-    "Mantiq/kompozitsiya: 10 ball, Imlo/grammatika: 15 ball) qat'iy va asosli baholansin, aniq xatolar ko'rsatilsin.\n"
-    "3. Aruz vazni: Hijolarni (ochiq (V), yopiq (-), cho'ziq (~)) qat'iy belgilab, ruknlarini va aruz bahrini (hazaj, ramal va h.k.) tushuntiring.\n"
-    "4. Eski turkiy: 'Devonu lug'atit turk', Boburnoma va Navoiy asarlari leksikasi bo'yicha tarixiy o'zak va ma'no bering.\n"
-    "5. Har bir javob oxirida '📚 Manba:' keltirilsin. Siyosiy, diniy, davlatga zid mavzular qat'iyan taqiqlanadi."
+    "1. Dars ishlanmasi: DTS talablari, dars maqsadi, jihozlar va 45 daqiqalik dars bosqichlari aniq tuzilsin.\n"
+    "2. Esse tekshiruvi: 50 ballik mezon (Mavzu: 15, Dalillar: 10, Mantiq: 10, Imlo/grammatika: 15) asosida baholansin.\n"
+    "3. Aruz vazni: Hijolarni (ochiq, yopiq, cho'ziq), ruknlarini va bahr nomini aniq ko'rsating.\n"
+    "4. Eski turkiy: 'Devonu lug'atit turk', Boburnoma va Navoiy leksikasi bo'yicha ma'no va etimologiya bering.\n"
+    "5. Har bir javob oxirida '📚 Manba:' keltirilsin. Siyosiy va diniy mavzular qat'iyan taqiqlanadi."
 )
 
-# GEMINI-3.6-FLASH BILAN SO'ROV YUBORISH
 def generate_ai_content(prompt_text):
     full_prompt = (
         f"{prompt_text}\n\n"
-        "Talablar: Telegram Markdown formatida, emojilar va aniq bo'limlar bilan, 2500 belgidan oshmasin. "
+        "Talablar: Telegram Markdown formatida, emojilar bilan, 2500 belgidan oshmasin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    
-    for attempt in range(3):
-        try:
-            response = ai_client.models.generate_content(
-                model=CURRENT_AI_MODEL,
-                contents=full_prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_INSTRUCTION,
-                    temperature=0.4
+    models = [CURRENT_AI_MODEL, "gemini-2.0-flash"]
+    for model_name in models:
+        for attempt in range(2):
+            try:
+                response = ai_client.models.generate_content(
+                    model=model_name,
+                    contents=full_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        temperature=0.4
+                    )
                 )
-            )
-            if response and response.text:
-                return response.text.strip() + IMZO
-        except Exception as e:
-            if "503" in str(e) or "UNAVAILABLE" in str(e):
-                time.sleep(2)
-                continue
-            else:
-                raise e
-    raise Exception("Sun'iy intellekt serverida yuklama mavjud. Birozdan so'ng qayta urinib ko'ring.")
+                if response and response.text:
+                    return response.text.strip() + IMZO
+            except Exception as e:
+                err = str(e)
+                if "429" in err or "RESOURCE_EXHAUSTED" in err:
+                    time.sleep(11)
+                    continue
+                elif "503" in err or "UNAVAILABLE" in err:
+                    time.sleep(3)
+                    continue
+                else:
+                    break
+    raise Exception("Sun'iy intellekt tizimi ayni daqiqada band. Birozdan so'ng qayta urinib ko'ring.")
 
 def generate_ai_quiz():
     prompt = (
@@ -213,30 +243,35 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    
-    for attempt in range(3):
-        try:
-            response = ai_client.models.generate_content(
-                model=CURRENT_AI_MODEL,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_INSTRUCTION,
-                    temperature=0.3
+    models = [CURRENT_AI_MODEL, "gemini-2.0-flash"]
+    for model_name in models:
+        for attempt in range(2):
+            try:
+                response = ai_client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        temperature=0.3
+                    )
                 )
-            )
-            raw = response.text.strip()
-            if "```json" in raw:
-                raw = raw.split("```json")[1].split("```")[0].strip()
-            elif "```" in raw:
-                raw = raw.split("```")[1].split("```")[0].strip()
-            return json.loads(raw)
-        except Exception as e:
-            if "503" in str(e) or "UNAVAILABLE" in str(e):
-                time.sleep(2)
-                continue
-            else:
-                raise e
-    raise Exception("Test tizimida yuklama mavjud.")
+                raw = response.text.strip()
+                if "```json" in raw:
+                    raw = raw.split("```json")[1].split("```")[0].strip()
+                elif "```" in raw:
+                    raw = raw.split("```")[1].split("```")[0].strip()
+                return json.loads(raw)
+            except Exception as e:
+                err = str(e)
+                if "429" in err or "RESOURCE_EXHAUSTED" in err:
+                    time.sleep(11)
+                    continue
+                elif "503" in err or "UNAVAILABLE" in err:
+                    time.sleep(3)
+                    continue
+                else:
+                    break
+    raise Exception("Test tuzish tizimida yuklama yuz berdi.")
 
 # --- AVTOMATLASHGAN KANAL JADVALI (AUTO-POSTING) ---
 def auto_poster_loop():
@@ -252,28 +287,24 @@ def auto_poster_loop():
                 for k in sent_flags:
                     sent_flags[k] = False
 
-            # 08:30 — Tonggi motivatsiya va hikmat
             if current_time == "08:30" and not sent_flags["08:30"]:
                 p = "Alisher Navoiy, Bobur yoki mumtoz allomalarimiz o'gitlaridan ilm, vaqt qadri va ustozlik haqida ibratli tonggi post yozing."
                 matn = generate_ai_content(p)
                 bot.send_message(CHANNEL_USERNAME, f"☀️ **KUN HIKMATI & TONGGI ILHOM**\n\n{matn}", parse_mode="Markdown")
                 sent_flags["08:30"] = True
 
-            # 13:00 — Kun so'zi (O'TIL yoki Etimologiya)
             elif current_time == "13:00" and not sent_flags["13:00"]:
                 p = "O'zbek tilining izohli lug'ati yoki etimologik lug'at asosida bitta qiziqarli so'zning chuqur tahlilini (kun so'zi sifatida) taqdim eting."
                 matn = generate_ai_content(p)
                 bot.send_message(CHANNEL_USERNAME, f"📖 **KUN SO'ZI TAHLILI**\n\n{matn}", parse_mode="Markdown")
                 sent_flags["13:00"] = True
 
-            # 17:00 — Interfaol metodik mahorat
             elif current_time == "17:00" and not sent_flags["17:00"]:
                 p = "Ona tili yoki adabiyot fanidan tasodifiy mavzuga zamonaviy interfaol metod ishlab chiqing. Mavzu, Metod nomi, Darsdagi o'rni, Qo'llash tartibi va Topsiriqni bering."
                 matn = generate_ai_content(p)
                 bot.send_message(CHANNEL_USERNAME, f"🎯 **METODIK MAHORAT RUKNI**\n\n{matn}", parse_mode="Markdown")
                 sent_flags["17:00"] = True
 
-            # 20:30 — 3 ta BMB Quiz testi
             elif current_time == "20:30" and not sent_flags["20:30"]:
                 bot.send_message(CHANNEL_USERNAME, "🧠 **KECHKI INTELLEKT: BMB STANDARDIDAGI TESTLAR BOSHLANDI!**")
                 for _ in range(3):
@@ -288,7 +319,7 @@ def auto_poster_loop():
                             explanation=q.get("explanation", ""),
                             is_anonymous=True
                         )
-                        time.sleep(2)
+                        time.sleep(3)
                     except Exception:
                         pass
                 sent_flags["20:30"] = True
@@ -300,7 +331,70 @@ def auto_poster_loop():
 
 threading.Thread(target=auto_poster_loop, daemon=True).start()
 
-# --- MAXSUS BUYRUQ: ID ANIQLASH ---
+# --- ADMIN STATISTIKA FUNKSIYASI ---
+def show_admin_stats(chat_id):
+    users = load_users()
+    total_users = len(users)
+    
+    # Kanal obunachilari sonini olish
+    channel_members = "Aniqlanmadi"
+    try:
+        channel_members = bot.get_chat_member_count(CHANNEL_USERNAME)
+    except Exception:
+        pass
+
+    # Oxirgi 10 ta foydalanuvchi
+    last_users_text = ""
+    for idx, (uid, data) in enumerate(list(users.items())[-10:], 1):
+        uname = f"@{data['username']}" if data.get("username") else "usernamesiz"
+        fname = data.get("first_name", "Noma'lum")
+        date_str = data.get("date", "")
+        last_users_text += f"{idx}. {fname} ({uname}) | ID: `{uid}` ({date_str})\n"
+
+    if not last_users_text:
+        last_users_text = "Hozircha foydalanuvchilar yo'q."
+
+    msg = (
+        "📊 **BOT VA KANAL STATISTIKASI (ADMIN)**\n"
+        "────────────────────────\n"
+        f"🤖 **Botdagi jami a'zolar soni:** `{total_users}` nafar\n"
+        f"📢 **{CHANNEL_USERNAME} kanal a'zolari:** `{channel_members}` nafar\n\n"
+        "👥 **Oxirgi qo'shilgan a'zolar:**\n"
+        f"{last_users_text}\n"
+        "────────────────────────\n"
+        "📢 *Barcha a'zolarga xabar yuborish uchun:* `/send xabar matni`"
+    )
+    bot.send_message(chat_id, msg, parse_mode="Markdown")
+
+# --- ADMIN BUYRUQLARI ---
+@bot.message_handler(commands=['stat'])
+def cmd_stat(message):
+    if int(message.from_user.id) == int(ADMIN_ID):
+        show_admin_stats(message.chat.id)
+    else:
+        bot.reply_to(message, "Bu buyruq faqat bot administratori uchun.")
+
+@bot.message_handler(commands=['send'])
+def broadcast_message(message):
+    if int(message.from_user.id) != int(ADMIN_ID):
+        return
+    text_to_send = message.text.replace("/send", "").strip()
+    if not text_to_send:
+        bot.reply_to(message, "Xabar matnini kiriting. Masalan: `/send Assalomu alaykum, yangilik!`", parse_mode="Markdown")
+        return
+
+    users = load_users()
+    success = 0
+    bot.reply_to(message, f"📢 {len(users)} ta a'zoga xabar yuborilmoqda...")
+    for uid in users.keys():
+        try:
+            bot.send_message(uid, text_to_send)
+            success += 1
+            time.sleep(0.05)
+        except Exception:
+            pass
+    bot.send_message(message.chat.id, f"✅ Xabar muvaffaqiyatli tarqatildi!\nQabul qildi: {success} ta foydalanuvchi.")
+
 @bot.message_handler(commands=['myid'])
 def get_user_id(message):
     bot.reply_to(message, f"🆔 Sizning Telegram ID raqamingiz: `{message.from_user.id}`", parse_mode="Markdown")
@@ -308,13 +402,15 @@ def get_user_id(message):
 # --- START VA OBUNA ---
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    save_user(message.from_user)
+
     if not is_subscribed(message.from_user.id):
         send_subscription_prompt(message.chat.id)
         return
 
     text = (
         "╔════════════════════════╗\n"
-        "  ✨ **AI TILSHUNOS & METODIST v4.1**\n"
+        "  ✨ **AI TILSHUNOS & METODIST v4.3**\n"
         "╚════════════════════════╝\n\n"
         "Assalomu alaykum, aziz ustoz, tadqiqotchi va talaba!\n\n"
         "Botingiz quyidagi ilmiy va metodik xizmatlarni taqdim etadi:\n\n"
@@ -326,10 +422,11 @@ def send_welcome(message):
         "▫️ O'TIL, Etimologiya, G'azal tahlili va Quizlar\n\n"
         "👇 **Quyidagi tugmalardan kerakli bo'limni tanlang:**"
     )
-    bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=get_main_menu())
+    bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=get_main_menu(message.from_user.id))
 
 @bot.callback_query_handler(func=lambda call: call.data == "check_sub")
 def callback_check_sub(call):
+    save_user(call.from_user)
     if is_subscribed(call.from_user.id):
         bot.answer_callback_query(call.id, "🎉 Obuna tasdiqlandi!")
         try:
@@ -357,6 +454,8 @@ def process_custom_step(message, prompt_template):
 # --- ASOSIY MENYU VA BUYRUQLAR ---
 @bot.message_handler(func=lambda msg: True)
 def handle_all_messages(message):
+    save_user(message.from_user)
+
     if not is_subscribed(message.from_user.id):
         send_subscription_prompt(message.chat.id)
         return
@@ -364,7 +463,12 @@ def handle_all_messages(message):
     text = message.text
 
     if text == "🔙 Asosiy menyu":
-        bot.send_message(message.chat.id, "Asosiy menyudasiz:", reply_markup=get_main_menu())
+        bot.send_message(message.chat.id, "Asosiy menyudasiz:", reply_markup=get_main_menu(message.from_user.id))
+        return
+
+    # ADMIN STATISTIKA TUGMASI
+    elif text == "📊 Statistika (Admin)" and int(message.from_user.id) == int(ADMIN_ID):
+        show_admin_stats(message.chat.id)
         return
 
     # 1. DARS ISHLANMASI (KONSPEKT)
@@ -386,7 +490,7 @@ def handle_all_messages(message):
         )
         bot.register_next_step_handler(msg, process_custom_step, p)
 
-    # 2. ESSE TEKSHIRUVI (50 BALLIK MEZON)
+    # 2. ESSE TEKSHIRUVI
     elif text == "📝 Esse tekshiruvi (BMB/Sertifikat)":
         msg = bot.reply_to(
             message,
@@ -517,7 +621,7 @@ def handle_all_messages(message):
             bot.reply_to(message, f"❌ Xatolik: {e}")
 
     else:
-        bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu())
+        bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
 
-print("AI Tilshunos v4.1 (gemini-3.6-flash) faol ishga tushdi...")
+print("AI Tilshunos v4.3 (Admin & Stats) faol ishga tushdi...")
 bot.infinity_polling()
