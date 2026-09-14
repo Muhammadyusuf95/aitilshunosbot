@@ -25,7 +25,7 @@ TELEGRAM_TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
 # Kalit Render Environment'dan olinadi:
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-CHANNEL_USERNAME = "@aitilshunos"  # Kanalingiz usernamesi
+CHANNEL_USERNAME = "@Onatilidanyordam"  # Kanalingiz usernamesi
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
