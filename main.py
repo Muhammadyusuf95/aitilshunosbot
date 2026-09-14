@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v4.0 (Akademik & Auto-posting) Faol!"
+    return "AI Tilshunos & Metodist v4.1 (gemini-3.6-flash) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -48,6 +48,9 @@ ADMIN_ID = 5423849679  # Sizning Telegram ID raqamingiz
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
+
+# Rasmiy va amaldagi model
+CURRENT_AI_MODEL = "gemini-3.6-flash"
 
 IMZO = (
     "\n\n────────────────\n"
@@ -165,38 +168,38 @@ SYSTEM_INSTRUCTION = (
     "jihozlar va 45 daqiqalik dars bosqichlari (kirish, yangi mavzu, mustahkamlash, baholash, uyga vazifa) aniq tuzilsin.\n"
     "2. Esse tekshiruvi: 50 ballik mezon asosida (Mavzu ochilishi: 15 ball, Dalillar: 10 ball, "
     "Mantiq/kompozitsiya: 10 ball, Imlo/grammatika: 15 ball) qat'iy va asosli baholansin, aniq xatolar ko'rsatilsin.\n"
-    "3. Aruz vazni: Hijolarni (ochiq, yopiq, cho'ziq) qat'iy belgilab, ruknlarini va aruz bahrini (hazaj, ramal va h.k.) tushuntiring.\n"
+    "3. Aruz vazni: Hijolarni (ochiq (V), yopiq (-), cho'ziq (~)) qat'iy belgilab, ruknlarini va aruz bahrini (hazaj, ramal va h.k.) tushuntiring.\n"
     "4. Eski turkiy: 'Devonu lug'atit turk', Boburnoma va Navoiy asarlari leksikasi bo'yicha tarixiy o'zak va ma'no bering.\n"
     "5. Har bir javob oxirida '📚 Manba:' keltirilsin. Siyosiy, diniy, davlatga zid mavzular qat'iyan taqiqlanadi."
 )
 
+# GEMINI-3.6-FLASH BILAN SO'ROV YUBORISH
 def generate_ai_content(prompt_text):
     full_prompt = (
         f"{prompt_text}\n\n"
         "Talablar: Telegram Markdown formatida, emojilar va aniq bo'limlar bilan, 2500 belgidan oshmasin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro"]
-    for model_name in models_to_try:
-        for attempt in range(2):
-            try:
-                response = ai_client.models.generate_content(
-                    model=model_name,
-                    contents=full_prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=SYSTEM_INSTRUCTION,
-                        temperature=0.4
-                    )
+    
+    for attempt in range(3):
+        try:
+            response = ai_client.models.generate_content(
+                model=CURRENT_AI_MODEL,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_INSTRUCTION,
+                    temperature=0.4
                 )
-                if response and response.text:
-                    return response.text.strip() + IMZO
-            except Exception as e:
-                if "503" in str(e) or "UNAVAILABLE" in str(e):
-                    time.sleep(2)
-                    continue
-                else:
-                    raise e
-    raise Exception("Sun'iy intellekt serverida yuklama. Birozdan so'ng urinib ko'ring.")
+            )
+            if response and response.text:
+                return response.text.strip() + IMZO
+        except Exception as e:
+            if "503" in str(e) or "UNAVAILABLE" in str(e):
+                time.sleep(2)
+                continue
+            else:
+                raise e
+    raise Exception("Sun'iy intellekt serverida yuklama mavjud. Birozdan so'ng qayta urinib ko'ring.")
 
 def generate_ai_quiz():
     prompt = (
@@ -210,33 +213,32 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro"]
-    for model_name in models_to_try:
-        for attempt in range(2):
-            try:
-                response = ai_client.models.generate_content(
-                    model=model_name,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=SYSTEM_INSTRUCTION,
-                        temperature=0.3
-                    )
+    
+    for attempt in range(3):
+        try:
+            response = ai_client.models.generate_content(
+                model=CURRENT_AI_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_INSTRUCTION,
+                    temperature=0.3
                 )
-                raw = response.text.strip()
-                if "```json" in raw:
-                    raw = raw.split("```json")[1].split("```")[0].strip()
-                elif "```" in raw:
-                    raw = raw.split("```")[1].split("```")[0].strip()
-                return json.loads(raw)
-            except Exception as e:
-                if "503" in str(e) or "UNAVAILABLE" in str(e):
-                    time.sleep(2)
-                    continue
-                else:
-                    raise e
-    raise Exception("Test tizimida yuklama.")
+            )
+            raw = response.text.strip()
+            if "```json" in raw:
+                raw = raw.split("```json")[1].split("```")[0].strip()
+            elif "```" in raw:
+                raw = raw.split("```")[1].split("```")[0].strip()
+            return json.loads(raw)
+        except Exception as e:
+            if "503" in str(e) or "UNAVAILABLE" in str(e):
+                time.sleep(2)
+                continue
+            else:
+                raise e
+    raise Exception("Test tizimida yuklama mavjud.")
 
-# --- AVTOMATLASHGAN KANAL JADVALI (AUTO-POSTING SCHEDULER) ---
+# --- AVTOMATLASHGAN KANAL JADVALI (AUTO-POSTING) ---
 def auto_poster_loop():
     tz = pytz.timezone('Asia/Tashkent')
     sent_flags = {"08:30": False, "13:00": False, "17:00": False, "20:30": False}
@@ -246,7 +248,6 @@ def auto_poster_loop():
             now = datetime.now(tz)
             current_time = now.strftime("%H:%M")
 
-            # Yangi kunda bayroqlarni yangilash
             if current_time == "00:01":
                 for k in sent_flags:
                     sent_flags[k] = False
@@ -313,10 +314,10 @@ def send_welcome(message):
 
     text = (
         "╔════════════════════════╗\n"
-        "  ✨ **AI TILSHUNOS & METODIST v4.0**\n"
+        "  ✨ **AI TILSHUNOS & METODIST v4.1**\n"
         "╚════════════════════════╝\n\n"
         "Assalomu alaykum, aziz ustoz, tadqiqotchi va talaba!\n\n"
-        "Botingiz endi to'liq avtomatlashgan bo'lib, quyidagi ilmiy va metodik xizmatlarni taqdim etadi:\n\n"
+        "Botingiz quyidagi ilmiy va metodik xizmatlarni taqdim etadi:\n\n"
         "▫️ Dars ishlanmasi (Konspekt) konstruktori\n"
         "▫️ Esse tekshiruvi va 50 ballik tahlil (BMB)\n"
         "▫️ Aruz vazni va bahrlar tahlili\n"
@@ -518,5 +519,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu())
 
-print("AI Tilshunos v4.0 to'liq quvvat bilan ishga tushdi...")
+print("AI Tilshunos v4.1 (gemini-3.6-flash) faol ishga tushdi...")
 bot.infinity_polling()
