@@ -33,7 +33,7 @@ POSTS = [
         "Mumtoz she’riyatda bu so‘z ko‘pincha yorning qip-qizil labi, yuzi yoki oshiqning ko‘z yoshlariga "
         "tashbeh (o‘xshatish) sifatida qo‘llangan.\n\n"
         "📖 *\"Mayi arg‘uvoniy tut, ey dilrabo...\"*\n\n"
-        "🔗 @aitilshunos — Ilm va ma'rifat ulashamiz!"
+        "🔗 @onas — Ilm va ma'rifat ulashamiz!"
     ),
     (
         "💡 **Nutq madaniyati: To‘g‘ri talaffuz va imlo**\n\n"
@@ -79,20 +79,23 @@ def publish_post(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
-@bot.message_handler(commands=['test'])
-def publish_quiz(message):
+# Kanalga oddiy post chiqarish
+@bot.message_handler(commands=['post'])
+def publish_post(message):
     try:
-        quiz = random.choice(QUIZZES)
-        bot.send_poll(
-            chat_id=CHANNEL_USERNAME,
-            question=quiz["question"],
-            options=quiz["options"],
-            type="quiz",
-            correct_option_id=quiz["correct_option_id"],
-            explanation=quiz["explanation"],
-            is_anonymous=True
+        tanlangan_post = random.choice(POSTS)
+        
+        # Har bir post ostiga avtomatik qo'shiladigan imzo:
+        imzo = (
+            "\n\n────────────────\n"
+            "📚 **Kanalimiz:** @aitilshunos\n"
+            "🤖 **Bilimingizni sinash uchun bot:** @aitilshunosbot"
         )
-        bot.reply_to(message, "✅ Quiz test kanalga muvaffaqiyatli chiqdi!")
+        
+        yakuniy_matn = tanlangan_post + imzo
+        
+        bot.send_message(CHANNEL_USERNAME, yakuniy_matn, parse_mode="Markdown")
+        bot.reply_to(message, "✅ Post va havolalar kanalga muvaffaqiyatli chiqdi!")
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
