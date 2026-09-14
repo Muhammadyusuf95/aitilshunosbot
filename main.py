@@ -53,7 +53,7 @@ SYSTEM_INSTRUCTION = (
     "5. Matnlar faqat sof, adabiy o'zbek tili (lotin alifbosida), yuksak pedagogik madaniyat va ilmiy etika bilan yozilishi shart."
 )
 
-# --- GEMINI 2.5 FLASH ORQALI ILMIY MATERIALLAR TAYYORLASH ---
+# --- GEMINI 3.6 FLASH ORQALI ILMIY MATERIALLAR TAYYORLASH ---
 def generate_ai_post(mavzu_turi="ilmiy"):
     mavzular = {
         "ilmiy": (
@@ -88,7 +88,7 @@ def generate_ai_post(mavzu_turi="ilmiy"):
     )
 
     response = ai_client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.6-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -97,7 +97,7 @@ def generate_ai_post(mavzu_turi="ilmiy"):
     )
     return response.text.strip() + IMZO
 
-# --- GEMINI 2.5 FLASH ORQALI BMB MEZONIDAGI TEST TUZISH ---
+# --- GEMINI 3.6 FLASH ORQALI BMB MEZONIDAGI TEST TUZISH ---
 def generate_ai_quiz():
     prompt = (
         "5-11-sinf Ona tili yoki Adabiyot darsliklari asosida BMB (DTM) davlat testlari standartlariga to'liq mos, "
@@ -113,7 +113,7 @@ def generate_ai_quiz():
     )
 
     response = ai_client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.6-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
