@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v3.1 Faol!"
+    return "AI Tilshunos & Metodist v3.2 Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -24,12 +24,12 @@ def run_web():
 threading.Thread(target=run_web, daemon=True).start()
 
 # --- SERVERNI UYG'OQ SAQLASH (SELF-PING) ---
-RENDER_APP_URL = "https://aitilshunosbot.onrender.com"  # Render panelingizdagi to'g'ri URL manzil
+RENDER_APP_URL = "https://aitilshunosbot.onrender.com"
 
 def keep_alive():
     while True:
         try:
-            time.sleep(600)  # Har 10 daqiqada (600 soniya) so'rov yuboradi
+            time.sleep(600)
             requests.get(RENDER_APP_URL)
             print("Server uyg'oq holatda saqlanmoqda (Self-ping yuborildi)...")
         except Exception as e:
@@ -42,9 +42,7 @@ TELEGRAM_TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 CHANNEL_USERNAME = "@onatilidanyordam"
-
-# Bot egasi sifatida sizning Telegram ID raqamingiz:
-ADMIN_ID = 5423849679
+ADMIN_ID = 5423849679  # Sizning Telegram ID raqamingiz
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
@@ -105,7 +103,6 @@ def deliver_response(user_id, text):
         pass
 
     if is_admin:
-        # Admin buyrug'i -> Kanalga chiqariladi
         try:
             bot.send_message(CHANNEL_USERNAME, text, parse_mode="Markdown")
             bot.send_message(user_id, f"✅ Siz admin bo'lganingiz uchun ushbu post **{CHANNEL_USERNAME}** kanaliga e'lon qilindi!", parse_mode="Markdown")
@@ -113,7 +110,6 @@ def deliver_response(user_id, text):
             bot.send_message(CHANNEL_USERNAME, text)
             bot.send_message(user_id, f"✅ Natija {CHANNEL_USERNAME} kanaliga chiqarildi.")
     else:
-        # Oddiy foydalanuvchi buyrug'i -> Faqat bot ichida o'ziga beriladi
         try:
             bot.send_message(user_id, text, parse_mode="Markdown")
         except Exception:
@@ -154,7 +150,7 @@ def send_subscription_prompt(chat_id):
     )
     bot.send_message(chat_id, matn, parse_mode="Markdown", reply_markup=markup)
 
-# --- GEMINI SISTEMASI ---
+# --- GEMINI ILMIY TIZIMI ---
 SYSTEM_INSTRUCTION = (
     "Siz O'zbekiston umumta'lim maktablari Ona tili va adabiyoti darsliklari, "
     "5 jildli 'O'zbek tilining izohli lug'ati' (O'TIL) hamda Shavkat Rahmatullayevning "
@@ -167,21 +163,39 @@ SYSTEM_INSTRUCTION = (
     "5. Siyosiy, diniy, davlatga zid yoki shaxs sha'niga tegadigan mavzular qat'iyan man etiladi."
 )
 
+# 503 xatosiga qarshi avtomatik qayta urinish va model almashtirish funksiyasi
 def generate_ai_content(prompt_text):
     full_prompt = (
         f"{prompt_text}\n\n"
         "Talablar: Telegram Markdown formatida, emojilar va aniq bo'limlar bilan, 2200 belgidan oshmasin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    response = ai_client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=full_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_INSTRUCTION,
-            temperature=0.4
-        )
-    )
-    return response.text.strip() + IMZO
+    
+    # Asosiy va zaxira modellar
+    models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro"]
+    
+    for model_name in models_to_try:
+        for attempt in range(2):  # Har bir modelda 2 martadan urinish
+            try:
+                response = ai_client.models.generate_content(
+                    model=model_name,
+                    contents=full_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        temperature=0.4
+                    )
+                )
+                if response and response.text:
+                    return response.text.strip() + IMZO
+            except Exception as e:
+                err_msg = str(e)
+                if "503" in err_msg or "UNAVAILABLE" in err_msg:
+                    time.sleep(2)  # 2 soniya kutib qayta urinish
+                    continue
+                else:
+                    raise e
+                    
+    raise Exception("Sun'iy intellekt serverlarida vaqtinchalik yuqori yuklama mavjud. Iltimos, 1 daqiqadan so'ng qayta urinib ko'ring.")
 
 def generate_ai_quiz():
     prompt = (
@@ -195,20 +209,35 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    response = ai_client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_INSTRUCTION,
-            temperature=0.3
-        )
-    )
-    raw = response.text.strip()
-    if "```json" in raw:
-        raw = raw.split("```json")[1].split("```")[0].strip()
-    elif "```" in raw:
-        raw = raw.split("```")[1].split("```")[0].strip()
-    return json.loads(raw)
+    
+    models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro"]
+    
+    for model_name in models_to_try:
+        for attempt in range(2):
+            try:
+                response = ai_client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        temperature=0.3
+                    )
+                )
+                raw = response.text.strip()
+                if "```json" in raw:
+                    raw = raw.split("```json")[1].split("```")[0].strip()
+                elif "```" in raw:
+                    raw = raw.split("```")[1].split("```")[0].strip()
+                return json.loads(raw)
+            except Exception as e:
+                err_msg = str(e)
+                if "503" in err_msg or "UNAVAILABLE" in err_msg:
+                    time.sleep(2)
+                    continue
+                else:
+                    raise e
+                    
+    raise Exception("Test tuzish tizimida vaqtinchalik yuklama. Birozdan so'ng qayta urinib ko'ring.")
 
 # --- MAXSUS BUYRUQ: TELEGRAM ID'NI ANIQLASH ---
 @bot.message_handler(commands=['myid'])
@@ -384,5 +413,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu())
 
-print("AI Tilshunos v3.1 ishga tushdi...")
+print("AI Tilshunos v3.2 barqaror rejimda ishga tushdi...")
 bot.infinity_polling()
