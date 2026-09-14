@@ -4,6 +4,7 @@ import json
 import random
 from flask import Flask
 import telebot
+from telebot import types as tele_types
 from google import genai
 from google.genai import types
 
@@ -20,9 +21,8 @@ def run_web():
 
 threading.Thread(target=run_web, daemon=True).start()
 
-# --- XAVFSIZLIK VA ASOSIY SOZLAMALAR ---
+# --- SOZLAMALAR VA KALITLAR ---
 TELEGRAM_TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
-# Kalit Render Environment'dan olinadi:
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 CHANNEL_USERNAME = "@aitilshunos"  # Kanalingiz usernamesi
@@ -36,73 +36,71 @@ IMZO = (
     "🤖 **Bilimingizni sinash uchun bot:** @aitilshunosbot"
 )
 
-# --- QAT'IY ILMIY, PEDAGOGIK VA QONUNIY TIZIMLI KO'RSATMA ---
+# --- MAJBURIY OBUNA TEKSHIRUVI ---
+def is_subscribed(user_id):
+    try:
+        chat_member = bot.get_chat_member(CHANNEL_USERNAME, user_id)
+        if chat_member.status in ['creator', 'administrator', 'member']:
+            return True
+        return False
+    except Exception:
+        # Xatolik bo'lsa yoki bot kanalda admin bo'lmasa, to'xtab qolmasligi uchun True qaytaradi
+        return True
+
+def send_subscription_prompt(chat_id):
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    # Kanalga o'tish tugmasi
+    btn_channel = tele_types.InlineKeyboardButton(
+        text="📢 Kanalga a'zo bo'lish", 
+        url=f"https://t.me/{CHANNEL_USERNAME.replace('@', '')}"
+    )
+    # Tekshirish tugmasi
+    btn_check = tele_types.InlineKeyboardButton(
+        text="✅ A'zo bo'ldim / Tekshirish", 
+        callback_data="check_sub"
+    )
+    markup.add(btn_channel, btn_check)
+
+    matn = (
+        "⚠️ **Botdan to'liq foydalanish uchun rasmiy kanalimizga a'zo bo'lishingiz lozim.**\n\n"
+        f"Kanalimiz: {CHANNEL_USERNAME}\n\n"
+        "A'zo bo'lgach, quyidagi **«A'zo bo'ldim / Tekshirish»** tugmasini bosing."
+    )
+    bot.send_message(chat_id, matn, parse_mode="Markdown", reply_markup=markup)
+
+# --- GEMINI SISTEMA KO'RSATMASI ---
 SYSTEM_INSTRUCTION = (
     "Siz O'zbekiston Respublikasi Xalq ta'limi tizimi va Bilim va malakalarni baholash agentligi (BMB/DTM) "
     "talablari asosida faoliyat yurituvchi nufuzli Ona tili va Adabiyot fani metodisti, leksikografi va ekspertisiz.\n\n"
-    "ASOSIY ILMIY MANBALAR VA STANDARTLAR:\n"
-    "1. 5-11-sinf Ona tili va Adabiyot darsliklari (davlat ta'lim standartlari doirasida).\n"
+    "ASOSIY STANDARTLAR:\n"
+    "1. 5-11-sinf Ona tili va Adabiyot darsliklari.\n"
     "2. 5 jildli 'O'zbek tilining izohli lug'ati' (O'TIL) mezonlari.\n"
-    "3. Shavkat Rahmatullayevning 'O'zbek tilining etimologik lug'ati' (turkiy, arabiy, forsiy-tojikiy asoslar).\n"
-    "4. Mumtoz adabiyot (Alisher Navoiy, Mirzo Bobur, Ogahiy, Fuzuliy) asarlari poetikasi va badiiy san'atlari.\n"
-    "5. Har bir post, lug'aviy tahlil, etimologik izoh va test oxirida ANIQ MANBA ko'rsatilsin "
-    "(Masalan: '📚 Manba: O'zbek tilining izohli lug'ati, II jild' yoki '📚 Manba: 9-sinf Adabiyot, G'azal tahlili').\n\n"
-    "QAT'IY QONUNIY VA AXLOQIY CHEKLOVLAR (BU CHEKLOVLARNI BUZISH MUTLAQO TAQIQLANADI):\n"
-    "1. O'zbekiston Respublikasining davlat tuzumi, suvereniteti, mustaqilligi va amaldagi qonunchiligiga zid har qanday fikr qat'iyan man etiladi.\n"
-    "2. Amaldagi davlat rahbariyati, davlat siyosati va davlat organlari faoliyatini tanqid qilish yoki muhokama qilish qat'iyan taqiqlanadi.\n"
-    "3. Diniy, siyosiy, huquqiy va ijtimoiy-bahsli mavzularga umuman daxl qilinmasin.\n"
-    "4. Hech qanday shaxsning sha'ni, qadr-qimmati kamsitilmasin, nizo keltirib chiqaruvchi jumlalar ishlatilmasin.\n"
-    "5. Matnlar faqat sof, mukammal adabiy o'zbek tilida (lotin alifbosida), yuksak filologik madaniyat bilan taqdim etilsin."
+    "3. Shavkat Rahmatullayevning 'O'zbek tilining etimologik lug'ati'.\n"
+    "4. Mumtoz adabiyot durdonalari poetikasi va badiiy san'atlari.\n"
+    "5. Har bir post va test oxirida ANIQ MANBA ko'rsatilsin.\n\n"
+    "QAT'IY TAQIQLAR:\n"
+    "1. Siyosiy, diniy, huquqiy mavzular va davlat tuzumiga qarshi fikrlar butunlay man etiladi.\n"
+    "2. Rahbariyat yoki davlat idoralarini tanqid qilish taqiqlanadi.\n"
+    "3. Inson sha'ni va qadr-qimmatini kamsitishga yo'l qo'yilmaydi."
 )
 
-# --- GEMINI ORQALI POSTLAR YARATISH ---
+# --- GEMINI MATN TAYYORLASH FUNKSIYASI ---
 def generate_ai_post(mavzu_turi="ilmiy"):
     mavzular = {
-        "ilmiy": (
-            "5-11-sinf Ona tili darsliklari asosida o'qituvchi va abituriyentlar uchun qiyin yoki nozik grammatik qoidalar, "
-            "morfemika, sintaktik aloqalar yoki imlo me'yorlari bo'yicha ilmiy-metodik post tayyorlang."
-        ),
-        "adabiyot": (
-            "5-11-sinf Adabiyot darsliklaridagi mumtoz yoki zamonaviy durdona asarlar tahlili, "
-            "obrazlar tizimi va adiblar mahorati haqida tahliliy post tayyorlang."
-        ),
-        "gazal": (
-            "Mumtoz adabiyotimiz durdonalaridan (Alisher Navoiy, Zahiriddin Muhammad Bobur, Lutfiy yoki Ogahiy) "
-            "1-2 bayt g'azal matnini keltirib, uning g'oyaviy-falsafiy ma'nosi, qo'llangan badiiy san'atlari "
-            "(tazod, tanosub, iytilof, tashbeh, istiora va b.) hamda darslikdagi ahamiyati bo'yicha yuksak darajadagi "
-            "badiiy-ilmiy tahlil tayyorlang. Baytdagi qiyin so'zlar sharhini ham bering."
-        ),
-        "izoh": (
-            "O'zbek tilining izohli lug'ati (5 jildlik) asosida darsliklarimizda va mumtoz matnlarda uchraydigan "
-            "1 yoki 2 ta ko'p ma'noli, faol yoki eskirgan (arxaik/tarixiy) so'zning lug'aviy izohini tayyorlang. "
-            "So'zning to'g'ri va ko'chma ma'nolari, uslubiy xoslanishi va darslikdagi badiiy asarlardan namunali jumlalar keltirilsin."
-        ),
-        "etimologiya": (
-            "Shavkat Rahmatullayevning 'O'zbek tilining etimologik lug'ati' asosida o'zbek tilidagi qiziqarli "
-            "1-2 ta so'zning kelib chiqish tarixini tahlil qiling. So'zning qadimgi turkiy, arabiy yoki forsiy ildizi, "
-            "birlamchi tovush o'zgarishlari va tarixiy ma'nosi qanday o'zgarganini aniq va ilmiy-ommabop tilda yoritib bering."
-        ),
-        "esse": (
-            "Ona tili va adabiyot darsliklari asosida BMB talablariga mos bitta namunaviy esse mavzusi, "
-            "uning mukammal rejasi, asosiy tezislari va adabiy dalillari berilgan metodik tavsiya tayyorlang."
-        ),
-        "fakt": (
-            "Darsliklarimiz doirasida o'quvchi va abituriyentlar kam e'tibor beradigan qiziqarli til hodisasi, "
-            "etnolingvistik jihat yoki mumtoz asarlarga oid qiziqarli ilmiy fakt haqida post tayyorlang."
-        ),
-        "motivatsiya": (
-            "Alisher Navoiy, Bobur, Abdulla Qodiriy kabi buyuk ajdodlarimizning ilm-ma'rifat, vaqt qadri, "
-            "kitob mutolaasi va tilni e'zozlash haqidagi ibratli fikrlari asosida motivatsion post tayyorlang."
-        )
+        "ilmiy": "5-11-sinf Ona tili darsliklari asosida qiyin grammatik qoidalar bo'yicha metodik post tayyorlang.",
+        "adabiyot": "5-11-sinf Adabiyot darsliklaridagi durdona asarlar va qahramonlar tahlili haqida post tayyorlang.",
+        "gazal": "Mumtoz adabiyotimizdan 1-2 bayt keltirib, badiiy san'atlari va ma'nosini sharhlovchi g'azal tahlili yozing.",
+        "izoh": "O'zbek tilining izohli lug'ati (O'TIL) asosida darslikdagi 1 ta murakkab so'zning to'liq izohini tayyorlang.",
+        "etimologiya": "O'zbek tilining etimologik lug'ati asosida 1 ta so'zning tarixiy kelib chiqishini tahlil qilib bering.",
+        "esse": "Ona tili va adabiyotdan BMB mezonidagi 1 ta namunaviy esse rejasi va tezislari bilan post tuzing.",
+        "fakt": "Darsliklar doirasidagi qiziqarli til hodisasi yoki adabiy fakt haqida post tayyorlang.",
+        "motivatsiya": "Mumtoz adiblarimizdan ilm, mutolaa va kamolot haqida ibratli post yozing."
     }
 
     prompt = (
         f"{mavzular.get(mavzu_turi, mavzular['ilmiy'])}\n\n"
-        "Talablar:\n"
-        "- Matnni chiroyli sarlavhalar, bo'limlar va mos emojilar bilan Telegram Markdown formatida tuzing.\n"
-        "- Post so'ngida aniq manbani ('📚 Manba:' ko'rinishida) ko'rsating.\n"
-        "- Siyosiy, diniy, huquqiy va davlatga zid mavzularga aslo yaqinlashmang.\n"
-        "- To'g'ridan-to'g'ri kanalga chiqarishga tayyor, sifatli matn taqdim eting."
+        "Talablar: Telegram Markdown formatida, emojilar bilan, oxirida '📚 Manba:' bo'lsin. "
+        "Ortiqcha so'zsiz to'g'ridan-to'g'ri kanalga tayyor post bering."
     )
 
     response = ai_client.models.generate_content(
@@ -115,19 +113,17 @@ def generate_ai_post(mavzu_turi="ilmiy"):
     )
     return response.text.strip() + IMZO
 
-# --- GEMINI ORQALI BMB QUIZ TESTI ---
 def generate_ai_quiz():
     prompt = (
-        "5-11-sinf Ona tili yoki Adabiyot darsliklari (shu jumladan O'TIL, she'riy san'atlar yoki asarlar) asosida "
-        "BMB (DTM) davlat imtihonlari darajasidagi 4 variantli (A, B, C, D) 1 ta murakkab va mantiqiy Quiz test tuzing.\n"
-        "Faqat va faqat quyidagi JSON formatida javob bering:\n"
+        "5-11-sinf Ona tili yoki Adabiyot darsliklari asosida BMB (DTM) standartida 4 variantli (A, B, C, D) "
+        "1 ta Quiz test tuzing. Faqat quyidagi JSON formatida javob bering:\n"
         "{\n"
-        '  "question": "Savol matni (bayt tahlili, qoida, so\'z ma\'nosi yoki badiiy san\'at yuzasidan)",\n'
+        '  "question": "Savol matni",\n'
         '  "options": ["A varianti", "B varianti", "C varianti", "D varianti"],\n'
         '  "correct_option_id": 0,\n'
-        '  "explanation": "To\'g\'ri javob izohi va aniq manba (darslik yoki lug\'at nomi, 200 belgidan oshmasin)"\n'
+        '  "explanation": "To\'g\'ri javob izohi va darslik manbasi (200 belgidan oshmasin)"\n'
         "}\n"
-        "correct_option_id faqat to'g'ri javobning indeksi bo'lsin: 0, 1, 2 yoki 3."
+        "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
 
     response = ai_client.models.generate_content(
@@ -147,69 +143,96 @@ def generate_ai_quiz():
         
     return json.loads(raw_text)
 
-# --- BOT BUYRUQLARI ---
+# --- BOT BUYRUQLARI (OBUNA TEKSHIRUVI BILAN) ---
+def check_user_access(message):
+    if not is_subscribed(message.from_user.id):
+        send_subscription_prompt(message.chat.id)
+        return False
+    return True
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    if not check_user_access(message):
+        return
+
     matn = (
         "Assalomu alaykum! Ona tili va adabiyot ilmiy-ta'limiy botiga xush kelibsiz.\n\n"
-        "Barcha materiallar darsliklar, O'zbek tilining izohli hamda etimologik lug'atlari asosida tayyorlanadi.\n\n"
+        "Barcha materiallar darsliklar, O'TIL va etimologik lug'at asosida beriladi.\n\n"
         "📌 **Kanalga chiqarish buyruqlari:**\n"
-        "📜 /gazal — Mumtoz g'azallar va baytlar badiiy tahlili\n"
-        "📖 /izoh — Izohli lug'at asosida so'zlar sharhi (O'TIL)\n"
-        "🔍 /etimologiya — So'zlar tarixi va etimologik tahlili\n"
-        "🔹 /post — Grammatika va til qoidalari metodikasi\n"
-        "🔹 /adabiyot — Darslikdagi adabiy asarlar tahlili\n"
-        "🔹 /esse — BMB talabidagi esse/insho rejalari\n"
-        "🔹 /fakt — Fanga oid qiziqarli darslik faktlari\n"
-        "🔹 /motivatsiya — Mumtoz adiblardan ibratli fikrlar\n"
-        "🔹 /test — DTM/BMB mezonidagi Quiz testi\n"
-        "🎲 /random — Yuqoridagilardan birini tasodifiy chiqarish"
+        "📜 /gazal — Mumtoz g'azallar badiiy tahlili\n"
+        "📖 /izoh — Izohli lug'at (O'TIL) asosida so'z sharhi\n"
+        "🔍 /etimologiya — So'zlar etimologiyasi\n"
+        "🔹 /post — Ona tili grammatikasi tahlili\n"
+        "🔹 /adabiyot — Adabiy asarlar tahlili\n"
+        "🔹 /esse — BMB namunaviy esse rejalari\n"
+        "🔹 /fakt — Qiziqarli fanga oid faktlar\n"
+        "🔹 /motivatsiya — Ilmiy-ma'rifiy motivatsiya\n"
+        "🔹 /test — DTM mezonidagi Quiz testi"
     )
     bot.reply_to(message, matn)
 
+# «A'zo bo'ldim / Tekshirish» tugmasi bosilganda:
+@bot.callback_query_handler(func=lambda call: call.data == "check_sub")
+def callback_check_sub(call):
+    if is_subscribed(call.from_user.id):
+        bot.answer_callback_query(call.id, "✅ Obuna tasdiqlandi! Xush kelibsiz.")
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        send_welcome(call.message)
+    else:
+        bot.answer_callback_query(
+            call.id, 
+            "❌ Siz hali kanalga a'zo bo'lmadingiz. Iltimos, avval kanalga obuna bo'ling!", 
+            show_alert=True
+        )
+
 @bot.message_handler(commands=['gazal'])
 def publish_gazal(message):
-    bot.reply_to(message, "⏳ Mumtoz g'azal va bayt tahlili tayyorlanmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ Mumtoz g'azal tahlili tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="gazal")
         bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
-        bot.reply_to(message, "✅ G'azal tahlili kanalga muvaffaqiyatli chiqdi!")
+        bot.reply_to(message, "✅ G'azal tahlili kanalga chiqdi!")
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
 @bot.message_handler(commands=['izoh'])
 def publish_izoh(message):
-    bot.reply_to(message, "⏳ Izohli lug'at (O'TIL) asosida so'z sharhi tayyorlanmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ O'TIL asosida so'z izohi tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="izoh")
         bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
-        bot.reply_to(message, "✅ So'z izohi kanalga muvaffaqiyatli chiqdi!")
+        bot.reply_to(message, "✅ So'z izohi kanalga chiqdi!")
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
 @bot.message_handler(commands=['etimologiya'])
 def publish_etimologiya(message):
-    bot.reply_to(message, "⏳ Etimologik lug'at asosida so'z tarixi tahlil qilinmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ Etimologik tahlil tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="etimologiya")
         bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
-        bot.reply_to(message, "✅ Etimologik tahlil kanalga muvaffaqiyatli chiqdi!")
+        bot.reply_to(message, "✅ Etimologik tahlil kanalga chiqdi!")
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
 @bot.message_handler(commands=['post'])
 def publish_post(message):
-    bot.reply_to(message, "⏳ Darsliklar asosida ilmiy post tayyorlanmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ Grammatik post tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="ilmiy")
         bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
-        bot.reply_to(message, "✅ Ilmiy post kanalga chiqdi!")
+        bot.reply_to(message, "✅ Post kanalga chiqdi!")
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
 @bot.message_handler(commands=['adabiyot'])
 def publish_adabiyot(message):
-    bot.reply_to(message, "⏳ Adabiyot darsliklari asosida tahlil tayyorlanmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ Asar tahlili tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="adabiyot")
         bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
@@ -219,17 +242,19 @@ def publish_adabiyot(message):
 
 @bot.message_handler(commands=['esse'])
 def publish_esse(message):
-    bot.reply_to(message, "⏳ Esse reja va tahlili tayyorlanmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ Esse namunasi tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="esse")
         bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
-        bot.reply_to(message, "✅ Esse materiali kanalga chiqdi!")
+        bot.reply_to(message, "✅ Esse kanalga chiqdi!")
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
 @bot.message_handler(commands=['fakt'])
 def publish_fakt(message):
-    bot.reply_to(message, "⏳ Qiziqarli fakt tayyorlanmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ Fakt tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="fakt")
         bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
@@ -239,6 +264,7 @@ def publish_fakt(message):
 
 @bot.message_handler(commands=['motivatsiya'])
 def publish_motivatsiya(message):
+    if not check_user_access(message): return
     bot.reply_to(message, "⏳ Motivatsion post tayyorlanmoqda...")
     try:
         matn = generate_ai_post(mavzu_turi="motivatsiya")
@@ -249,7 +275,8 @@ def publish_motivatsiya(message):
 
 @bot.message_handler(commands=['test'])
 def publish_quiz(message):
-    bot.reply_to(message, "⏳ BMB Quiz testi tuzilmoqda...")
+    if not check_user_access(message): return
+    bot.reply_to(message, "⏳ Quiz test tuzilmoqda...")
     try:
         quiz = generate_ai_quiz()
         bot.send_poll(
@@ -265,22 +292,5 @@ def publish_quiz(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik: {e}")
 
-@bot.message_handler(commands=['random'])
-def publish_random(message):
-    tanlov = random.choice([
-        "gazal", "izoh", "etimologiya", "post", 
-        "adabiyot", "esse", "fakt", "motivatsiya", "test"
-    ])
-    if tanlov == "test":
-        publish_quiz(message)
-    else:
-        bot.reply_to(message, f"⏳ Tasodifiy tanlov bo'yicha '{tanlov}' tayyorlanmoqda...")
-        try:
-            matn = generate_ai_post(mavzu_turi=tanlov)
-            bot.send_message(CHANNEL_USERNAME, matn, parse_mode="Markdown")
-            bot.reply_to(message, f"✅ '{tanlov}' bo'limi kanalga chiqdi!")
-        except Exception as e:
-            bot.reply_to(message, f"❌ Xatolik: {e}")
-
-print("Akademik tilshunoslik va adabiyot boti faol ishga tushdi...")
+print("Majburiy a'zolik tizimiga ega bot ishga tushdi...")
 bot.infinity_polling()
