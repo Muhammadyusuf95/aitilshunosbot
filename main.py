@@ -2,6 +2,8 @@ import os
 import threading
 import json
 import random
+import time
+import requests
 from flask import Flask
 import telebot
 from telebot import types as tele_types
@@ -21,15 +23,28 @@ def run_web():
 
 threading.Thread(target=run_web, daemon=True).start()
 
+# --- SERVERNI UYG'OQ SAQLASH (SELF-PING) ---
+RENDER_APP_URL = "https://aitilshunosbot.onrender.com"  # Render panelingizdagi to'g'ri URL manzil
+
+def keep_alive():
+    while True:
+        try:
+            time.sleep(600)  # Har 10 daqiqada (600 soniya) so'rov yuboradi
+            requests.get(RENDER_APP_URL)
+            print("Server uyg'oq holatda saqlanmoqda (Self-ping yuborildi)...")
+        except Exception as e:
+            print(f"Ping xatosi: {e}")
+
+threading.Thread(target=keep_alive, daemon=True).start()
+
 # --- SOZLAMALAR ---
 TELEGRAM_TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 CHANNEL_USERNAME = "@onatilidanyordam"
 
-# ⚠️ DIQQAT: Botga /myid deb yozsangiz, u sizga Telegram ID raqamingizni aytadi.
-# O'sha raqamni mana shu yerga yozing:
-ADMIN_ID = 5423849679  # O'z ID raqamingizni kiriting
+# Bot egasi sifatida sizning Telegram ID raqamingiz:
+ADMIN_ID = 5423849679
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
@@ -95,7 +110,6 @@ def deliver_response(user_id, text):
             bot.send_message(CHANNEL_USERNAME, text, parse_mode="Markdown")
             bot.send_message(user_id, f"✅ Siz admin bo'lganingiz uchun ushbu post **{CHANNEL_USERNAME}** kanaliga e'lon qilindi!", parse_mode="Markdown")
         except Exception:
-            # Agar Markdown formatda xatolik bo'lsa, oddiy matn qilib chiqaradi
             bot.send_message(CHANNEL_USERNAME, text)
             bot.send_message(user_id, f"✅ Natija {CHANNEL_USERNAME} kanaliga chiqarildi.")
     else:
@@ -200,7 +214,7 @@ def generate_ai_quiz():
 @bot.message_handler(commands=['myid'])
 def get_user_id(message):
     u_id = message.from_user.id
-    bot.reply_to(message, f"🆔 Sizning Telegram ID raqamingiz: `{u_id}`\n\nUshbu raqamni koddagi `ADMIN_ID = {u_id}` qatoriga qo'ysangiz, barcha buyruqlaringiz kanalga chiqadi.", parse_mode="Markdown")
+    bot.reply_to(message, f"🆔 Sizning Telegram ID raqamingiz: `{u_id}`\n\nUshbu raqam koddagi `ADMIN_ID = {u_id}` sifatida belgilangan.", parse_mode="Markdown")
 
 # --- START VA OBUNA ---
 @bot.message_handler(commands=['start'])
