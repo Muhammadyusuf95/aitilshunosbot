@@ -29,7 +29,7 @@ CHANNEL_USERNAME = "@onatilidanyordam"
 
 # ⚠️ DIQQAT: Botga /myid deb yozsangiz, u sizga Telegram ID raqamingizni aytadi.
 # O'sha raqamni mana shu yerga yozing:
-ADMIN_ID = 123456789  # O'z ID raqamingizni kiriting
+ADMIN_ID = 5423849679  # O'z ID raqamingizni kiriting
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
