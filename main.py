@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v4.3 (Admin & Stats) Faol!"
+    return "AI Tilshunos & Metodist v4.4 (Admin, Stats & Error Diagnosis) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -49,7 +49,6 @@ ADMIN_ID = 5423849679
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
-CURRENT_AI_MODEL = "gemini-2.5-flash"
 USERS_FILE = "users.json"
 
 IMZO = (
@@ -106,7 +105,6 @@ def get_main_menu(user_id=None):
         tele_types.KeyboardButton("🔤 Imlo va orfoepiya"),
         tele_types.KeyboardButton("🧠 BMB Quiz Test")
     )
-    # Admin uchun maxsus statistika va boshqaruv tugmasi
     if user_id and int(user_id) == int(ADMIN_ID):
         markup.add(tele_types.KeyboardButton("📊 Statistika (Admin)"))
     return markup
@@ -199,13 +197,15 @@ SYSTEM_INSTRUCTION = (
     "5. Har bir javob oxirida '📚 Manba:' keltirilsin. Siyosiy va diniy mavzular qat'iyan taqiqlanadi."
 )
 
+# --- ANIQ XATOLIKNI KO'RSATUVCHI AI FUNKSIYASI ---
 def generate_ai_content(prompt_text):
     full_prompt = (
         f"{prompt_text}\n\n"
         "Talablar: Telegram Markdown formatida, emojilar bilan, 2500 belgidan oshmasin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    models = [CURRENT_AI_MODEL, "gemini-2.0-flash"]
+    last_error_msg = ""
+    models = ["gemini-2.5-flash", "gemini-2.0-flash"]
     for model_name in models:
         for attempt in range(2):
             try:
@@ -220,16 +220,17 @@ def generate_ai_content(prompt_text):
                 if response and response.text:
                     return response.text.strip() + IMZO
             except Exception as e:
-                err = str(e)
-                if "429" in err or "RESOURCE_EXHAUSTED" in err:
-                    time.sleep(11)
-                    continue
-                elif "503" in err or "UNAVAILABLE" in err:
+                last_error_msg = str(e)
+                print(f"Xatolik qayd etildi ({model_name}): {e}")
+                if "429" in last_error_msg or "RESOURCE_EXHAUSTED" in last_error_msg:
                     time.sleep(3)
+                    continue
+                elif "503" in last_error_msg or "UNAVAILABLE" in last_error_msg:
+                    time.sleep(2)
                     continue
                 else:
                     break
-    raise Exception("Sun'iy intellekt tizimi ayni daqiqada band. Birozdan so'ng qayta urinib ko'ring.")
+    raise Exception(f"AI Xatolik tafsiloti: {last_error_msg[:300]}")
 
 def generate_ai_quiz():
     prompt = (
@@ -243,7 +244,8 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    models = [CURRENT_AI_MODEL, "gemini-2.0-flash"]
+    models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+    last_error_msg = ""
     for model_name in models:
         for attempt in range(2):
             try:
@@ -262,16 +264,16 @@ def generate_ai_quiz():
                     raw = raw.split("```")[1].split("```")[0].strip()
                 return json.loads(raw)
             except Exception as e:
-                err = str(e)
-                if "429" in err or "RESOURCE_EXHAUSTED" in err:
-                    time.sleep(11)
-                    continue
-                elif "503" in err or "UNAVAILABLE" in err:
+                last_error_msg = str(e)
+                if "429" in last_error_msg or "RESOURCE_EXHAUSTED" in last_error_msg:
                     time.sleep(3)
+                    continue
+                elif "503" in last_error_msg or "UNAVAILABLE" in last_error_msg:
+                    time.sleep(2)
                     continue
                 else:
                     break
-    raise Exception("Test tuzish tizimida yuklama yuz berdi.")
+    raise Exception(f"Test tizimida xato: {last_error_msg[:300]}")
 
 # --- AVTOMATLASHGAN KANAL JADVALI (AUTO-POSTING) ---
 def auto_poster_loop():
@@ -336,14 +338,12 @@ def show_admin_stats(chat_id):
     users = load_users()
     total_users = len(users)
     
-    # Kanal obunachilari sonini olish
     channel_members = "Aniqlanmadi"
     try:
         channel_members = bot.get_chat_member_count(CHANNEL_USERNAME)
     except Exception:
         pass
 
-    # Oxirgi 10 ta foydalanuvchi
     last_users_text = ""
     for idx, (uid, data) in enumerate(list(users.items())[-10:], 1):
         uname = f"@{data['username']}" if data.get("username") else "usernamesiz"
@@ -410,7 +410,7 @@ def send_welcome(message):
 
     text = (
         "╔════════════════════════╗\n"
-        "  ✨ **AI TILSHUNOS & METODIST v4.3**\n"
+        "  ✨ **AI TILSHUNOS & METODIST v4.4**\n"
         "╚════════════════════════╝\n\n"
         "Assalomu alaykum, aziz ustoz, tadqiqotchi va talaba!\n\n"
         "Botingiz quyidagi ilmiy va metodik xizmatlarni taqdim etadi:\n\n"
@@ -449,7 +449,7 @@ def process_custom_step(message, prompt_template):
         result = generate_ai_content(final_prompt)
         deliver_response(message.from_user.id, result)
     except Exception as e:
-        bot.reply_to(message, f"❌ Xatolik yuz berdi: {e}")
+        bot.reply_to(message, f"❌ {e}")
 
 # --- ASOSIY MENYU VA BUYRUQLAR ---
 @bot.message_handler(func=lambda msg: True)
@@ -466,12 +466,10 @@ def handle_all_messages(message):
         bot.send_message(message.chat.id, "Asosiy menyudasiz:", reply_markup=get_main_menu(message.from_user.id))
         return
 
-    # ADMIN STATISTIKA TUGMASI
     elif text == "📊 Statistika (Admin)" and int(message.from_user.id) == int(ADMIN_ID):
         show_admin_stats(message.chat.id)
         return
 
-    # 1. DARS ISHLANMASI (KONSPEKT)
     elif text == "📋 Dars ishlanmasi (Konspekt)":
         msg = bot.reply_to(
             message, 
@@ -490,7 +488,6 @@ def handle_all_messages(message):
         )
         bot.register_next_step_handler(msg, process_custom_step, p)
 
-    # 2. ESSE TEKSHIRUVI
     elif text == "📝 Esse tekshiruvi (BMB/Sertifikat)":
         msg = bot.reply_to(
             message,
@@ -511,7 +508,6 @@ def handle_all_messages(message):
         )
         bot.register_next_step_handler(msg, process_custom_step, p)
 
-    # 3. ARUZ VAZNI TAHLILI
     elif text == "📐 Aruz vazni tahlili":
         msg = bot.reply_to(
             message,
@@ -528,7 +524,6 @@ def handle_all_messages(message):
         )
         bot.register_next_step_handler(msg, process_custom_step, p)
 
-    # 4. QADIMGI VA ESKI TURKIY LEKSIKASI
     elif text == "🏛 Eski turkiy leksikasi":
         bot.send_message(message.chat.id, "🏛 **Eski turkiy va Chig'atoy tili leksikasi:**\nTanlang:", reply_markup=get_sub_menu("qadim"))
 
@@ -545,7 +540,6 @@ def handle_all_messages(message):
         p = "Mumtoz asarlarda (Boburnoma, Xamsa yoki Devonu lug'atit turk) uchraydigan tasodifiy 1 ta qiziqarli arxaik so'zni tanlab, uning to'liq filologik sharhini bering."
         deliver_response(message.from_user.id, generate_ai_content(p))
 
-    # 5. IMLO VA ORFOEPIYA
     elif text == "🔤 Imlo va orfoepiya":
         msg = bot.reply_to(
             message,
@@ -560,7 +554,6 @@ def handle_all_messages(message):
         )
         bot.register_next_step_handler(msg, process_custom_step, p)
 
-    # 6. INTERFAOL METODLAR
     elif text == "🎯 Interfaol metodlar":
         bot.send_message(message.chat.id, "🎯 **Interfaol metodlar bo'limi:**", reply_markup=get_sub_menu("metod"))
 
@@ -574,7 +567,6 @@ def handle_all_messages(message):
         p = "Ona tili yoki adabiyot fanidan tasodifiy bir mavzuga qiziqarli interfaol metod ishlab chiqing. Mavzu, Metod nomi, Darsdagi o'rni, Bosqichlari va Topshiriqni bering."
         deliver_response(message.from_user.id, generate_ai_content(p))
 
-    # 7. G'AZAL TAHLILI
     elif text == "📜 G'azal va bayt tahlili":
         bot.send_message(message.chat.id, "📜 **G'azal tahlili bo'limi:**", reply_markup=get_sub_menu("gazal"))
 
@@ -588,7 +580,6 @@ def handle_all_messages(message):
         p = "Mumtoz adabiyotimizdan (Navoiy, Bobur, Lutfiy yoki Ogahiy) 1-2 bayt keltirib, badiiy san'atlari, falsafiy ma'nosi va so'zlar sharhini yozing."
         deliver_response(message.from_user.id, generate_ai_content(p))
 
-    # 8. O'TIL VA ETIMOLOGIYA
     elif text == "📖 So'z izohi (O'TIL)":
         msg = bot.reply_to(message, "📖 Izohli lug'at (O'TIL) bo'yicha tahlil qilish uchun so'zni yuboring:")
         p = "O'zbek tilining izohli lug'ati (O'TIL) asosida '{input}' so'zining to'liq leksik ma'nolari, uslubiy xoslanishi va matndan namunali gaplarni bering."
@@ -599,7 +590,6 @@ def handle_all_messages(message):
         p = "Shavkat Rahmatullayevning 'O'zbek tilining etimologik lug'ati' asosida '{input}' so'zining tarixiy ildizi, o'zagi va ma'no taraqqiyotini tahlil qiling."
         bot.register_next_step_handler(msg, process_custom_step, p)
 
-    # 9. BMB QUIZ TEST
     elif text == "🧠 BMB Quiz Test":
         bot.reply_to(message, "⏳ BMB mezonidagi Quiz testi tuzilmoqda...")
         try:
@@ -618,10 +608,10 @@ def handle_all_messages(message):
             if is_admin:
                 bot.reply_to(message, f"✅ Test {CHANNEL_USERNAME} kanaliga e'lon qilindi!")
         except Exception as e:
-            bot.reply_to(message, f"❌ Xatolik: {e}")
+            bot.reply_to(message, f"❌ {e}")
 
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
 
-print("AI Tilshunos v4.3 (Admin & Stats) faol ishga tushdi...")
+print("AI Tilshunos v4.4 (Admin, Stats & Error Diagnosis) faol ishga tushdi...")
 bot.infinity_polling()
