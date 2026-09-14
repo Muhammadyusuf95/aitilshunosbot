@@ -3,6 +3,8 @@ import threading
 import json
 import random
 import time
+from datetime import datetime
+import pytz
 import requests
 from flask import Flask
 import telebot
@@ -15,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v3.2 Faol!"
+    return "AI Tilshunos & Metodist v4.0 (Akademik & Auto-posting) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -31,13 +33,13 @@ def keep_alive():
         try:
             time.sleep(600)
             requests.get(RENDER_APP_URL)
-            print("Server uyg'oq holatda saqlanmoqda (Self-ping yuborildi)...")
+            print("Server uyg'oq holatda saqlanmoqda (Self-ping)...")
         except Exception as e:
             print(f"Ping xatosi: {e}")
 
 threading.Thread(target=keep_alive, daemon=True).start()
 
-# --- SOZLAMALAR ---
+# --- ASOSIY SOZLAMALAR ---
 TELEGRAM_TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
@@ -53,23 +55,27 @@ IMZO = (
     "✨ **Pedagogik & Ilmiy bot:** @aitilshunosbot"
 )
 
-# --- MENYULAR ---
+# --- MENYULAR TUZILISHI ---
 def get_main_menu():
     markup = tele_types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(
+        tele_types.KeyboardButton("📋 Dars ishlanmasi (Konspekt)"),
+        tele_types.KeyboardButton("📝 Esse tekshiruvi (BMB/Sertifikat)")
+    )
+    markup.add(
         tele_types.KeyboardButton("🎯 Interfaol metodlar"),
         tele_types.KeyboardButton("📜 G'azal va bayt tahlili")
+    )
+    markup.add(
+        tele_types.KeyboardButton("📐 Aruz vazni tahlili"),
+        tele_types.KeyboardButton("🏛 Eski turkiy leksikasi")
     )
     markup.add(
         tele_types.KeyboardButton("📖 So'z izohi (O'TIL)"),
         tele_types.KeyboardButton("🔍 So'z etimologiyasi")
     )
     markup.add(
-        tele_types.KeyboardButton("📝 Grammatika & Qoidalar"),
-        tele_types.KeyboardButton("📚 Adabiy tahlil")
-    )
-    markup.add(
-        tele_types.KeyboardButton("✍️ Namunaviy esse"),
+        tele_types.KeyboardButton("🔤 Imlo va orfoepiya"),
         tele_types.KeyboardButton("🧠 BMB Quiz Test")
     )
     return markup
@@ -81,16 +87,16 @@ def get_sub_menu(category):
         "gazal": ("✍️ Baytni o'zim kiritaman", "🎲 Tasodifiy g'azal"),
         "izoh": ("✍️ So'zni o'zim kiritaman", "🎲 Tasodifiy so'z izohi"),
         "etimologiya": ("✍️ So'zni o'zim kiritaman", "🎲 Tasodifiy etimologiya"),
-        "grammatika": ("✍️ Qoidani o'zim kiritaman", "🎲 Tasodifiy qoida"),
-        "adabiyot": ("✍️ Asarni o'zim kiritaman", "🎲 Tasodifiy asar tahlili"),
-        "esse": ("✍️ Esse mavzusini kiritaman", "🎲 Tasodifiy esse rejasi")
+        "aruz": ("✍️ Baytni kiritish", "🔙 Asosiy menyu"),
+        "qadim": ("✍️ Tarixiy so'zni kiritish", "🎲 Tasodifiy qadimgi so'z"),
+        "imlo": ("✍️ So'z/gap imlosini tekshirish", "🔙 Asosiy menyu")
     }
     btn1, btn2 = labels.get(category, ("✍️ O'zim kiritaman", "🎲 Tasodifiy"))
     markup.add(tele_types.KeyboardButton(btn1), tele_types.KeyboardButton(btn2))
     markup.add(tele_types.KeyboardButton("🔙 Asosiy menyu"))
     return markup
 
-# --- NATIJANI YO'NALTIRISH (ADMIN -> KANAL, FOYDALANUVCHI -> BOT) ---
+# --- NATIJANI YO'NALTIRISH ---
 def deliver_response(user_id, text):
     if len(text) > 3900:
         text = text[:3900] + "...\n*(Davomi qisqartirildi)*"
@@ -150,32 +156,29 @@ def send_subscription_prompt(chat_id):
     )
     bot.send_message(chat_id, matn, parse_mode="Markdown", reply_markup=markup)
 
-# --- GEMINI ILMIY TIZIMI ---
+# --- GEMINI SISTEMA KO'RSATMASI ---
 SYSTEM_INSTRUCTION = (
-    "Siz O'zbekiston umumta'lim maktablari Ona tili va adabiyoti darsliklari, "
-    "5 jildli 'O'zbek tilining izohli lug'ati' (O'TIL) hamda Shavkat Rahmatullayevning "
-    "'O'zbek tilining etimologik lug'ati' mezonlari asosida tahlil beruvchi nufuzli metodist va leksikografsiz.\n"
-    "1. Metodlar ishlab chiqilganda: Mavzu, metod nomi, darsdagi o'rni, bosqichma-bosqich qo'llash tartibi va "
-    "darslikdan namunaviy topshiriq to'liq keltirilsin.\n"
-    "2. So'z izohida: O'TIL mezonida barcha leksik ma'nolari va matndan misol berilsin.\n"
-    "3. Etimologiyada: So'zning birlamchi tarixiy ildizi (turkiy, arabiy, forsiy), fonetik o'zgarishlari tushuntirilsin.\n"
-    "4. Oxirida '📚 Manba:' ko'rsatilsin.\n"
-    "5. Siyosiy, diniy, davlatga zid yoki shaxs sha'niga tegadigan mavzular qat'iyan man etiladi."
+    "Siz O'zbekiston Respublikasi maktab va litseylari Ona tili va adabiyoti fani bo'yicha "
+    "bosh metodist, filolog-matnshunos olim va BMB/Milliy sertifikat bo'yicha oliy toifali ekspertisiz.\n"
+    "ASOSIY TALABLAR:\n"
+    "1. Dars ishlanmasi: DTS talablari, dars maqsadi (ta'limiy, tarbiyaviy, rivojlantiruvchi), "
+    "jihozlar va 45 daqiqalik dars bosqichlari (kirish, yangi mavzu, mustahkamlash, baholash, uyga vazifa) aniq tuzilsin.\n"
+    "2. Esse tekshiruvi: 50 ballik mezon asosida (Mavzu ochilishi: 15 ball, Dalillar: 10 ball, "
+    "Mantiq/kompozitsiya: 10 ball, Imlo/grammatika: 15 ball) qat'iy va asosli baholansin, aniq xatolar ko'rsatilsin.\n"
+    "3. Aruz vazni: Hijolarni (ochiq, yopiq, cho'ziq) qat'iy belgilab, ruknlarini va aruz bahrini (hazaj, ramal va h.k.) tushuntiring.\n"
+    "4. Eski turkiy: 'Devonu lug'atit turk', Boburnoma va Navoiy asarlari leksikasi bo'yicha tarixiy o'zak va ma'no bering.\n"
+    "5. Har bir javob oxirida '📚 Manba:' keltirilsin. Siyosiy, diniy, davlatga zid mavzular qat'iyan taqiqlanadi."
 )
 
-# 503 xatosiga qarshi avtomatik qayta urinish va model almashtirish funksiyasi
 def generate_ai_content(prompt_text):
     full_prompt = (
         f"{prompt_text}\n\n"
-        "Talablar: Telegram Markdown formatida, emojilar va aniq bo'limlar bilan, 2200 belgidan oshmasin. "
+        "Talablar: Telegram Markdown formatida, emojilar va aniq bo'limlar bilan, 2500 belgidan oshmasin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    
-    # Asosiy va zaxira modellar
     models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro"]
-    
     for model_name in models_to_try:
-        for attempt in range(2):  # Har bir modelda 2 martadan urinish
+        for attempt in range(2):
             try:
                 response = ai_client.models.generate_content(
                     model=model_name,
@@ -188,14 +191,12 @@ def generate_ai_content(prompt_text):
                 if response and response.text:
                     return response.text.strip() + IMZO
             except Exception as e:
-                err_msg = str(e)
-                if "503" in err_msg or "UNAVAILABLE" in err_msg:
-                    time.sleep(2)  # 2 soniya kutib qayta urinish
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    time.sleep(2)
                     continue
                 else:
                     raise e
-                    
-    raise Exception("Sun'iy intellekt serverlarida vaqtinchalik yuqori yuklama mavjud. Iltimos, 1 daqiqadan so'ng qayta urinib ko'ring.")
+    raise Exception("Sun'iy intellekt serverida yuklama. Birozdan so'ng urinib ko'ring.")
 
 def generate_ai_quiz():
     prompt = (
@@ -209,9 +210,7 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    
     models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro"]
-    
     for model_name in models_to_try:
         for attempt in range(2):
             try:
@@ -230,20 +229,80 @@ def generate_ai_quiz():
                     raw = raw.split("```")[1].split("```")[0].strip()
                 return json.loads(raw)
             except Exception as e:
-                err_msg = str(e)
-                if "503" in err_msg or "UNAVAILABLE" in err_msg:
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
                     time.sleep(2)
                     continue
                 else:
                     raise e
-                    
-    raise Exception("Test tuzish tizimida vaqtinchalik yuklama. Birozdan so'ng qayta urinib ko'ring.")
+    raise Exception("Test tizimida yuklama.")
 
-# --- MAXSUS BUYRUQ: TELEGRAM ID'NI ANIQLASH ---
+# --- AVTOMATLASHGAN KANAL JADVALI (AUTO-POSTING SCHEDULER) ---
+def auto_poster_loop():
+    tz = pytz.timezone('Asia/Tashkent')
+    sent_flags = {"08:30": False, "13:00": False, "17:00": False, "20:30": False}
+
+    while True:
+        try:
+            now = datetime.now(tz)
+            current_time = now.strftime("%H:%M")
+
+            # Yangi kunda bayroqlarni yangilash
+            if current_time == "00:01":
+                for k in sent_flags:
+                    sent_flags[k] = False
+
+            # 08:30 — Tonggi motivatsiya va hikmat
+            if current_time == "08:30" and not sent_flags["08:30"]:
+                p = "Alisher Navoiy, Bobur yoki mumtoz allomalarimiz o'gitlaridan ilm, vaqt qadri va ustozlik haqida ibratli tonggi post yozing."
+                matn = generate_ai_content(p)
+                bot.send_message(CHANNEL_USERNAME, f"☀️ **KUN HIKMATI & TONGGI ILHOM**\n\n{matn}", parse_mode="Markdown")
+                sent_flags["08:30"] = True
+
+            # 13:00 — Kun so'zi (O'TIL yoki Etimologiya)
+            elif current_time == "13:00" and not sent_flags["13:00"]:
+                p = "O'zbek tilining izohli lug'ati yoki etimologik lug'at asosida bitta qiziqarli so'zning chuqur tahlilini (kun so'zi sifatida) taqdim eting."
+                matn = generate_ai_content(p)
+                bot.send_message(CHANNEL_USERNAME, f"📖 **KUN SO'ZI TAHLILI**\n\n{matn}", parse_mode="Markdown")
+                sent_flags["13:00"] = True
+
+            # 17:00 — Interfaol metodik mahorat
+            elif current_time == "17:00" and not sent_flags["17:00"]:
+                p = "Ona tili yoki adabiyot fanidan tasodifiy mavzuga zamonaviy interfaol metod ishlab chiqing. Mavzu, Metod nomi, Darsdagi o'rni, Qo'llash tartibi va Topsiriqni bering."
+                matn = generate_ai_content(p)
+                bot.send_message(CHANNEL_USERNAME, f"🎯 **METODIK MAHORAT RUKNI**\n\n{matn}", parse_mode="Markdown")
+                sent_flags["17:00"] = True
+
+            # 20:30 — 3 ta BMB Quiz testi
+            elif current_time == "20:30" and not sent_flags["20:30"]:
+                bot.send_message(CHANNEL_USERNAME, "🧠 **KECHKI INTELLEKT: BMB STANDARDIDAGI TESTLAR BOSHLANDI!**")
+                for _ in range(3):
+                    try:
+                        q = generate_ai_quiz()
+                        bot.send_poll(
+                            chat_id=CHANNEL_USERNAME,
+                            question=q["question"],
+                            options=q["options"],
+                            type="quiz",
+                            correct_option_id=q["correct_option_id"],
+                            explanation=q.get("explanation", ""),
+                            is_anonymous=True
+                        )
+                        time.sleep(2)
+                    except Exception:
+                        pass
+                sent_flags["20:30"] = True
+
+            time.sleep(30)
+        except Exception as e:
+            print(f"Auto-posting xatosi: {e}")
+            time.sleep(30)
+
+threading.Thread(target=auto_poster_loop, daemon=True).start()
+
+# --- MAXSUS BUYRUQ: ID ANIQLASH ---
 @bot.message_handler(commands=['myid'])
 def get_user_id(message):
-    u_id = message.from_user.id
-    bot.reply_to(message, f"🆔 Sizning Telegram ID raqamingiz: `{u_id}`\n\nUshbu raqam koddagi `ADMIN_ID = {u_id}` sifatida belgilangan.", parse_mode="Markdown")
+    bot.reply_to(message, f"🆔 Sizning Telegram ID raqamingiz: `{message.from_user.id}`", parse_mode="Markdown")
 
 # --- START VA OBUNA ---
 @bot.message_handler(commands=['start'])
@@ -254,10 +313,17 @@ def send_welcome(message):
 
     text = (
         "╔════════════════════════╗\n"
-        "  ✨ **AI TILSHUNOS METODIST PLATFORMASI**\n"
+        "  ✨ **AI TILSHUNOS & METODIST v4.0**\n"
         "╚════════════════════════╝\n\n"
-        "Assalomu alaykum! Maktab darsliklari, O'TIL va etimologik manbalar asosida xizmat ko'rsatuvchi intellektual tizimga xush kelibsiz.\n\n"
-        "👇 **Quyidagi bo'limlardan birini tanlang:**"
+        "Assalomu alaykum, aziz ustoz, tadqiqotchi va talaba!\n\n"
+        "Botingiz endi to'liq avtomatlashgan bo'lib, quyidagi ilmiy va metodik xizmatlarni taqdim etadi:\n\n"
+        "▫️ Dars ishlanmasi (Konspekt) konstruktori\n"
+        "▫️ Esse tekshiruvi va 50 ballik tahlil (BMB)\n"
+        "▫️ Aruz vazni va bahrlar tahlili\n"
+        "▫️ Qadimgi va eski turkiy leksikasi\n"
+        "▫️ Rasmiy imlo va orfoepiya qoidalari\n"
+        "▫️ O'TIL, Etimologiya, G'azal tahlili va Quizlar\n\n"
+        "👇 **Quyidagi tugmalardan kerakli bo'limni tanlang:**"
     )
     bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=get_main_menu())
 
@@ -273,7 +339,7 @@ def callback_check_sub(call):
     else:
         bot.answer_callback_query(call.id, "❌ Siz hali kanalga a'zo bo'lmadingiz!", show_alert=True)
 
-# --- FOYDALANUVCHI MATN KIRITISHI UCHUN QADAMLAR ---
+# --- FOYDALANUVCHI KIRITISH BOSQICHLARI ---
 def process_custom_step(message, prompt_template):
     user_input = message.text.strip()
     if user_input == "🔙 Asosiy menyu":
@@ -287,7 +353,7 @@ def process_custom_step(message, prompt_template):
     except Exception as e:
         bot.reply_to(message, f"❌ Xatolik yuz berdi: {e}")
 
-# --- ASOSIY MENYU VA XABARLAR DISPETCHERI ---
+# --- ASOSIY MENYU VA BUYRUQLAR ---
 @bot.message_handler(func=lambda msg: True)
 def handle_all_messages(message):
     if not is_subscribed(message.from_user.id):
@@ -297,37 +363,143 @@ def handle_all_messages(message):
     text = message.text
 
     if text == "🔙 Asosiy menyu":
-        bot.send_message(message.chat.id, "Bosh menyudasiz:", reply_markup=get_main_menu())
+        bot.send_message(message.chat.id, "Asosiy menyudasiz:", reply_markup=get_main_menu())
         return
 
-    # Asosiy kategoriyalar
-    if text == "🎯 Interfaol metodlar":
-        bot.send_message(message.chat.id, "🎯 **Interfaol metodlar bo'limi:**\nKerakli yo'nalishni tanlang:", parse_mode="Markdown", reply_markup=get_sub_menu("metod"))
-    elif text == "📜 G'azal va bayt tahlili":
-        bot.send_message(message.chat.id, "📜 **Mumtoz g'azal va bayt tahlili:**\nKerakli yo'nalishni tanlang:", parse_mode="Markdown", reply_markup=get_sub_menu("gazal"))
-    elif text == "📖 So'z izohi (O'TIL)":
-        bot.send_message(message.chat.id, "📖 **O'zbek tilining izohli lug'ati (O'TIL):**\nKerakli yo'nalishni tanlang:", parse_mode="Markdown", reply_markup=get_sub_menu("izoh"))
-    elif text == "🔍 So'z etimologiyasi":
-        bot.send_message(message.chat.id, "🔍 **Etimologik tahlil bo'limi:**\nKerakli yo'nalishni tanlang:", parse_mode="Markdown", reply_markup=get_sub_menu("etimologiya"))
-    elif text == "📝 Grammatika & Qoidalar":
-        bot.send_message(message.chat.id, "📝 **Ona tili grammatikasi:**\nKerakli yo'nalishni tanlang:", parse_mode="Markdown", reply_markup=get_sub_menu("grammatika"))
-    elif text == "📚 Adabiy tahlil":
-        bot.send_message(message.chat.id, "📚 **Adabiy asarlar tahlili:**\nKerakli yo'nalishni tanlang:", parse_mode="Markdown", reply_markup=get_sub_menu("adabiyot"))
-    elif text == "✍️ Namunaviy esse":
-        bot.send_message(message.chat.id, "✍️ **BMB Esse rejalari:**\nKerakli yo'nalishni tanlang:", parse_mode="Markdown", reply_markup=get_sub_menu("esse"))
+    # 1. DARS ISHLANMASI (KONSPEKT)
+    elif text == "📋 Dars ishlanmasi (Konspekt)":
+        msg = bot.reply_to(
+            message, 
+            "📋 **Dars konspekti konstruktori:**\n\n"
+            "Qaysi sinf va mavzu bo'yicha konspekt kerak? Masalan:\n"
+            "👉 *«8-sinf. Ergashgan qo'shma gaplar»* yoki *«10-sinf. Cho'lponning 'Kecha va kunduz' romani»*\n\n"
+            "Sinf va mavzuni yozib yuboring:"
+        )
+        p = (
+            "Umumta'lim maktabi uchun aynan '{input}' mavzusi bo'yicha to'liq va mukammal 45 daqiqalik DARS ISHLANMASI (konspekt) tuzing.\n"
+            "Tuzilishi:\n"
+            "1. Darsning maqsadlari (ta'limiy, tarbiyaviy, rivojlantiruvchi);\n"
+            "2. DTS talabi va tayanch kompetensiyalar;\n"
+            "3. Dars jihozi va usullari;\n"
+            "4. Dars bosqichlari (Vaqt taqsimoti bilan: Tashkiliy qism, O'tilgan mavzuni so'rash, Yangi mavzu bayoni, Mustahkamlash mashqlari, Baholash, Uyga vazifa)."
+        )
+        bot.register_next_step_handler(msg, process_custom_step, p)
 
-    # BMB QUIZ TEST
+    # 2. ESSE TEKSHIRUVI (50 BALLIK MEZON)
+    elif text == "📝 Esse tekshiruvi (BMB/Sertifikat)":
+        msg = bot.reply_to(
+            message,
+            "📝 **Esse tekshiruvi (BMB / Milliy sertifikat mezonida):**\n\n"
+            "Yozgan esse matningizni (mavzusi bilan birga) to'liq yuboring.\n"
+            "Bot uni 50 ballik mezon asosida tahlil qilib, xatolaringiz va ballingizni chiqarib beradi."
+        )
+        p = (
+            "Quyida taqdim etilgan esseni BMB (DTM) va Milliy sertifikatning 50 ballik mezonlari asosida professional darajada tekshirib bering:\n\n"
+            "Matn:\n'{input}'\n\n"
+            "BAHOLASH TARTIBI:\n"
+            "1. Mavzuning ochilishi va g'oyaviy teranlik (Maks: 15 ball);\n"
+            "2. Adabiy asarlar va dalillardan foydalanish (Maks: 10 ball);\n"
+            "3. Mantiqiy izchillik va kompozitsiya (Maks: 10 ball);\n"
+            "4. Grammatik, uslubiy, orfografik va punktuatsion savodxonlik (Maks: 15 ball);\n"
+            "JAMI BALL (0 dan 50 gacha);\n"
+            "Aniqlangan kamchiliklar va muallifga metodik tavsiyalar."
+        )
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    # 3. ARUZ VAZNI TAHLILI
+    elif text == "📐 Aruz vazni tahlili":
+        msg = bot.reply_to(
+            message,
+            "📐 **Aruz vazni va bahr hisoblagich:**\n\n"
+            "Tahlil qilmoqchi bo'lgan g'azal baytini yozib yuboring:"
+        )
+        p = (
+            "Ushbu mumtoz baytni aruz vazni qoidalari bo'yicha to'liq ilmiy tahlil qiling:\n'{input}'\n\n"
+            "Tahlil bosqichlari:\n"
+            "1. Hijolarga ajratilishi (ochiq (V), yopiq (-) va cho'ziq (~));\n"
+            "2. Ruknlarga bo'linishi (taf'ilalar: fa'uvlun, mafoyilun, foylun va h.k.);\n"
+            "3. Vazn va bahr nomi (Masalan: Hazaji musammani solim);\n"
+            "4. Baytning umumiy badiiy ma'nosi va so'zlar sharhi."
+        )
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    # 4. QADIMGI VA ESKI TURKIY LEKSIKASI
+    elif text == "🏛 Eski turkiy leksikasi":
+        bot.send_message(message.chat.id, "🏛 **Eski turkiy va Chig'atoy tili leksikasi:**\nTanlang:", reply_markup=get_sub_menu("qadim"))
+
+    elif text == "✍️ Tarixiy so'zni kiritish":
+        msg = bot.reply_to(message, "✍️ Qaysi tarixiy yoki arxaik so'z ma'nosi kerak? So'zni yozing:")
+        p = (
+            "'{input}' so'zini qadimgi turkiy va mumtoz adabiyot (Navoiy, Bobur, Devonu lug'atit turk) "
+            "manbalari asosida tahlil qiling. Tarixiy ma'nosi, asarlardagi qo'llanish o'rni va hozirgi tildagi ekvivalentini tushuntiring."
+        )
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    elif text == "🎲 Tasodifiy qadimgi so'z":
+        bot.reply_to(message, "⏳ Qadimgi turkiy manbalardan nodir so'z tanlanmoqda...")
+        p = "Mumtoz asarlarda (Boburnoma, Xamsa yoki Devonu lug'atit turk) uchraydigan tasodifiy 1 ta qiziqarli arxaik so'zni tanlab, uning to'liq filologik sharhini bering."
+        deliver_response(message.from_user.id, generate_ai_content(p))
+
+    # 5. IMLO VA ORFOEPIYA
+    elif text == "🔤 Imlo va orfoepiya":
+        msg = bot.reply_to(
+            message,
+            "🔤 **Imlo va orfoepik maslahatchi:**\n\n"
+            "Imlosiga yoki urg'usiga shubha qilayotgan so'zingiz yoki jumlani yozib yuboring (Masalan: *x/h*, tutuq belgisi, ajratib yoki qo'shib yozilishi):"
+        )
+        p = (
+            "'{input}' bo'yicha rasmiy o'zbek tili imlo va orfoepiya mezonlari asosida tushuntirish bering:\n"
+            "1. To'g'ri yozilishi va amaldagi imlo qoidasi;\n"
+            "2. Urg'usi qaysi bo'g'inga tushishi (orfoepik me'yor);\n"
+            "3. Ko'p yo'l qo'yiladigan xatolar va namunali gaplar."
+        )
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    # 6. INTERFAOL METODLAR
+    elif text == "🎯 Interfaol metodlar":
+        bot.send_message(message.chat.id, "🎯 **Interfaol metodlar bo'limi:**", reply_markup=get_sub_menu("metod"))
+
+    elif text == "✍️ Mavzuni o'zim kiritaman":
+        msg = bot.reply_to(message, "✍️ Qaysi mavzu bo'yicha metod kerak? Mavzu nomini yozing:")
+        p = "Ona tili yoki adabiyot fanidan '{input}' mavzusi uchun zamonaviy interfaol metod ishlab chiqing: Mavzu, Metod nomi, Darsdagi o'rni, Qo'llash tartibi, Darslikdan topshiriq, Natija."
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    elif text == "🎲 Tasodifiy metod":
+        bot.reply_to(message, "⏳ Tasodifiy interfaol metod ishlab chiqilmoqda...")
+        p = "Ona tili yoki adabiyot fanidan tasodifiy bir mavzuga qiziqarli interfaol metod ishlab chiqing. Mavzu, Metod nomi, Darsdagi o'rni, Bosqichlari va Topshiriqni bering."
+        deliver_response(message.from_user.id, generate_ai_content(p))
+
+    # 7. G'AZAL TAHLILI
+    elif text == "📜 G'azal va bayt tahlili":
+        bot.send_message(message.chat.id, "📜 **G'azal tahlili bo'limi:**", reply_markup=get_sub_menu("gazal"))
+
+    elif text == "✍️ Baytni o'zim kiritaman":
+        msg = bot.reply_to(message, "✍️ Tahlil qilmoqchi bo'lgan baytingizni yuboring:")
+        p = "Ushbu baytni badiiy tahlil qiling: '{input}'. San'atlari (tazod, tanosub, istiora va b.), ma'nosi va so'zlar sharhini bering."
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    elif text == "🎲 Tasodifiy g'azal":
+        bot.reply_to(message, "⏳ Mumtoz g'azal tahlili tayyorlanmoqda...")
+        p = "Mumtoz adabiyotimizdan (Navoiy, Bobur, Lutfiy yoki Ogahiy) 1-2 bayt keltirib, badiiy san'atlari, falsafiy ma'nosi va so'zlar sharhini yozing."
+        deliver_response(message.from_user.id, generate_ai_content(p))
+
+    # 8. O'TIL VA ETIMOLOGIYA
+    elif text == "📖 So'z izohi (O'TIL)":
+        msg = bot.reply_to(message, "📖 Izohli lug'at (O'TIL) bo'yicha tahlil qilish uchun so'zni yuboring:")
+        p = "O'zbek tilining izohli lug'ati (O'TIL) asosida '{input}' so'zining to'liq leksik ma'nolari, uslubiy xoslanishi va matndan namunali gaplarni bering."
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    elif text == "🔍 So'z etimologiyasi":
+        msg = bot.reply_to(message, "🔍 Etimologiyasini bilmoqchi bo'lgan so'zingizni yuboring:")
+        p = "Shavkat Rahmatullayevning 'O'zbek tilining etimologik lug'ati' asosida '{input}' so'zining tarixiy ildizi, o'zagi va ma'no taraqqiyotini tahlil qiling."
+        bot.register_next_step_handler(msg, process_custom_step, p)
+
+    # 9. BMB QUIZ TEST
     elif text == "🧠 BMB Quiz Test":
         bot.reply_to(message, "⏳ BMB mezonidagi Quiz testi tuzilmoqda...")
         try:
             quiz = generate_ai_quiz()
-            is_admin = False
-            try:
-                if int(message.from_user.id) == int(ADMIN_ID):
-                    is_admin = True
-            except Exception:
-                pass
-
+            is_admin = (int(message.from_user.id) == int(ADMIN_ID))
             target_chat = CHANNEL_USERNAME if is_admin else message.chat.id
             bot.send_poll(
                 chat_id=target_chat,
@@ -343,75 +515,8 @@ def handle_all_messages(message):
         except Exception as e:
             bot.reply_to(message, f"❌ Xatolik: {e}")
 
-    # SUB-MENYU: TASODIFIY TANLOVLAR
-    elif text == "🎲 Tasodifiy metod":
-        bot.reply_to(message, "⏳ Tasodifiy mavzu bo'yicha interfaol metod tayyorlanmoqda...")
-        p = "Ona tili yoki adabiyot fanidan tasodifiy bir mavzu tanlab, unga qiziqarli interfaol metod ishlab chiqing. Format: Mavzu, Metod nomi, Darsdagi o'rni, Qo'llash tartibi (bosqichma-bosqich), Darslikdan namunaviy topshiriq, Kutilayotgan natija."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "🎲 Tasodifiy etimologiya":
-        bot.reply_to(message, "⏳ Tasodifiy so'z etimologiyasi tayyorlanmoqda...")
-        p = "Shavkat Rahmatullayevning 'O'zbek tilining etimologik lug'ati' asosida tasodifiy 1 ta so'zning tarixiy ildizi, o'zagi va semantik rivojlanishini tahlil qiling."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "🎲 Tasodifiy so'z izohi":
-        bot.reply_to(message, "⏳ O'TIL asosida tasodifiy so'z sharhi tayyorlanmoqda...")
-        p = "5 jildli 'O'zbek tilining izohli lug'ati' (O'TIL) asosida darsliklarda uchraydigan tasodifiy 1 ta so'zning to'liq leksik ma'nolari va namunali badiiy gaplarini bering."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "🎲 Tasodifiy g'azal":
-        bot.reply_to(message, "⏳ Mumtoz g'azal va bayt tahlili tayyorlanmoqda...")
-        p = "Mumtoz adabiyotimizdan (Navoiy, Bobur, Lutfiy yoki Ogahiy) 1-2 bayt keltirib, badiiy san'atlari, falsafiy ma'nosi va so'zlar sharhini beruvchi tahlil yozing."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "🎲 Tasodifiy qoida":
-        bot.reply_to(message, "⏳ Grammatik qoida tahlili tayyorlanmoqda...")
-        p = "5-11-sinf Ona tili darsliklaridan qiyin 1 ta grammatik qoidaning chuqur tahlilini metodik tarzda tayyorlang."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "🎲 Tasodifiy asar tahlili":
-        bot.reply_to(message, "⏳ Adabiy asar tahlili tayyorlanmoqda...")
-        p = "Adabiyot darsliklaridagi sara asarlardan biri, uning bosh g'oyasi va qahramonlar tizimi haqida tahliliy post yozing."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "🎲 Tasodifiy esse rejasi":
-        bot.reply_to(message, "⏳ Esse mavzusi va rejasi tayyorlanmoqda...")
-        p = "BMB talablariga mos bitta namunaviy dolzarb esse mavzusi, puxta rejasi, asosiy tezislari va badiiy dalillarini bering."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    # SUB-MENYU: FOYDALANUVCHI O'ZI KIRITISHI
-    elif text == "✍️ Mavzuni o'zim kiritaman":
-        msg = bot.reply_to(message, "✍️ Qaysi mavzu bo'yicha metod kerak? Mavzu nomini yozib yuboring:")
-        p = "Ona tili yoki adabiyot fanidan aynan '{input}' mavzusi uchun zamonaviy interfaol metod ishlab chiqing. Format: Mavzu, Metod nomi, Darsdagi o'rni, Qo'llash tartibi (bosqichma-bosqich), Darslikdan namunaviy topshiriq, Kutilayotgan natija."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "✍️ So'zni o'zim kiritaman":
-        msg = bot.reply_to(message, "✍️ Tahlil qilmoqchi bo'lgan so'zingizni yozib yuboring:")
-        p = "Foydalanuvchi yuborgan '{input}' so'zini batafsil tahlil qiling: O'TIL bo'yicha leksik ma'nolarini hamda Shavkat Rahmatullayev etimologik lug'ati bo'yicha tarixiy o'zagini ko'rsating."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "✍️ Baytni o'zim kiritaman":
-        msg = bot.reply_to(message, "✍️ Tahlil qilmoqchi bo'lgan baytingizni yozib yuboring:")
-        p = "Ushbu baytni badiiy tahlil qiling: '{input}'. Badiiy san'atlari (tazod, tanosub va b.), ma'nosi va so'zlar sharhini bering."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "✍️ Qoidani o'zim kiritaman":
-        msg = bot.reply_to(message, "✍️ Qaysi grammatik mavzu yoki qoidani tahlil qilmoqchisiz? Yozib yuboring:")
-        p = "Ona tili darsliklari mezonida '{input}' mavzusi bo'yicha ilmiy-metodik tushuntirish va misollar bering."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "✍️ Asarni o'zim kiritaman":
-        msg = bot.reply_to(message, "✍️ Qaysi adabiy asar tahlili kerak? Asar nomini yozing:")
-        p = "Adabiyot darsliklari asosida '{input}' asarini g'oyaviy, obrazlar va badiiy jihatdan to'liq tahlil qilib bering."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "✍️ Esse mavzusini kiritaman":
-        msg = bot.reply_to(message, "✍️ Esse mavzusini yozib yuboring:")
-        p = "BMB talablari asosida '{input}' mavzusidagi esse uchun muqaddima, asosiy qism tezislari va xulosa rejasini tuzing."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu())
 
-print("AI Tilshunos v3.2 barqaror rejimda ishga tushdi...")
+print("AI Tilshunos v4.0 to'liq quvvat bilan ishga tushdi...")
 bot.infinity_polling()
