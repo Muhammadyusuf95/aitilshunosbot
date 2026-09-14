@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v4.4 (Admin, Stats & Error Diagnosis) Faol!"
+    return "AI Tilshunos & Metodist v4.5 Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -197,7 +197,7 @@ SYSTEM_INSTRUCTION = (
     "5. Har bir javob oxirida '📚 Manba:' keltirilsin. Siyosiy va diniy mavzular qat'iyan taqiqlanadi."
 )
 
-# --- ANIQ XATOLIKNI KO'RSATUVCHI AI FUNKSIYASI ---
+# --- GEMINI AI FUNKSIYASI (YANGILANGAN MODELLAR BILAN) ---
 def generate_ai_content(prompt_text):
     full_prompt = (
         f"{prompt_text}\n\n"
@@ -205,7 +205,8 @@ def generate_ai_content(prompt_text):
         "Oxirida '📚 Manba:' keltirilsin."
     )
     last_error_msg = ""
-    models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+    # Eskirgan 2.0-flash o'rniga eng so'nggi barqaror modellar
+    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
     for model_name in models:
         for attempt in range(2):
             try:
@@ -221,7 +222,7 @@ def generate_ai_content(prompt_text):
                     return response.text.strip() + IMZO
             except Exception as e:
                 last_error_msg = str(e)
-                print(f"Xatolik qayd etildi ({model_name}): {e}")
+                print(f"Xatolik ({model_name}): {e}")
                 if "429" in last_error_msg or "RESOURCE_EXHAUSTED" in last_error_msg:
                     time.sleep(3)
                     continue
@@ -244,7 +245,7 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
     last_error_msg = ""
     for model_name in models:
         for attempt in range(2):
@@ -380,7 +381,7 @@ def broadcast_message(message):
         return
     text_to_send = message.text.replace("/send", "").strip()
     if not text_to_send:
-        bot.reply_to(message, "Xabar matnini kiriting. Masalan: `/send Assalomu alaykum, yangilik!`", parse_mode="Markdown")
+        bot.reply_to(message, "Xabar matnini kiriting. Masalan: `/send Assalomu alaykum!`", parse_mode="Markdown")
         return
 
     users = load_users()
@@ -410,7 +411,7 @@ def send_welcome(message):
 
     text = (
         "╔════════════════════════╗\n"
-        "  ✨ **AI TILSHUNOS & METODIST v4.4**\n"
+        "  ✨ **AI TILSHUNOS & METODIST v4.5**\n"
         "╚════════════════════════╝\n\n"
         "Assalomu alaykum, aziz ustoz, tadqiqotchi va talaba!\n\n"
         "Botingiz quyidagi ilmiy va metodik xizmatlarni taqdim etadi:\n\n"
@@ -500,118 +501,4 @@ def handle_all_messages(message):
             "Matn:\n'{input}'\n\n"
             "BAHOLASH TARTIBI:\n"
             "1. Mavzuning ochilishi va g'oyaviy teranlik (Maks: 15 ball);\n"
-            "2. Adabiy asarlar va dalillardan foydalanish (Maks: 10 ball);\n"
-            "3. Mantiqiy izchillik va kompozitsiya (Maks: 10 ball);\n"
-            "4. Grammatik, uslubiy, orfografik va punktuatsion savodxonlik (Maks: 15 ball);\n"
-            "JAMI BALL (0 dan 50 gacha);\n"
-            "Aniqlangan kamchiliklar va muallifga metodik tavsiyalar."
-        )
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "📐 Aruz vazni tahlili":
-        msg = bot.reply_to(
-            message,
-            "📐 **Aruz vazni va bahr hisoblagich:**\n\n"
-            "Tahlil qilmoqchi bo'lgan g'azal baytini yozib yuboring:"
-        )
-        p = (
-            "Ushbu mumtoz baytni aruz vazni qoidalari bo'yicha to'liq ilmiy tahlil qiling:\n'{input}'\n\n"
-            "Tahlil bosqichlari:\n"
-            "1. Hijolarga ajratilishi (ochiq (V), yopiq (-) va cho'ziq (~));\n"
-            "2. Ruknlarga bo'linishi (taf'ilalar: fa'uvlun, mafoyilun, foylun va h.k.);\n"
-            "3. Vazn va bahr nomi (Masalan: Hazaji musammani solim);\n"
-            "4. Baytning umumiy badiiy ma'nosi va so'zlar sharhi."
-        )
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "🏛 Eski turkiy leksikasi":
-        bot.send_message(message.chat.id, "🏛 **Eski turkiy va Chig'atoy tili leksikasi:**\nTanlang:", reply_markup=get_sub_menu("qadim"))
-
-    elif text == "✍️ Tarixiy so'zni kiritish":
-        msg = bot.reply_to(message, "✍️ Qaysi tarixiy yoki arxaik so'z ma'nosi kerak? So'zni yozing:")
-        p = (
-            "'{input}' so'zini qadimgi turkiy va mumtoz adabiyot (Navoiy, Bobur, Devonu lug'atit turk) "
-            "manbalari asosida tahlil qiling. Tarixiy ma'nosi, asarlardagi qo'llanish o'rni va hozirgi tildagi ekvivalentini tushuntiring."
-        )
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "🎲 Tasodifiy qadimgi so'z":
-        bot.reply_to(message, "⏳ Qadimgi turkiy manbalardan nodir so'z tanlanmoqda...")
-        p = "Mumtoz asarlarda (Boburnoma, Xamsa yoki Devonu lug'atit turk) uchraydigan tasodifiy 1 ta qiziqarli arxaik so'zni tanlab, uning to'liq filologik sharhini bering."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "🔤 Imlo va orfoepiya":
-        msg = bot.reply_to(
-            message,
-            "🔤 **Imlo va orfoepik maslahatchi:**\n\n"
-            "Imlosiga yoki urg'usiga shubha qilayotgan so'zingiz yoki jumlani yozib yuboring (Masalan: *x/h*, tutuq belgisi, ajratib yoki qo'shib yozilishi):"
-        )
-        p = (
-            "'{input}' bo'yicha rasmiy o'zbek tili imlo va orfoepiya mezonlari asosida tushuntirish bering:\n"
-            "1. To'g'ri yozilishi va amaldagi imlo qoidasi;\n"
-            "2. Urg'usi qaysi bo'g'inga tushishi (orfoepik me'yor);\n"
-            "3. Ko'p yo'l qo'yiladigan xatolar va namunali gaplar."
-        )
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "🎯 Interfaol metodlar":
-        bot.send_message(message.chat.id, "🎯 **Interfaol metodlar bo'limi:**", reply_markup=get_sub_menu("metod"))
-
-    elif text == "✍️ Mavzuni o'zim kiritaman":
-        msg = bot.reply_to(message, "✍️ Qaysi mavzu bo'yicha metod kerak? Mavzu nomini yozing:")
-        p = "Ona tili yoki adabiyot fanidan '{input}' mavzusi uchun zamonaviy interfaol metod ishlab chiqing: Mavzu, Metod nomi, Darsdagi o'rni, Qo'llash tartibi, Darslikdan topshiriq, Natija."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "🎲 Tasodifiy metod":
-        bot.reply_to(message, "⏳ Tasodifiy interfaol metod ishlab chiqilmoqda...")
-        p = "Ona tili yoki adabiyot fanidan tasodifiy bir mavzuga qiziqarli interfaol metod ishlab chiqing. Mavzu, Metod nomi, Darsdagi o'rni, Bosqichlari va Topshiriqni bering."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "📜 G'azal va bayt tahlili":
-        bot.send_message(message.chat.id, "📜 **G'azal tahlili bo'limi:**", reply_markup=get_sub_menu("gazal"))
-
-    elif text == "✍️ Baytni o'zim kiritaman":
-        msg = bot.reply_to(message, "✍️ Tahlil qilmoqchi bo'lgan baytingizni yuboring:")
-        p = "Ushbu baytni badiiy tahlil qiling: '{input}'. San'atlari (tazod, tanosub, istiora va b.), ma'nosi va so'zlar sharhini bering."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "🎲 Tasodifiy g'azal":
-        bot.reply_to(message, "⏳ Mumtoz g'azal tahlili tayyorlanmoqda...")
-        p = "Mumtoz adabiyotimizdan (Navoiy, Bobur, Lutfiy yoki Ogahiy) 1-2 bayt keltirib, badiiy san'atlari, falsafiy ma'nosi va so'zlar sharhini yozing."
-        deliver_response(message.from_user.id, generate_ai_content(p))
-
-    elif text == "📖 So'z izohi (O'TIL)":
-        msg = bot.reply_to(message, "📖 Izohli lug'at (O'TIL) bo'yicha tahlil qilish uchun so'zni yuboring:")
-        p = "O'zbek tilining izohli lug'ati (O'TIL) asosida '{input}' so'zining to'liq leksik ma'nolari, uslubiy xoslanishi va matndan namunali gaplarni bering."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "🔍 So'z etimologiyasi":
-        msg = bot.reply_to(message, "🔍 Etimologiyasini bilmoqchi bo'lgan so'zingizni yuboring:")
-        p = "Shavkat Rahmatullayevning 'O'zbek tilining etimologik lug'ati' asosida '{input}' so'zining tarixiy ildizi, o'zagi va ma'no taraqqiyotini tahlil qiling."
-        bot.register_next_step_handler(msg, process_custom_step, p)
-
-    elif text == "🧠 BMB Quiz Test":
-        bot.reply_to(message, "⏳ BMB mezonidagi Quiz testi tuzilmoqda...")
-        try:
-            quiz = generate_ai_quiz()
-            is_admin = (int(message.from_user.id) == int(ADMIN_ID))
-            target_chat = CHANNEL_USERNAME if is_admin else message.chat.id
-            bot.send_poll(
-                chat_id=target_chat,
-                question=quiz["question"],
-                options=quiz["options"],
-                type="quiz",
-                correct_option_id=quiz["correct_option_id"],
-                explanation=quiz.get("explanation", ""),
-                is_anonymous=True
-            )
-            if is_admin:
-                bot.reply_to(message, f"✅ Test {CHANNEL_USERNAME} kanaliga e'lon qilindi!")
-        except Exception as e:
-            bot.reply_to(message, f"❌ {e}")
-
-    else:
-        bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
-
-print("AI Tilshunos v4.4 (Admin, Stats & Error Diagnosis) faol ishga tushdi...")
-bot.infinity_polling()
+            "2. Adabiy asarlar  
