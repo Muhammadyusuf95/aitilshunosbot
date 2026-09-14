@@ -88,7 +88,7 @@ def generate_ai_post(mavzu_turi="ilmiy"):
     )
 
     response = ai_client.models.generate_content(
-        model="gemini-2.5-pro",
+       model="gemini-3.1-pro-preview",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -113,7 +113,7 @@ def generate_ai_quiz():
     )
 
     response = ai_client.models.generate_content(
-        model="gemini-2.5-pro",
+      "gemini-3.1-pro-preview",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
