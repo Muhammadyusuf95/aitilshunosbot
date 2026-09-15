@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v6.2 (Gemini 3.6 Flash Edition) Faol!"
+    return "AI Tilshunos & Metodist v6.3 (Dynamic Quiz Edition) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -251,7 +251,7 @@ SYSTEM_INSTRUCTION = (
     "Javoblarni aniq sarlavhalar, bo'lim ajratuvchilari, emojilar va Telegram Markdown uslubida estetik tarzda yetkazib bering."
 )
 
-# --- AI GENERATSIYA FUNKSIYASI (GEMINI-3.6-FLASH STANDARTI) ---
+# --- AI GENERATSIYA FUNKSIYASI ---
 def generate_ai_content(prompt_text, chat_id=None):
     if check_security_violation(prompt_text):
         return SECURITY_WARNING
@@ -294,18 +294,44 @@ def generate_ai_content(prompt_text, chat_id=None):
                     break
     raise Exception(f"AI Xatolik tafsiloti: {last_error_msg[:300]}")
 
+# --- QUIZ TEST UCHUN TASODIFIY DOLZARB MAVZULAR RO'YXATI ---
+QUIZ_TOPICS = [
+    "Fonetika: unli va undoshlar tasnifi, tovush o'zgarishlari (tovush tushishi, ortishi, almashishi)",
+    "Leksikologiya: paronimlar lug'ati, omonimlar, ma'nodosh so'zlar uslubiyati",
+    "Morfologiya: fe'l nisbatlari, vazifa shakllari (ravishdosh, sifatdosh, harakat nomi)",
+    "Morfologiya: ot va sifat yasovchi qo'shimchalar, ularning imlosi va ma'nolari",
+    "Morfologiya: yordamchi so'z turkumlari (ko'makchi, bog'lovchi, yuklama) va ularning vazifalari",
+    "Sintaksis: ergashgan qo'shma gap turlari (ega, kesim, to'ldiruvchi, aniqlovchi, hol ergash gaplar)",
+    "Sintaksis: uyushiq bo'laklar, ajratilgan bo'laklar, kiritma va kiritmalar punktuatsiyasi",
+    "Mumtoz adabiyot: Alisher Navoiy dostonlari syujeti, obrazlar tizimi va g'azallari tahlili",
+    "Mumtoz adabiyot: Zahiriddin Muhammad Bobur ruboiylari, g'azallari va 'Boburnoma' asari leksikasi",
+    "Jadid adabiyoti: Cho'lpon she'riyati, Fitrat dramalari va Abdulla Qodiriy romanlari badiiyati",
+    "XX asr o'zbek adabiyoti: Oybek, G'afur G'ulom, Said Ahmad, O'tkir Hoshimov asarlari",
+    "She'r tuzilishi: aruz vazni bahrlaridagi ruknlar, hijolar va mumtoz she'riy san'atlar (tazod, tanosub, istiora, iyhom)",
+    "Milliy sertifikat standarti: matnni tushunish, matndagi mantiqiy xatoni yoki asosiy g'oyani aniqlash"
+]
+
+# --- TAKRORLANMAYDIGAN QUIZ GENERATORI ---
 def generate_ai_quiz():
+    chosen_topic = random.choice(QUIZ_TOPICS)
+    random_seed = random.randint(1000, 99999)
+
     prompt = (
-        "Ona tili yoki Adabiyot fanidan BMB (DTM) mezonida 4 variantli (A, B, C, D) 1 ta Quiz test tuzing. "
-        "Diniy va siyosiy mavzulardan mutlaqo chetlaning. Faqat tilshunoslik yoki adabiyot manbalaridan foydalaning. "
-        "Faqat quyidagi JSON formatida javob bering:\n"
+        f"Siz BMB (DTM) va Ona tili hamda adabiyot Milliy sertifikati bo'yicha bosh tuzuvchisiz.\n"
+        f"Aynan quyidagi mavzu bo'yicha 1 ta mutlaqo yangi, takrorlanmas, o'ta qiziqarli va darslik mezonidagi Quiz test tuzing:\n"
+        f"👉 Mavzu: '{chosen_topic}'\n"
+        f"Unikal kod: #{random_seed}\n\n"
+        "Qat'iy talablar:\n"
+        "1. Diniy, siyosiy yoki noo'rin mavzulardan mutlaqo chetlaning.\n"
+        "2. Oldin tuzilgan odatiy testlarni takrorlamang, savol fikrlashga undaydigan chuqur darajada bo'lsin.\n"
+        "3. Faqat quyidagi JSON formatida javob bering (boshqa hech qanday so'z qo'shmang):\n"
         "{\n"
-        '  "question": "Savol matni",\n'
+        '  "question": "Savol matni (aniq, imloviy to\'g\'ri)",\n'
         '  "options": ["A varianti", "B varianti", "C varianti", "D varianti"],\n'
         '  "correct_option_id": 0,\n'
-        '  "explanation": "To\'g\'ri javob izohi va manbasi (180 belgidan oshmasin)"\n'
+        '  "explanation": "To\'g\'ri javob izohi va qaysi qoidaga asoslangani (180 belgidan oshmasin)"\n'
         "}\n"
-        "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
+        "Eslatma: correct_option_id faqat 0, 1, 2 yoki 3 bo'lsin."
     )
     models = ["gemini-3.6-flash"]
     last_error_msg = ""
@@ -317,7 +343,7 @@ def generate_ai_quiz():
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_INSTRUCTION,
-                        temperature=0.3
+                        temperature=0.85  # Savollar har safar xilma-xil va yangi chiqishi uchun
                     )
                 )
                 raw = response.text.strip()
@@ -473,7 +499,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Hurmatli tadqiqotchi"
     text = (
         f"╭──── ✨ **Xush kelibsiz, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v6.2)** — filologiya, adabiyot "
+        "🏛 **AI TILSHUNOS & METODIST (v6.3)** — filologiya, adabiyot "
         "va pedagogika yo'nalishidagi eng ilg'or intellektual yordamchi.\n\n"
         "🔹 **Ilmiy tadqiqot:** OAK maqola va konferensiya tezislari rejasi\n"
         "🔹 **Metodik mahorat:** Dars ishlanmalari va 50 ballik esse tahlili\n"
@@ -735,9 +761,9 @@ def handle_all_messages(message):
         p = "Ona tili yoki adabiyot darslari uchun zamonaviy interfaol metod ishlab chiqing: Metod nomi, Maqsadi, Bosqichlari va Topshiriq namunasi."
         deliver_response(message.from_user.id, generate_ai_content(p, chat_id=message.chat.id))
 
-    # 12. BMB QUIZ TEST
+    # 12. BMB QUIZ TEST (DINAMIK VA TAKRORLANMAYDIGAN)
     elif text == "🧠 BMB Quiz Test":
-        bot.reply_to(message, "⏳ *BMB standarti asosidagi test tuzilmoqda...*", parse_mode="Markdown")
+        bot.reply_to(message, "⏳ *BMB standarti asosida yangi test tuzilmoqda...*", parse_mode="Markdown")
         try:
             quiz = generate_ai_quiz()
             is_admin = (int(message.from_user.id) == int(ADMIN_ID))
@@ -770,5 +796,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
 
-print("AI Tilshunos v6.2 (Gemini 3.6 Flash) faol ishga tushdi...")
+print("AI Tilshunos v6.3 (Dynamic Quiz Edition) faol ishga tushdi...")
 bot.infinity_polling()
