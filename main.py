@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v6.1 (Stable Model Edition) Faol!"
+    return "AI Tilshunos & Metodist v6.2 (Gemini 3.6 Flash Edition) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -251,7 +251,7 @@ SYSTEM_INSTRUCTION = (
     "Javoblarni aniq sarlavhalar, bo'lim ajratuvchilari, emojilar va Telegram Markdown uslubida estetik tarzda yetkazib bering."
 )
 
-# --- AI GENERATSIYA FUNKSIYASI (BARQAROR GEMINI-2.5-FLASH) ---
+# --- AI GENERATSIYA FUNKSIYASI (GEMINI-3.6-FLASH STANDARTI) ---
 def generate_ai_content(prompt_text, chat_id=None):
     if check_security_violation(prompt_text):
         return SECURITY_WARNING
@@ -268,7 +268,7 @@ def generate_ai_content(prompt_text, chat_id=None):
         "Oxirida '📚 Manba:' keltirilsin."
     )
     last_error_msg = ""
-    models = ["gemini-2.5-flash"]
+    models = ["gemini-3.6-flash"]
     for model_name in models:
         for attempt in range(3):
             try:
@@ -307,7 +307,7 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    models = ["gemini-2.5-flash"]
+    models = ["gemini-3.6-flash"]
     last_error_msg = ""
     for model_name in models:
         for attempt in range(3):
@@ -473,7 +473,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Hurmatli tadqiqotchi"
     text = (
         f"╭──── ✨ **Xush kelibsiz, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v6.1)** — filologiya, adabiyot "
+        "🏛 **AI TILSHUNOS & METODIST (v6.2)** — filologiya, adabiyot "
         "va pedagogika yo'nalishidagi eng ilg'or intellektual yordamchi.\n\n"
         "🔹 **Ilmiy tadqiqot:** OAK maqola va konferensiya tezislari rejasi\n"
         "🔹 **Metodik mahorat:** Dars ishlanmalari va 50 ballik esse tahlili\n"
@@ -770,5 +770,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
 
-print("AI Tilshunos v6.1 faol ishga tushdi...")
+print("AI Tilshunos v6.2 (Gemini 3.6 Flash) faol ishga tushdi...")
 bot.infinity_polling()
