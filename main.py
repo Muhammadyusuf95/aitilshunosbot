@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v9.0 (Group & Channel 30-Quiz Edition) Faol!"
+    return "AI Tilshunos & Metodist v9.1 (Channel Poll Fixed) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -51,12 +51,7 @@ ai_client = genai.Client(api_key=GEMINI_API_KEY)
 USERS_FILE = "users.json"
 RESULTS_FILE = "test_results.json"
 
-# Guruh/Kanal tayyorgarlik sessiyalari:
-# {match_id: {"chat_id": ..., "ready_users": {user_id: name}, "questions": [...]}}
 READY_MATCHES = {}
-
-# Guruh va botdagi faol test jarayonlari
-ACTIVE_GROUP_TESTS = {}
 
 IMZO = (
     "\n\n╭───────────────────────╮\n"
@@ -131,7 +126,6 @@ def get_main_menu(user_id=None):
         tele_types.KeyboardButton("🎒 Abituriyentlar uchun"),
         tele_types.KeyboardButton("🔬 Ilmiy izlanuvchilar uchun")
     )
-    # Faqat adminga ko'rinadi
     if user_id and int(user_id) == int(ADMIN_ID):
         markup.row(tele_types.KeyboardButton("📊 Boshqaruv & Statistika"))
     return markup
@@ -312,7 +306,7 @@ def generate_30_quiz_questions(chat_id):
                 elif "```" in raw:
                     raw = raw.split("```")[1].split("```")[0].strip()
                 questions = json.loads(raw)
-                if isinstance(questions, list) and len(questions) >= 20:
+                if isinstance(questions, list) and len(questions) >= 15:
                     return questions[:30]
             except Exception as e:
                 last_error = str(e)
@@ -326,10 +320,13 @@ def generate_30_quiz_questions(chat_id):
                     break
     raise Exception(f"30 talik test tayyorlashda xatolik: {last_error[:300]}")
 
-# --- TESTNI 40 SONIYALIK QAT'IY REJIMDA O'TKAZISH LOOP'I ---
+# --- TESTNI 40 SONIYALIK QAT'IY REJIMDA O'TKAZISH LOOP'I (XATOSIZ TUZATILDI) ---
 def run_quiz_test_loop(target_chat_id, questions, is_private=False):
     total_q = len(questions)
     
+    # Kanalda anonim bo'lishi SHART! Guruh yoki botda esa ochiq bo'lishi mumkin
+    is_anon = True if str(target_chat_id).startswith("@") or not is_private else False
+
     bot.send_message(
         target_chat_id,
         "🏁 **DIQQAT, TEST BOSHLANDI!**\n\n"
@@ -339,17 +336,20 @@ def run_quiz_test_loop(target_chat_id, questions, is_private=False):
         "Quyidagi savollarga javob bering:",
         parse_mode="Markdown"
     )
-    time.sleep(2)
+    time.sleep(3)
 
     for idx, q_data in enumerate(questions, 1):
-        # Sarlavhada vaqt va kanal havolasi ko'rsatiladi
         question_text = f"[{idx}/{total_q}] ⏳ 40s | {q_data['question']}"
         if len(question_text) > 295:
             question_text = question_text[:292] + "..."
 
-        options = [opt[:95] for opt in q_data["options"][:4]]
+        options = [str(opt)[:95] for opt in q_data["options"][:4]]
+        # Kamida 2 ta variant bo'lishi shart
+        if len(options) < 2:
+            options = ["A varianti", "B varianti"]
+
         correct_id = int(q_data.get("correct_option_id", 0))
-        if correct_id not in [0, 1, 2, 3]:
+        if correct_id < 0 or correct_id >= len(options):
             correct_id = 0
 
         explanation = f"{q_data.get('explanation', '')}\n👉 {CHANNEL_USERNAME}"[:195]
@@ -362,13 +362,24 @@ def run_quiz_test_loop(target_chat_id, questions, is_private=False):
                 type="quiz",
                 correct_option_id=correct_id,
                 explanation=explanation,
-                is_anonymous=False,
-                open_period=40  # Aynan 40 soniyada o'zi avtomatik yopiladi
+                is_anonymous=is_anon,
+                open_period=40
             )
-        except Exception as e:
-            print(f"Poll jo'natish xatosi: {e}")
+        except Exception as err:
+            print(f"Poll jo'natish xatosi (savol #{idx}): {err}")
+            try:
+                # Agar open_period yoki boshqa parametr bilan xato bersa, oddiy poll ko'rinishida yuborish
+                bot.send_poll(
+                    chat_id=target_chat_id,
+                    question=question_text,
+                    options=options,
+                    type="quiz",
+                    correct_option_id=correct_id,
+                    is_anonymous=True
+                )
+            except Exception as e2:
+                print(f"Qayta urinishda ham xato: {e2}")
 
-        # 40 soniya ishlash vaqti + 2 soniya o'tish oraliq vaqti
         time.sleep(42)
 
     finish_msg = (
@@ -467,7 +478,6 @@ def callback_ready_handler(call):
             pass
 
         time.sleep(5)
-        # Alohida tahrirlanmaydigan oqimda testni yurgizish
         threading.Thread(
             target=run_quiz_test_loop, 
             args=(match_data["chat_id"], match_data["questions"], False), 
@@ -506,7 +516,7 @@ def show_admin_stats(chat_id):
     )
     bot.send_message(chat_id, msg, parse_mode="Markdown")
 
-# --- GURUHDAN /quiz_start BUYRUG'I BERILGANDA ---
+# --- GURUHDAN /quiz_start BUYRUG'I ---
 @bot.message_handler(commands=['quiz_start'])
 def cmd_quiz_start_group(message):
     chat_type = message.chat.type
@@ -570,7 +580,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v9.0)** portaliga xush kelibsiz!\n\n"
+        "🏛 **AI TILSHUNOS & METODIST (v9.1)** portaliga xush kelibsiz!\n\n"
         "Quyidagi asosiy toifalardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** G'azal, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Dars ishlanmalari va zamonaviy metodlar\n"
@@ -634,7 +644,6 @@ def handle_all_messages(message):
         bot.send_message(message.chat.id, "📋 Asosiy toifalardan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
         return
 
-    # Faqat adminga
     elif text == "📊 Boshqaruv & Statistika" and int(message.from_user.id) == int(ADMIN_ID):
         show_admin_stats(message.chat.id)
         return
@@ -772,7 +781,6 @@ def handle_all_messages(message):
         is_admin = (int(message.from_user.id) == int(ADMIN_ID))
         
         if is_admin:
-            # Admin buyrug'i: to'g'ridan-to'g'ri kanalga chiqarish taklifi
             markup = tele_types.InlineKeyboardMarkup(row_width=1)
             markup.add(
                 tele_types.InlineKeyboardButton(text="📢 Kanalga e'lon qilish (@onatilidanyordam)", callback_data="admin_quiz_channel"),
@@ -785,7 +793,6 @@ def handle_all_messages(message):
                 reply_markup=markup
             )
         else:
-            # Oddiy foydalanuvchilar: Botda ishlash yoki O'z guruhiga tashlash
             markup = tele_types.InlineKeyboardMarkup(row_width=1)
             markup.add(
                 tele_types.InlineKeyboardButton(text="🤖 Botning o'zida yakkaxon ishlash", callback_data="user_quiz_bot"),
@@ -842,7 +849,7 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
 
-# --- TEST TANLOVLARI UCHUN CALLBACK HANDLER ---
+# --- TEST TANLOVLARI CALLBACK HANDLER ---
 @bot.callback_query_handler(func=lambda call: call.data in ["admin_quiz_channel", "user_quiz_bot", "user_quiz_group_info"])
 def callback_quiz_options(call):
     if call.data == "admin_quiz_channel":
@@ -880,8 +887,8 @@ def callback_quiz_options(call):
         bot.answer_callback_query(call.id)
         info_text = (
             "╭── 👥 **TESTNI GURUHINGIZDA O'TKAZISH TARTIBI** ──╮\n\n"
-            "1. Botingizni o'zingizning sinf, kurs yoki abituriyent guruhingizga qo'shing.\n"
-            "2. Botga guruhda **Admin** huquqini bering (poll/so'rovnoma yuborishi uchun).\n"
+            "1. Botingizni o'zingizning guruhingizga qo'shing.\n"
+            "2. Botga guruhda **Admin** huquqini bering (so'rovnoma yuborishi uchun).\n"
             "3. Guruh chatida `/quiz_start` buyrug'ini yuboring.\n"
             "4. Bot guruhga e'lon tashlaydi va kamida 3 kishi «Men tayyorman» tugmasini bosgach, har biri ⏳ 40 soniyalik 30 talik test boshlanadi!\n\n"
             f"Rasmiy kanalimiz: {CHANNEL_USERNAME}\n"
@@ -889,5 +896,5 @@ def callback_quiz_options(call):
         )
         bot.send_message(call.message.chat.id, info_text, parse_mode="Markdown")
 
-print("AI Tilshunos v9.0 faol ishga tushdi...")
+print("AI Tilshunos v9.1 faol ishga tushdi...")
 bot.infinity_polling()
