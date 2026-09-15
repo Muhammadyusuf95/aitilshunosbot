@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v9.1 (Channel Poll Fixed) Faol!"
+    return "AI Tilshunos & Metodist v9.2 (Quiz Live Leaderboard Edition) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -50,6 +50,11 @@ ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 USERS_FILE = "users.json"
 RESULTS_FILE = "test_results.json"
+
+# Jonli test monitoringi
+# {chat_id: {"scores": {user_id: {"name": str, "correct": int}}, "current_q": int, "total_q": int}}
+ACTIVE_QUIZ_TRACKER = {}
+POLL_CORRECT_MAP = {}
 
 READY_MATCHES = {}
 
@@ -320,20 +325,48 @@ def generate_30_quiz_questions(chat_id):
                     break
     raise Exception(f"30 talik test tayyorlashda xatolik: {last_error[:300]}")
 
-# --- TESTNI 40 SONIYALIK QAT'IY REJIMDA O'TKAZISH LOOP'I (XATOSIZ TUZATILDI) ---
+# --- ISHTIROKCHILAR JAVOBLARINI TUTISH (REYTING UCHUN) ---
+@bot.poll_answer_handler()
+def handle_poll_answer(poll_answer):
+    poll_id = poll_answer.poll_id
+    poll_info = POLL_CORRECT_MAP.get(poll_id)
+    if not poll_info:
+        return
+
+    chat_id = poll_info["chat_id"]
+    correct_opt = poll_info["correct_option_id"]
+    chosen_opt = poll_answer.option_ids[0]
+
+    user = poll_answer.user
+    u_id = user.id
+    u_name = user.first_name or "Ishtirokchi"
+
+    if chat_id in ACTIVE_QUIZ_TRACKER:
+        scores = ACTIVE_QUIZ_TRACKER[chat_id]["scores"]
+        if u_id not in scores:
+            scores[u_id] = {"name": u_name, "correct": 0}
+        
+        if chosen_opt == correct_opt:
+            scores[u_id]["correct"] += 1
+
+# --- 40 SONIYALIK TEST VA YAKUNIY REYTING LOOP'I ---
 def run_quiz_test_loop(target_chat_id, questions, is_private=False):
     total_q = len(questions)
-    
-    # Kanalda anonim bo'lishi SHART! Guruh yoki botda esa ochiq bo'lishi mumkin
-    is_anon = True if str(target_chat_id).startswith("@") or not is_private else False
+    is_channel = str(target_chat_id).startswith("@")
+    is_anon = True if is_channel else False
+
+    ACTIVE_QUIZ_TRACKER[target_chat_id] = {
+        "scores": {},
+        "total_q": total_q
+    }
 
     bot.send_message(
         target_chat_id,
         "🏁 **DIQQAT, TEST BOSHLANDI!**\n\n"
         f"▫️ Jami savollar soni: **{total_q} ta**\n"
-        "▫️ Har bir savol uchun ajratilgan vaqt: **⏳ 40 soniya**\n"
-        f"▫️ Rasmiy manba: {CHANNEL_USERNAME}\n\n"
-        "Quyidagi savollarga javob bering:",
+        "▫️ Har bir savol uchun vaqt: **⏳ 40 soniya**\n"
+        f"▫️ Rasmiy kanal: {CHANNEL_USERNAME}\n\n"
+        "Har bir to'g'ri javob hisoblab boriladi va yakunda **REYTING JADVALI** e'lon qilinadi!",
         parse_mode="Markdown"
     )
     time.sleep(3)
@@ -344,7 +377,6 @@ def run_quiz_test_loop(target_chat_id, questions, is_private=False):
             question_text = question_text[:292] + "..."
 
         options = [str(opt)[:95] for opt in q_data["options"][:4]]
-        # Kamida 2 ta variant bo'lishi shart
         if len(options) < 2:
             options = ["A varianti", "B varianti"]
 
@@ -355,7 +387,7 @@ def run_quiz_test_loop(target_chat_id, questions, is_private=False):
         explanation = f"{q_data.get('explanation', '')}\n👉 {CHANNEL_USERNAME}"[:195]
 
         try:
-            bot.send_poll(
+            poll_msg = bot.send_poll(
                 chat_id=target_chat_id,
                 question=question_text,
                 options=options,
@@ -365,11 +397,15 @@ def run_quiz_test_loop(target_chat_id, questions, is_private=False):
                 is_anonymous=is_anon,
                 open_period=40
             )
+            # Poll natijalarini kuzatish uchun xaritaga qo'shish
+            POLL_CORRECT_MAP[poll_msg.poll.id] = {
+                "chat_id": target_chat_id,
+                "correct_option_id": correct_id
+            }
         except Exception as err:
             print(f"Poll jo'natish xatosi (savol #{idx}): {err}")
             try:
-                # Agar open_period yoki boshqa parametr bilan xato bersa, oddiy poll ko'rinishida yuborish
-                bot.send_poll(
+                poll_msg = bot.send_poll(
                     chat_id=target_chat_id,
                     question=question_text,
                     options=options,
@@ -378,20 +414,56 @@ def run_quiz_test_loop(target_chat_id, questions, is_private=False):
                     is_anonymous=True
                 )
             except Exception as e2:
-                print(f"Qayta urinishda ham xato: {e2}")
+                print(f"Qayta urinishda xato: {e2}")
 
         time.sleep(42)
 
-    finish_msg = (
-        "╔════════════════════════════════╗\n"
-        "  🏆 **30 TALIK BMB TESTI YAKUNLANDI!**\n"
-        "╚════════════════════════════════╝\n\n"
-        f"Barcha ishtirokchilarga tashakkur! Test natijalari qayd etildi.\n\n"
-        f"Rasmiy ilmiy kanalimiz: {CHANNEL_USERNAME}"
-    )
+    # --- YAKUNIY REYTING JADVALINI TUZISH ---
+    tracker = ACTIVE_QUIZ_TRACKER.pop(target_chat_id, None)
+    
+    if is_channel:
+        finish_msg = (
+            "╔════════════════════════════════╗\n"
+            "  🏆 **30 TALIK BMB TESTI YAKUNLANDI!**\n"
+            "╚════════════════════════════════╝\n\n"
+            "Kanalda o'tkazilgan test yakunlandi!\n"
+            "💡 *Izoh: Telegram qoidasiga ko'ra kanallardagi ovoz berish anonim bo'ladi. "
+            "Individual reyting va o'rningizni bilish uchun testni botda yoki guruhingizda ishlang!*\n\n"
+            f"Rasmiy manba: {CHANNEL_USERNAME}"
+        )
+    else:
+        scores = tracker["scores"] if tracker else {}
+        if scores:
+            sorted_participants = sorted(scores.items(), key=lambda x: x[1]["correct"], reverse=True)
+            leaderboard_text = ""
+            for rank, (uid, info) in enumerate(sorted_participants, 1):
+                medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"`#{rank}`"
+                perc = round((info["correct"] / total_q) * 100, 1)
+                leaderboard_text += f"{medal} **{info['name']}** — `{info['correct']}/{total_q}` to'g'ri ({perc}%)\n"
+
+            finish_msg = (
+                "╔════════════════════════════════╗\n"
+                "  🏆 **TEST YAKUNLANDI: ISHTIROKCHILAR REYTINGI**\n"
+                "╚════════════════════════════════╝\n\n"
+                f"👥 Jami ishtirokchilar: **{len(sorted_participants)} nafar**\n"
+                f"📊 Savollar soni: **{total_q} ta**\n\n"
+                "🏅 **NATIJALAR VA EGALLANGAN O'RINLAR:**\n"
+                f"{leaderboard_text}\n"
+                "────────────────────────────────\n"
+                f"✨ Rasmiy filologik kanalimiz: {CHANNEL_USERNAME}"
+            )
+        else:
+            finish_msg = (
+                "╔════════════════════════════════╗\n"
+                "  🏆 **30 TALIK TEST YAKUNLANDI!**\n"
+                "╚════════════════════════════════╝\n\n"
+                "Test savollari yakunlandi. Hech bir ishtirokchi javob belgilamadi.\n\n"
+                f"Rasmiy kanal: {CHANNEL_USERNAME}"
+            )
+
     bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown")
 
-# --- «TAYYORMAN» TUGMASI BILAN START BERISHNI BOSHQARISH ---
+# --- «TAYYORMAN» TUGMASI BILAN START BERISH ---
 def send_match_announcement(chat_id, questions, match_id, title_prefix=""):
     READY_MATCHES[match_id] = {
         "chat_id": chat_id,
@@ -417,9 +489,10 @@ def send_match_announcement(chat_id, questions, match_id, title_prefix=""):
         f"  🧠 **BMB 30 TALIK TEST SINOVI: {title_prefix}**\n"
         f"╚════════════════════════════════╝\n\n"
         "📚 **5-11-sinf Ona tili va adabiyot darsliklari asosida**\n"
-        "⏱ **Vaqt me'yori:** Har bir savolga ⏳ 40 soniyadan\n\n"
+        "⏱ **Vaqt me'yori:** Har bir savolga ⏳ 40 soniyadan\n"
+        "🏆 **Yakunda:** Ishtirokchilarning reyting jadvali chiqariladi!\n\n"
         "⚠️ **Qoida:** Test boshlanishi uchun kamida **3 nafar ishtirokchi** "
-        "quyidagi «Men tayyorman» tugmasini bosishi lozim!\n\n"
+        "«Men tayyorman» tugmasini bosishi lozim!\n\n"
         f"Rasmiy hamkor kanal: {CHANNEL_USERNAME}"
     )
     bot.send_message(chat_id, announcement, parse_mode="Markdown", reply_markup=markup)
@@ -464,7 +537,6 @@ def callback_ready_handler(call):
         except Exception:
             pass
     else:
-        # Kamida 3 nafar bo'ldi -> Start beriladi
         match_data["started"] = True
         names = ", ".join(list(match_data["ready_users"].values())[:5])
         try:
@@ -580,11 +652,11 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v9.1)** portaliga xush kelibsiz!\n\n"
+        "🏛 **AI TILSHUNOS & METODIST (v9.2)** portaliga xush kelibsiz!\n\n"
         "Quyidagi asosiy toifalardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** G'azal, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Dars ishlanmalari va zamonaviy metodlar\n"
-        "🎒 **Abituriyentlar uchun:** 50 ballik esse, O'TIL, imlo va BMB 30 talik test\n"
+        "🎒 **Abituriyentlar uchun:** 50 ballik esse, O'TIL, imlo va BMB 30 talik test (Jonli reyting bilan)\n"
         "🔬 **Ilmiy izlanuvchilar uchun:** OAK maqola va tezis loyihalash\n\n"
         "👇 *Yo'nalishingizni tanlang:* \n"
         "╰─────────────────────────────────────╯"
@@ -870,7 +942,7 @@ def callback_quiz_options(call):
         bot.answer_callback_query(call.id, "Individual test boshlanmoqda...")
         bot.send_message(
             call.message.chat.id,
-            "⏳ *Siz uchun 30 talik individual test tayyorlanmoqda... Har bir savolga ⏳ 40 soniya vaqt beriladi!*",
+            "⏳ *Siz uchun 30 talik individual test tayyorlanmoqda... Har bir savolga ⏳ 40 soniya vaqt beriladi! Yakunda to'liq reytingingiz ko'rsatiladi.*",
             parse_mode="Markdown"
         )
         try:
@@ -890,11 +962,12 @@ def callback_quiz_options(call):
             "1. Botingizni o'zingizning guruhingizga qo'shing.\n"
             "2. Botga guruhda **Admin** huquqini bering (so'rovnoma yuborishi uchun).\n"
             "3. Guruh chatida `/quiz_start` buyrug'ini yuboring.\n"
-            "4. Bot guruhga e'lon tashlaydi va kamida 3 kishi «Men tayyorman» tugmasini bosgach, har biri ⏳ 40 soniyalik 30 talik test boshlanadi!\n\n"
+            "4. Bot guruhga e'lon tashlaydi va kamida 3 kishi «Men tayyorman» tugmasini bosgach, har biri ⏳ 40 soniyalik 30 talik test boshlanadi!\n"
+            "5. Test tugagach, kim nechanchi o'rinni olgani to'liq reyting jadvalida e'lon qilinadi!\n\n"
             f"Rasmiy kanalimiz: {CHANNEL_USERNAME}\n"
             "╰──────────────────────────────────────────╯"
         )
         bot.send_message(call.message.chat.id, info_text, parse_mode="Markdown")
 
-print("AI Tilshunos v9.1 faol ishga tushdi...")
+print("AI Tilshunos v9.2 (Quiz Live Leaderboard) faol ishga tushdi...")
 bot.infinity_polling()
