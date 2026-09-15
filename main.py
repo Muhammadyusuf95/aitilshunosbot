@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v6.0 (Creative Design Edition) Faol!"
+    return "AI Tilshunos & Metodist v6.1 (Stable Model Edition) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -114,27 +114,22 @@ def save_user(user):
 def get_main_menu(user_id=None):
     markup = tele_types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
-    # 1. Ilmiy tadqiqot bloki
     markup.row(
         tele_types.KeyboardButton("📑 Ilmiy maqola (OAK)"),
         tele_types.KeyboardButton("📄 Ilmiy tezis (Konferensiya)")
     )
-    # 2. Metodika va Ta'lim bloki
     markup.row(
         tele_types.KeyboardButton("📋 Dars ishlanmasi"),
         tele_types.KeyboardButton("📝 Esse tekshiruvi (50 ball)")
     )
-    # 3. Mumtoz adabiyot bloki
     markup.row(
         tele_types.KeyboardButton("📜 G'azal tahlili"),
         tele_types.KeyboardButton("📐 Aruz vazni hisoblagich")
     )
-    # 4. Tilshunoslik va lug'atlar
     markup.row(
         tele_types.KeyboardButton("🏛 Qadimgi turkiy til"),
         tele_types.KeyboardButton("📖 So'z izohi (O'TIL)")
     )
-    # 5. Amaliy va Interfaol
     markup.row(
         tele_types.KeyboardButton("🔍 So'z etimologiyasi"),
         tele_types.KeyboardButton("🔤 Imlo va orfoepiya")
@@ -256,7 +251,7 @@ SYSTEM_INSTRUCTION = (
     "Javoblarni aniq sarlavhalar, bo'lim ajratuvchilari, emojilar va Telegram Markdown uslubida estetik tarzda yetkazib bering."
 )
 
-# --- AI GENERATSIYA FUNKSIYASI ---
+# --- AI GENERATSIYA FUNKSIYASI (BARQAROR GEMINI-2.5-FLASH) ---
 def generate_ai_content(prompt_text, chat_id=None):
     if check_security_violation(prompt_text):
         return SECURITY_WARNING
@@ -273,9 +268,9 @@ def generate_ai_content(prompt_text, chat_id=None):
         "Oxirida '📚 Manba:' keltirilsin."
     )
     last_error_msg = ""
-    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
+    models = ["gemini-2.5-flash"]
     for model_name in models:
-        for attempt in range(2):
+        for attempt in range(3):
             try:
                 response = ai_client.models.generate_content(
                     model=model_name,
@@ -312,10 +307,10 @@ def generate_ai_quiz():
         "}\n"
         "correct_option_id 0, 1, 2 yoki 3 bo'lsin."
     )
-    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
+    models = ["gemini-2.5-flash"]
     last_error_msg = ""
     for model_name in models:
-        for attempt in range(2):
+        for attempt in range(3):
             try:
                 response = ai_client.models.generate_content(
                     model=model_name,
@@ -478,7 +473,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Hurmatli tadqiqotchi"
     text = (
         f"╭──── ✨ **Xush kelibsiz, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v6.0)** — filologiya, adabiyot "
+        "🏛 **AI TILSHUNOS & METODIST (v6.1)** — filologiya, adabiyot "
         "va pedagogika yo'nalishidagi eng ilg'or intellektual yordamchi.\n\n"
         "🔹 **Ilmiy tadqiqot:** OAK maqola va konferensiya tezislari rejasi\n"
         "🔹 **Metodik mahorat:** Dars ishlanmalari va 50 ballik esse tahlili\n"
@@ -708,9 +703,6 @@ def handle_all_messages(message):
     elif text == "📖 So'z izohi (O'TIL)":
         bot.send_message(message.chat.id, "📖 **O'zbek tilining izohli lug'ati (O'TIL):**", reply_markup=get_sub_menu("izoh"))
 
-    elif text == "✍️ So'zni kiritish" and "izoh" in str(message.reply_to_message):
-        pass
-
     # 9. SO'Z ETIMOLOGIYASI
     elif text == "🔍 So'z etimologiyasi":
         bot.send_message(message.chat.id, "🔍 **Shavkat Rahmatullayev etimologik lug'ati:**", reply_markup=get_sub_menu("etimologiya"))
@@ -778,5 +770,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(message.from_user.id))
 
-print("AI Tilshunos v6.0 (Creative Design Edition) faol ishga tushdi...")
+print("AI Tilshunos v6.1 faol ishga tushdi...")
 bot.infinity_polling()
