@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v10.1 (Multi-Epoch Didactic Edition) Faol!"
+    return "AI Tilshunos & Metodist v10.2 (Selective Route Quiz Edition) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -55,6 +55,7 @@ ACTIVE_QUIZ_TRACKER = {}
 POLL_CORRECT_MAP = {}
 READY_MATCHES = {}
 ADMIN_POST_STORAGE = {}
+PENDING_QUIZZES = {}
 
 IMZO = (
     "\n\n╭───────────────────────╮\n"
@@ -63,7 +64,7 @@ IMZO = (
     "╰───────────────────────╯"
 )
 
-# --- TARIXIY DAVRLAR RO'YXATI (DAVRLAR VA MANBALAR ROTATSIYASI) ---
+# --- TARIXIY DAVRLAR RO'YXATI ---
 HISTORICAL_EPOCHS = [
     {
         "epoch": "Qadimgi va ilk o'rta asrlar turkiy yozma obidalari (XI-XII asrlar)",
@@ -308,7 +309,7 @@ def generate_ai_content(prompt_text, chat_id=None):
                     break
     raise Exception(f"AI Xatolik tafsiloti: {last_error[:300]}")
 
-# --- QUIZ TEST GENERATORLARI (MAVZULI VA ATTESTATSIYA) ---
+# --- QUIZ TEST GENERATORLARI ---
 def generate_quiz_batch(prompt_spec, count=30):
     models = ["gemini-3.6-flash"]
     last_error = ""
@@ -431,7 +432,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         "Har bir to'g'ri javob qayd etiladi va yakunda **REYTING JADVALI** e'lon qilinadi!",
         parse_mode="Markdown"
     )
-    time.sleep(3)
+    time.sleep(2)
 
     for idx, q_data in enumerate(questions, 1):
         question_text = f"[{idx}/{total_q}] ⏳ {duration_per_q}s | {q_data['question']}"
@@ -516,13 +517,13 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                 f"╔════════════════════════════════╗\n"
                 f"  🏆 **{title.upper()} YAKUNLANDI!**\n"
                 f"╚════════════════════════════════╝\n\n"
-                "Test yakunlandi. Hech bir ishtirokchi variant belgilanmadi.\n\n"
+                "Test yakunlandi. Hech bir ishtirokchi javob belgilamadi.\n\n"
                 f"Rasmiy kanal: {CHANNEL_USERNAME}"
             )
 
     bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown")
 
-# --- 3 KISHI «TAYYORMAN» TIZIMI ---
+# --- 3 KISHI «TAYYORMAN» TIZIMI (Guruh va Kanal uchun) ---
 def setup_match_lobby(chat_id, questions, duration_per_q, title):
     match_id = f"m_{int(time.time())}_{random.randint(100, 999)}"
     READY_MATCHES[match_id] = {
@@ -601,6 +602,110 @@ def callback_match_lobby(call):
             daemon=True
         ).start()
 
+# --- TEST TAYYOR BO'LGANDA TANLOV MENYUSINI CHIQARISH ---
+def offer_quiz_dispatch(chat_id, user_id, questions, duration_per_q, title):
+    quiz_id = f"qz_{int(time.time())}_{random.randint(100, 999)}"
+    PENDING_QUIZZES[quiz_id] = {
+        "questions": questions,
+        "duration": duration_per_q,
+        "title": title
+    }
+
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    if int(user_id) == int(ADMIN_ID):
+        markup.add(
+            tele_types.InlineKeyboardButton(text="📢 Kanalga e'lon qilish (@onatilidanyordam)", callback_data=f"act_chan_{quiz_id}"),
+            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida ishlash (Darhol)", callback_data=f"act_bot_{quiz_id}")
+        )
+        bot.send_message(
+            chat_id,
+            f"👑 **Hurmatli Admin!**\n\n**{title}** muvaffaqiyatli shakllantirildi.\nTestni qayerda o'tkazmoqchisiz?",
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+    else:
+        markup.add(
+            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida yakkaxon ishlash (Darhol)", callback_data=f"act_bot_{quiz_id}"),
+            tele_types.InlineKeyboardButton(text="👥 O'z guruhimga tashlash (Bellashuv)", callback_data=f"act_grpinfo_{quiz_id}")
+        )
+        bot.send_message(
+            chat_id,
+            f"🎉 **{title}** muvaffaqiyatli tayyorlandi!\nQayerda test ishlamoqchisiz? Tanlang:",
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+
+# --- TEST TANLOV CALLBACKLARI ---
+@bot.callback_query_handler(func=lambda call: call.data.startswith(("act_chan_", "act_bot_", "act_grpinfo_")))
+def callback_quiz_routing(call):
+    data = call.data
+    
+    if data.startswith("act_chan_"):
+        if int(call.from_user.id) != int(ADMIN_ID):
+            bot.answer_callback_query(call.id, "Faqat admin uchun!", show_alert=True)
+            return
+        quiz_id = data.replace("act_chan_", "")
+        q_data = PENDING_QUIZZES.get(quiz_id)
+        if not q_data:
+            bot.answer_callback_query(call.id, "Test ma'lumoti eskirgan.", show_alert=True)
+            return
+
+        bot.answer_callback_query(call.id, "Kanalga yuborilmoqda...")
+        setup_match_lobby(CHANNEL_USERNAME, q_data["questions"], q_data["duration"], q_data["title"])
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=f"✅ **{q_data['title']}** rasmiy {CHANNEL_USERNAME} kanaliga e'lon qilindi!\nKanalda 3 kishi «Tayyorman»ni bosgach test boshlanadi."
+        )
+
+    elif data.startswith("act_bot_"):
+        quiz_id = data.replace("act_bot_", "")
+        q_data = PENDING_QUIZZES.get(quiz_id)
+        if not q_data:
+            bot.answer_callback_query(call.id, "Test ma'lumoti eskirgan.", show_alert=True)
+            return
+
+        bot.answer_callback_query(call.id, "Test boshlanmoqda!")
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        # BOTDA ISHLASH TANLANGANDA DARHOL BOSHLANADI (KUTISHLARSIZ)
+        threading.Thread(
+            target=run_interactive_quiz_loop,
+            args=(call.message.chat.id, q_data["questions"], q_data["duration"], q_data["title"]),
+            daemon=True
+        ).start()
+
+    elif data.startswith("act_grpinfo_"):
+        bot.answer_callback_query(call.id)
+        info_text = (
+            "╭── 👥 **TESTNI GURUHINGIZDA O'TKAZISH TARTIBI** ──╮\n\n"
+            "1. Botingizni sinf yoki abituriyent guruhingizga qo'shing.\n"
+            "2. Botga guruhda **Admin** huquqini bering (so'rovnoma yuborishi uchun).\n"
+            "3. Guruh chatida `/quiz_start` buyrug'ini yuboring.\n"
+            "4. Bot guruhga e'lon tashlaydi va 3 kishi «Men tayyorman» tugmasini bosishi bilanoq test start oladi!\n"
+            "5. Yakunda butun guruh reytingi e'lon qilinadi.\n\n"
+            f"Rasmiy kanal: {CHANNEL_USERNAME}\n"
+            "╰──────────────────────────────────────────╯"
+        )
+        bot.send_message(call.message.chat.id, info_text, parse_mode="Markdown")
+
+# --- GURUHDAN /quiz_start BUYRUG'I BERILGANDA ---
+@bot.message_handler(commands=['quiz_start'])
+def cmd_quiz_start_group(message):
+    chat_type = message.chat.type
+    if chat_type in ['group', 'supergroup']:
+        bot.reply_to(
+            message, 
+            "⏳ *Guruh uchun BMB 30 talik test paketi shakllanmoqda... Iltimos kuting!*", 
+            parse_mode="Markdown"
+        )
+        try:
+            questions = get_themed_bmb_questions("5-11-sinf barcha darsliklari")
+            setup_match_lobby(message.chat.id, questions, duration_per_q=30, title="Guruh Bellashuvi (BMB 30 ta)")
+        except Exception as e:
+            bot.reply_to(message, f"❌ Xatolik yuz berdi: {e}")
+    else:
+        bot.reply_to(message, "Ushbu buyruq faqat Telegram guruhlarida ishlaydi.")
+
 # --- ADMIN KANALGA YUBORISH / BEKOR QILISH HANDLERI ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith(("send_chan_", "cancel_")))
 def callback_admin_approval(call):
@@ -639,7 +744,7 @@ def callback_admin_approval(call):
         except Exception:
             pass
 
-# --- ADMIN: KUN HIKMATI VA MOTIVATSIYA GENERATSIYASI (DAVRLAR ROTATSIYASI BILAN) ---
+# --- ADMIN: KUN HIKMATI VA MOTIVATSIYA GENERATSIYASI ---
 def get_verified_didactic_content(content_type="hikmat"):
     chosen_epoch = random.choice(HISTORICAL_EPOCHS)
     seed = random.randint(1000, 99999)
@@ -687,7 +792,6 @@ def get_verified_didactic_content(content_type="hikmat"):
     )
     return response.text.strip()
 
-# --- ADMINNING HIKMAT/MOTIVATSIYA KANALGA JOYLASHTIRISH HANDLERI ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pub_"))
 def callback_publish_quote(call):
     if int(call.from_user.id) != int(ADMIN_ID):
@@ -725,7 +829,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v10.1)** portaliga xush kelibsiz!\n\n"
+        "🏛 **AI TILSHUNOS & METODIST (v10.2)** portaliga xush kelibsiz!\n\n"
         "Quyidagi maqsadli toifalardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va 40 talik Attestatsiya testi\n"
@@ -849,7 +953,7 @@ def handle_all_messages(message):
         )
         try:
             questions = get_attestation_questions()
-            setup_match_lobby(message.chat.id, questions, duration_per_q=40, title="Pedagoglar Attestatsiya Testi (40 ta)")
+            offer_quiz_dispatch(message.chat.id, u_id, questions, duration_per_q=40, title="Pedagoglar Attestatsiya Testi (40 ta)")
         except Exception as e:
             bot.send_message(message.chat.id, f"❌ Xatolik: {e}")
 
@@ -870,7 +974,7 @@ def handle_all_messages(message):
             bot.send_message(msg_obj.chat.id, f"⏳ *«{theme}» mavzusi bo'yicha 30 talik test shakllanmoqda... Har bir savolga ⏳ 30 soniya!*", parse_mode="Markdown")
             try:
                 questions = get_themed_bmb_questions(theme)
-                setup_match_lobby(msg_obj.chat.id, questions, duration_per_q=30, title=f"BMB Mavzuli Test: {theme}")
+                offer_quiz_dispatch(msg_obj.chat.id, msg_obj.from_user.id, questions, duration_per_q=30, title=f"BMB Mavzuli Test: {theme}")
             except Exception as e:
                 bot.send_message(msg_obj.chat.id, f"❌ Xatolik: {e}")
 
@@ -885,11 +989,11 @@ def handle_all_messages(message):
         )
         try:
             questions = get_themed_bmb_questions("5-11-sinf barcha bo'limlari")
-            setup_match_lobby(message.chat.id, questions, duration_per_q=30, title="BMB Umumiy Test (30 ta)")
+            offer_quiz_dispatch(message.chat.id, u_id, questions, duration_per_q=30, title="BMB Umumiy Test (30 ta)")
         except Exception as e:
             bot.send_message(message.chat.id, f"❌ Xatolik: {e}")
 
-    # 5. BOSHQARUVNING BOSHQA BUYRUQLARI
+    # 5. BOSHQA BARCHA ILMIY-METODIK BUYRUQLAR
     elif text == "📋 Dars ishlanmasi":
         msg = bot.reply_to(message, "📋 Qaysi sinf va mavzu bo'yicha dars ishlanmasi kerak? Yozib yuboring:")
         p = "Umumta'lim maktabi uchun '{input}' mavzusida to'liq 45 daqiqalik dars ishlanmasi (konspekt) tuzing."
@@ -974,5 +1078,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.1 (Multi-Epoch Didactic Edition) faol ishga tushdi...")
+print("AI Tilshunos v10.2 (Selective Route Quiz) faol ishga tushdi...")
 bot.infinity_polling()
