@@ -12,7 +12,7 @@ from telebot import types as tele_types
 from google import genai
 from google.genai import types
 
-# --- RENDER WEB SERVICE VA TELEGRAM WEBAPP (MINI-APP) SERVERI ---
+# --- RENDER WEB SERVICE VA TELEGRAM WEBAPP SERVERI ---
 app = Flask(__name__)
 RESULTS_FILE = "test_results.json"
 USERS_FILE = "users.json"
@@ -54,7 +54,7 @@ WEBAPP_HTML = """
     body {
       margin: 0;
       padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
     }
@@ -192,7 +192,7 @@ WEBAPP_HTML = """
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v10.4 (Interactive UI & Mini-App Edition) Faol!"
+    return "AI Tilshunos & Metodist v10.5 (Theme Catalog Edition) Faol!"
 
 @app.route('/leaderboard')
 def webapp_leaderboard():
@@ -256,7 +256,6 @@ READY_MATCHES = {}
 ADMIN_POST_STORAGE = {}
 PENDING_QUIZZES = {}
 
-# Banner-Card vizual havolalari (Canva / Unsplash sifatli ta'limiy illyustratsiyalar)
 BANNER_IMAGES = {
     "talaba": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=900&auto=format&fit=crop&q=80",
     "oqituvchi": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=900&auto=format&fit=crop&q=80",
@@ -277,6 +276,38 @@ def get_next_quiz_number(quiz_type):
     counters[quiz_type] = current
     save_data(COUNTERS_FILE, counters)
     return current
+
+# --- MUKAMMAL MAVZULAR KATALOGI (BMB / DARSLIKLAR STANDARTI) ---
+THEME_CATALOG = {
+    "cat_fonetika": {
+        "title": "🗣 Fonetika, orfoepiya va imlo qoidalari",
+        "prompt": "Fonetika: unli va undoshlar tasnifi, tovush o'zgarishlari (tushish, ortish, almashish), bo'g'in, urg'u hamda rasmiy imlo mezonlari"
+    },
+    "cat_leksika": {
+        "title": "📖 Leksikologiya, frazeologiya va paronimlar",
+        "prompt": "Leksikologiya: o'z va o'zlashgan qatlam, ma'nodosh, shakldosh, zid ma'noli so'zlar, paronimlar lug'ati va frazeologik iboralar tahlili"
+    },
+    "cat_morf_mustaqil": {
+        "title": "🧩 Morfologiya: Mustaqil so'z turkumlari",
+        "prompt": "Mustaqil so'z turkumlari: ot, sifat, son, olmosh, ravish hamda fe'l nisbatlari, vazifa shakllari (sifatdosh, ravishdosh, harakat nomi)"
+    },
+    "cat_morf_yordamchi": {
+        "title": "🔗 Morfologiya: Yordamchi so'zlar va alohida guruh",
+        "prompt": "Yordamchi so'zlar (ko'makchi, bog'lovchi, yuklama), modal so'zlar, taqlidlar va undov so'zlar uslubiyati hamda imlosi"
+    },
+    "cat_sintaksis": {
+        "title": "📐 Sintaksis: Gap bo'laklari va qo'shma gaplar",
+        "prompt": "Sintaksis: so'z birikmasi, bosh va ikkinchi darajali bo'laklar, uyushiq/ajratilgan bo'laklar, ergashgan qo'shma gaplar va punktuatsiya"
+    },
+    "cat_mumtoz": {
+        "title": "📜 Mumtoz adabiyot va badiiy san'atlar",
+        "prompt": "Mumtoz adabiyot: Alisher Navoiy va Bobur ijodi, aruz vazni bahr va ruknlari, mumtoz she'riy janrlar hamda badiiy san'atlar (tazod, tanosub, istiora, iyhom)"
+    },
+    "cat_jadid": {
+        "title": "💡 Jadid va XX asr o'zbek adabiyoti",
+        "prompt": "Jadid va XX asr adabiyoti: Behbudiy, Avloniy, Fitrat, Cho'lpon, Qodiriy, Oybek, G'afur G'ulom asarlari va qahramonlari tahlili"
+    }
+}
 
 # --- TARIXIY DAVRLAR ROTATSIYASI ---
 HISTORICAL_EPOCHS = [
@@ -343,7 +374,6 @@ def save_user(user):
         }
         save_data(USERS_FILE, users)
 
-# --- MENYULAR TUZILISHI ---
 def get_main_menu(user_id=None):
     markup = tele_types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.row(
@@ -362,13 +392,13 @@ def get_main_menu(user_id=None):
         markup.row(tele_types.KeyboardButton("📊 Boshqaruv & Statistika"))
     return markup
 
-# --- BANNER-CARD BILAN INLINE BO'LIM MENYULARI ---
+# --- BANNER-CARD BILAN BO'LIMLARNI YUBORISH ---
 def send_section_card(chat_id, group_name):
     if group_name == "talaba":
         img = BANNER_IMAGES["talaba"]
         caption = (
             "╭──── 🎓 **TALABALAR VA FILOLOGLAR KABINETI** ────╮\n\n"
-            "▫️ Mumtoz g'azaliyot badiiyoti va poetik san'atlar\n"
+            "▫️ Mumtoz g'azaliyot badiiyati va poetik san'atlar\n"
             "▫️ Aruz tizimi: hijolar vazni, bahrlar va taf'ilalar\n"
             "▫️ Eski turkiy til manbalari hamda nodir leksik qatlam\n"
             "▫️ Rahmatullayev etimologik lug'ati asosidagi tahlillar\n\n"
@@ -411,7 +441,7 @@ def send_section_card(chat_id, group_name):
             "▫️ Milliy sertifikat 50 ballik esse tahlili va mezonlari\n"
             "▫️ O'TIL izohli lug'ati, rasmiy imlo va orfoepiya qoidalari\n"
             "▫️ **BMB 30 talik Test:** Davlat imtihoni standarti (30 soniya)\n"
-            "▫️ **Mavzuli BMB Test:** 5-11-sinf mavzulashtirilgan bloklari\n\n"
+            "▫️ **Mavzuli BMB Test:** Mukammal katalog yoki erkin mavzu tanlovi\n\n"
             "👇 *Kerakli tayyorgarlik bo'limini tanlang:* \n"
             "╰─────────────────────────────────────────────╯"
         )
@@ -420,7 +450,7 @@ def send_section_card(chat_id, group_name):
             tele_types.InlineKeyboardButton(text="📝 Esse tekshiruvi (50 ballik)", callback_data="btn_esse"),
             tele_types.InlineKeyboardButton(text="📖 So'z izohi (O'TIL) & Imlo", callback_data="btn_izoh"),
             tele_types.InlineKeyboardButton(text="🧠 BMB Umumiy 30 talik Test (№)", callback_data="btn_bmb_gen"),
-            tele_types.InlineKeyboardButton(text="📚 Mavzulashtirilgan BMB Test (30 ta)", callback_data="btn_bmb_themed"),
+            tele_types.InlineKeyboardButton(text="📚 Mavzulashtirilgan BMB Test (30 ta)", callback_data="btn_bmb_themed_hub"),
             tele_types.InlineKeyboardButton(
                 text="🏆 Jonli Reyting Doskasi (Mini-App)", 
                 web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
@@ -445,22 +475,38 @@ def send_section_card(chat_id, group_name):
         )
         bot.send_photo(chat_id, img, caption=caption, parse_mode="Markdown", reply_markup=markup)
 
-# --- NATIJALAR UCHUN ACTION BUTTONS (INLINE TUGMALAR) ---
-def get_content_actions_inline(category_tag):
-    markup = tele_types.InlineKeyboardMarkup(row_width=2)
-    markup.add(
-        tele_types.InlineKeyboardButton(text="🔄 Yangi tahlil", callback_data=f"retry_{category_tag}"),
-        tele_types.InlineKeyboardButton(text="📤 Do'stlarga ulashish", switch_inline_query=f"{category_tag} bo'yicha tahlil")
+# --- MAVZULASHTIRILGAN TEST BOSHQARUV MARKAZI (KATALOG YOKI ERKIN KIRITISH) ---
+def send_themed_test_hub(chat_id):
+    caption = (
+        "╭── 📚 **MAVZULASHTIRILGAN BMB TEST MARKAZI** ──╮\n\n"
+        "Ona tili va adabiyoti fanidan 30 talik test topshirish uchun "
+        "o'zingizga qulay usulni tanlang:\n\n"
+        "1️⃣ **Mavzular katalogidan tanlash** — 5-11-sinf darsliklarining asosiy bo'limlari bo'yicha tayyor ro'yxat;\n"
+        "2️⃣ **Mavzuni o'zingiz kiritish** — aniq dars yoki tor yo'nalish nomini yozasiz, bot test tuzib beradi.\n\n"
+        "👇 *Tanlang:* \n"
+        "╰─────────────────────────────────────────────╯"
     )
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        tele_types.InlineKeyboardButton(
-            text="🏆 Jonli Reyting Doskasi", 
-            web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
-        )
+        tele_types.InlineKeyboardButton(text="📂 Mavzular Katalogidan tanlash", callback_data="theme_open_catalog"),
+        tele_types.InlineKeyboardButton(text="✍️ O'zim yangi mavzu kiritaman", callback_data="theme_custom_input")
     )
-    return markup
+    bot.send_message(chat_id, caption, parse_mode="Markdown", reply_markup=markup)
 
-# --- DINAMIK YUKLANISH ANIMATSIYASI ---
+def send_theme_catalog(chat_id):
+    caption = (
+        "╭── 📂 **5-11-SINF DARSLIKLARI MAVZULAR KATALOGI** ──╮\n\n"
+        "BMB standarti bo'yicha qaysi bo'limdan 30 talik test topshirmoqchisiz?\n"
+        "Quyidagi ro'yxatdan kerakli bo'limni tanlang:\n\n"
+        "╰──────────────────────────────────────────────╯"
+    )
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    for cat_key, cat_data in THEME_CATALOG.items():
+        markup.add(tele_types.InlineKeyboardButton(text=cat_data["title"], callback_data=f"seltheme_{cat_key}"))
+    markup.add(tele_types.InlineKeyboardButton(text="🔙 Orqaga", callback_data="btn_bmb_themed_hub"))
+    bot.send_message(chat_id, caption, parse_mode="Markdown", reply_markup=markup)
+
+# --- QADAMLI DINAMIK YUKLANISH ANIMATSIYASI ---
 def dynamic_ai_delivery(chat_id, prompt_text, user_id, category_tag):
     if check_security_violation(prompt_text):
         bot.send_message(chat_id, SECURITY_WARNING, parse_mode="Markdown")
@@ -502,11 +548,9 @@ def dynamic_ai_delivery(chat_id, prompt_text, user_id, category_tag):
         except Exception:
             bot.send_message(chat_id, f"❌ Xatolik yuz berdi: {e}")
 
-# --- YIG'ILUVCHI BLOCKQUOTE VA MONOSPACE BILAN STILIZATSIYA ---
 def deliver_styled_response(chat_id, user_id, text, category_tag):
     is_admin = (int(user_id) == int(ADMIN_ID))
 
-    # Katta matnlarni yig'iluvchi expandable blockquote (**) ichiga o'rash
     styled_text = (
         "╭── 💎 **ILMIY-METODIK EKSPERT XULOSASI** ──╮\n\n"
         f"**>** {text.strip()}\n\n"
@@ -532,12 +576,18 @@ def deliver_styled_response(chat_id, user_id, text, category_tag):
             reply_markup=markup
         )
     else:
-        bot.send_message(
-            chat_id,
-            styled_text,
-            parse_mode="Markdown",
-            reply_markup=get_content_actions_inline(category_tag)
+        markup = tele_types.InlineKeyboardMarkup(row_width=2)
+        markup.add(
+            tele_types.InlineKeyboardButton(text="🔄 Yangi tahlil", callback_data=f"retry_{category_tag}"),
+            tele_types.InlineKeyboardButton(text="📤 Do'stlarga ulashish", switch_inline_query=f"{category_tag} tahlili")
         )
+        markup.add(
+            tele_types.InlineKeyboardButton(
+                text="🏆 Jonli Reyting Doskasi", 
+                web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
+            )
+        )
+        bot.send_message(chat_id, styled_text, parse_mode="Markdown", reply_markup=markup)
 
 # --- MAJBURIY OBUNA ---
 def is_subscribed(user_id):
@@ -628,7 +678,7 @@ def generate_ai_content(prompt_text):
                     break
     raise Exception(f"AI Xatolik tafsiloti: {last_error[:300]}")
 
-# --- TESTLARNI GENERATSIYA QILISH ---
+# --- QUIZ TEST BATCH GENERATORI ---
 def generate_quiz_batch(prompt_spec, count=30):
     models = ["gemini-3.6-flash"]
     last_error = ""
@@ -1103,7 +1153,7 @@ def get_verified_didactic_content(content_type="hikmat"):
             "1. Mazkur hikmat ilm, odob, qanoat, vaqt qadri, adolat yoki donolik xususida bo'lsin.\n"
             "2. Sun'iy ravishda to'qilmasin! Haqiqiy kitob, asar, doston yoki manbadan aniq iqtibos oling.\n"
             "3. Diniy, siyosiy, tibbiy yoki huquqiy mavzulardan 100% chetlashing.\n\n"
-            "Qat'iy format (faqat shu ko'rinishda bering):\n"
+            "Qat'iy format:\n"
             "🏛 **Davr:** [Tanlangan davr nomi]\n\n"
             "[HIKMAT MATNI]\n\n"
             "📚 Aniq manba: [Muallif, asar nomi, bob yoki bayt ko'rsatkichi]"
@@ -1119,7 +1169,7 @@ def get_verified_didactic_content(content_type="hikmat"):
             "QAT'IY TALABLAR:\n"
             "1. Sun'iy to'qilmasin! Berilgan davr allomalarining haqiqiy risola, doston, roman yoki maqolalaridan olinsin.\n"
             "2. Diniy, siyosiy, tibbiy yoki huquqiy mavzulardan mutlaqo chetlashing.\n\n"
-            "Qat'iy format (faqat shu ko'rinishda bering):\n"
+            "Qat'iy format:\n"
             "🏛 **Davr:** [Tanlangan davr nomi]\n\n"
             "[MOTIVATSIYA MATNI]\n\n"
             "📚 Aniq manba: [Muallif, asar nomi, chop etilgan nashr yoki sahifa ko'rsatkichi]"
@@ -1160,14 +1210,51 @@ def callback_publish_quote(call):
     except Exception as e:
         bot.answer_callback_query(call.id, f"Xatolik: {e}", show_alert=True)
 
-# --- INLINE KNOPKALARNING HANDLERLARI (BANNER KARTALARIDAN KELGAN) ---
-@bot.callback_query_handler(func=lambda call: call.data.startswith("btn_"))
+# --- INLINE KNOPKALARNING HANDLERLARI ---
+@bot.callback_query_handler(func=lambda call: call.data.startswith(("btn_", "theme_", "seltheme_")))
 def callback_button_actions(call):
     cid = call.message.chat.id
     uid = call.from_user.id
     data = call.data
 
-    if data == "btn_gazal":
+    if data == "btn_bmb_themed_hub":
+        send_themed_test_hub(cid)
+
+    elif data == "theme_open_catalog":
+        send_theme_catalog(cid)
+
+    elif data == "theme_custom_input":
+        msg = bot.send_message(
+            cid, 
+            "✍️ **Erkin mavzu bo'yicha test:**\n\n"
+            "Qaysi darslik mavzusidan 30 talik test tuzmoqchisiz? Yozib yuboring:\n"
+            "👉 *Masalan: «Qo'shma gap turlari», «Sifatdosh va uning vazifalari», «Boburnoma fitonimlari»*", 
+            parse_mode="Markdown"
+        )
+        def start_custom_theme(m):
+            theme = m.text.strip()
+            quiz_title = f"«{theme}» mavzusi bo'yicha test (30 ta)"
+            bot.send_message(cid, f"⏳ *«{theme}» bo'yicha test shakllanmoqda... Har bir savolga ⏳ 30 soniya!*", parse_mode="Markdown")
+            try:
+                questions = get_themed_bmb_questions(theme)
+                offer_quiz_dispatch(cid, uid, questions, duration_per_q=30, title=quiz_title)
+            except Exception as e:
+                bot.send_message(cid, f"❌ Xatolik: {e}")
+        bot.register_next_step_handler(msg, start_custom_theme)
+
+    elif data.startswith("seltheme_"):
+        cat_key = data.replace("seltheme_", "")
+        cat_info = THEME_CATALOG.get(cat_key)
+        if cat_info:
+            quiz_title = f"{cat_info['title']} (30 ta)"
+            bot.send_message(cid, f"⏳ *{cat_info['title']} bo'yicha 30 talik test tuzilmoqda... Har bir savolga ⏳ 30 soniya!*", parse_mode="Markdown")
+            try:
+                questions = get_themed_bmb_questions(cat_info["prompt"])
+                offer_quiz_dispatch(cid, uid, questions, duration_per_q=30, title=quiz_title)
+            except Exception as e:
+                bot.send_message(cid, f"❌ Xatolik: {e}")
+
+    elif data == "btn_gazal":
         msg = bot.send_message(cid, "✍️ Badiiy tahlil qilmoqchi bo'lgan mumtoz baytingizni yuboring:")
         p = "Ushbu baytni badiiy tahlil qiling: '{input}'. San'atlari va so'zlar sharhini bering."
         bot.register_next_step_handler(msg, lambda m: dynamic_ai_delivery(cid, p.format(input=m.text), uid, "gazal"))
@@ -1227,19 +1314,6 @@ def callback_button_actions(call):
         except Exception as e:
             bot.send_message(cid, f"❌ Xatolik: {e}")
 
-    elif data == "btn_bmb_themed":
-        msg = bot.send_message(cid, "📚 Qaysi darslik mavzusi bo'yicha test tuzmoqchisiz? (Masalan: *«Ergashgan qo'shma gaplar»*):", parse_mode="Markdown")
-        def start_themed(m):
-            theme = m.text.strip()
-            quiz_title = f"«{theme}» mavzusi bo'yicha test (30 ta)"
-            bot.send_message(cid, f"⏳ *«{theme}» bo'yicha test shakllanmoqda...*", parse_mode="Markdown")
-            try:
-                questions = get_themed_bmb_questions(theme)
-                offer_quiz_dispatch(cid, uid, questions, duration_per_q=30, title=quiz_title)
-            except Exception as e:
-                bot.send_message(cid, f"❌ Xatolik: {e}")
-        bot.register_next_step_handler(msg, start_themed)
-
     elif data == "btn_maqola":
         msg = bot.send_message(cid, "✍️ Ilmiy tadqiqot mavzusini kiriting:")
         p = "OAK talablari asosida '{input}' mavzusida maqola yozish uchun REJA va METODIK KO'RSATMA bering. Tayyor matn bermang."
@@ -1252,7 +1326,7 @@ def callback_button_actions(call):
 
     bot.answer_callback_query(call.id)
 
-# --- RETRY (QAYTA TAHLIL) CALLBACK HANDLER ---
+# --- RETRY CALLBACK HANDLER ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith("retry_"))
 def callback_retry(call):
     tag = call.data.replace("retry_", "")
@@ -1269,7 +1343,7 @@ def callback_retry(call):
     p = prompt_map.get(tag, "'{input}' bo'yicha ilmiy tahlil bering.")
     bot.register_next_step_handler(msg, lambda m: dynamic_ai_delivery(call.message.chat.id, p.format(input=m.text), call.from_user.id, tag))
 
-# --- INLINE QUERY HANDLER (ULASHISH TUGMASI UCHUN) ---
+# --- INLINE QUERY HANDLER ---
 @bot.inline_handler(lambda query: True)
 def default_inline_query(inline_query):
     try:
@@ -1306,7 +1380,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v10.4)** portaliga xush kelibsiz!\n\n"
+        "🏛 **AI TILSHUNOS & METODIST (v10.5)** portaliga xush kelibsiz!\n\n"
         "Quyidagi asosiy yo'nalishlardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va Attestatsiya testlari\n"
@@ -1347,7 +1421,6 @@ def handle_all_messages(message):
         bot.send_message(message.chat.id, "📋 Asosiy toifalardan birini tanlang:", reply_markup=get_main_menu(u_id))
         return
 
-    # 1. 4 TA MAQSADLI TOIFA (BANNER-CARD BILAN CHIQARISH)
     elif text == "🎓 Talabalar uchun":
         send_section_card(message.chat.id, "talaba")
 
@@ -1360,7 +1433,6 @@ def handle_all_messages(message):
     elif text == "🔬 Ilmiy izlanuvchilar uchun":
         send_section_card(message.chat.id, "izlanuvchi")
 
-    # 2. FAQAT ADMINGA MO'LJALLANGAN BO'LIMLAR
     elif text == "📊 Boshqaruv & Statistika" and is_admin:
         users = load_data(USERS_FILE)
         results = load_data(RESULTS_FILE)
@@ -1430,7 +1502,7 @@ def handle_all_messages(message):
             bot.send_message(message.chat.id, f"❌ Xatolik: {e}")
 
     else:
-        bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
+        bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.4 (Interactive UI & Mini-App Edition) faol ishga tushdi...")
+print("AI Tilshunos v10.5 (Theme Catalog Edition) faol ishga tushdi...")
 bot.infinity_polling()
