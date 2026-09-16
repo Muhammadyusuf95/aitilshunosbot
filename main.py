@@ -200,14 +200,13 @@ WEBAPP_HTML = """
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v10.7 (Gamification & Retention Edition) Faol!"
+    return "AI Tilshunos & Metodist v10.8 (Instant Solo Quiz Edition) Faol!"
 
 @app.route('/leaderboard')
 def webapp_leaderboard():
     results = load_data(RESULTS_FILE)
     users = load_data(USERS_FILE)
     
-    # Saralash: Eng ko'p to'g'ri javob, so'ngra ballar (points) va vaqt
     sorted_res = sorted(
         results.items(), 
         key=lambda x: (
@@ -303,7 +302,7 @@ def get_next_quiz_number(quiz_type):
     save_data(COUNTERS_FILE, counters)
     return current
 
-# --- GAMIFIKATSIYA VA STREAK (KUNLIK SERIYA) HISOBLASH ---
+# --- GAMIFIKATSIYA VA STREAK HISOBLASH ---
 def update_user_streak(user):
     users = load_data(USERS_FILE)
     u_id = str(user.id)
@@ -326,15 +325,12 @@ def update_user_streak(user):
     streak_broken = False
 
     if last_active == today_str:
-        # Bugun allaqachon kirgan
         pass
     elif last_active == yesterday_str:
-        # Kecha kirgan bo'lsa streak oshadi
         streak += 1
-        points += 25  # Kunlik uzluksiz kirish bonusi
+        points += 25
         user_record["last_active"] = today_str
     else:
-        # Bir kun yoki ko'p tashlab yuborgan bo'lsa
         if last_active != "":
             streak_broken = True
         streak = 1
@@ -553,14 +549,12 @@ def show_user_profile(chat_id, user):
     points = u_data.get("points", 0)
     streak = u_data.get("streak", 1)
     
-    # Test natijalari
     test_data = results.get(u_id, {})
     best_correct = test_data.get("correct", 0)
     
-    # Umumiy o'rnini aniqlash
     sorted_res = sorted(results.items(), key=lambda x: -x[1].get("correct", 0))
     rank = "Ishtirok etmagan"
-    for idx, (uid_k, info_v) in enumerate(sorted_res, 1):
+    for idx, (uid_k, _) in enumerate(sorted_res, 1):
         if uid_k == u_id:
             rank = f"#{idx}-o'rin"
             break
@@ -987,7 +981,6 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                     "duration": duration_total,
                     "date": datetime.now().strftime("%Y-%m-%d %H:%M")
                 }
-                # Test ishlagani uchun qo'shimcha ball berish
                 if str(uid) in users:
                     users[str(uid)]["points"] = users[str(uid)].get("points", 0) + (info["correct"] * 2)
 
@@ -1031,7 +1024,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         )
         bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown", reply_markup=markup)
 
-# --- 3 KISHI «TAYYORMAN» TIZIMI ---
+# --- 3 KISHI «TAYYORMAN» TIZIMI (FAQAT GURUH VA KANAL BELLASHUVLARI UCHUN) ---
 def setup_match_lobby(chat_id, questions, duration_per_q, title):
     match_id = f"m_{int(time.time())}_{random.randint(100, 999)}"
     READY_MATCHES[match_id] = {
@@ -1056,7 +1049,7 @@ def setup_match_lobby(chat_id, questions, duration_per_q, title):
         f"▫️ Savollar soni: `{len(questions)} ta`\n"
         f"▫️ Vaqt me'yori: Har bir savolga `⏳ {duration_per_q} soniya`\n"
         f"▫️ Manzil: `{CHANNEL_USERNAME}`\n\n"
-        "⚠️ **Qoida:** Test start olishi uchun kamida **3 nafar ishtirokchi** "
+        "⚠️ **Qoida:** Bellashuv start olishi uchun kamida **3 nafar ishtirokchi** "
         "«Men tayyorman» tugmasini bosishi lozim!"
     )
     bot.send_message(chat_id, announcement, parse_mode="Markdown", reply_markup=markup)
@@ -1097,7 +1090,7 @@ def callback_match_lobby(call):
             bot.edit_message_text(
                 chat_id=m["chat_id"],
                 message_id=call.message.message_id,
-                text=f"🎉 **Yetarli ishtirokchilar yig'ildi! (Tayyorlar: {names})**\n\n🚀 Test 5 soniyadan so'ng start oladi...",
+                text=f"🎉 **Yetarli ishtirokchilar yig'ildi! (Tayyorlar: {names})**\n\n🚀 Bellashuv 5 soniyadan so'ng start oladi...",
                 parse_mode="Markdown"
             )
         except Exception:
@@ -1123,7 +1116,7 @@ def offer_quiz_dispatch(chat_id, user_id, questions, duration_per_q, title):
     if int(user_id) == int(ADMIN_ID):
         markup.add(
             tele_types.InlineKeyboardButton(text="📢 Kanalga e'lon qilish (@onatilidanyordam)", callback_data=f"act_chan_{quiz_id}"),
-            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida ishlash (Darhol)", callback_data=f"act_bot_{quiz_id}")
+            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida ishlash (Yakkaxon - Darhol)", callback_data=f"act_bot_{quiz_id}")
         )
         bot.send_message(
             chat_id,
@@ -1173,8 +1166,13 @@ def callback_quiz_routing(call):
             bot.answer_callback_query(call.id, "Test ma'lumoti eskirgan.", show_alert=True)
             return
 
-        bot.answer_callback_query(call.id, "Test boshlanmoqda!")
-        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.answer_callback_query(call.id, "Test darhol boshlanmoqda!")
+        try:
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+        except Exception:
+            pass
+
+        # INDIVIDUAL HOLATDA HECH QANDAY KUTISHLARSIZ DARHOL BOSHLANADI
         threading.Thread(
             target=run_interactive_quiz_loop,
             args=(call.message.chat.id, q_data["questions"], q_data["duration"], q_data["title"]),
@@ -1188,14 +1186,14 @@ def callback_quiz_routing(call):
             "1. Botingizni sinf yoki abituriyent guruhingizga qo'shing.\n"
             "2. Botga guruhda **Admin** huquqini bering (so'rovnoma yuborishi uchun).\n"
             "3. Guruh chatida `/quiz_start` buyrug'ini yuboring.\n"
-            "4. Bot guruhga e'lon tashlaydi va 3 kishi «Men tayyorman» tugmasini bosishi bilanoq test start oladi!\n"
+            "4. Bot guruhga e'lon tashlaydi va 3 kishi «Men tayyorman» tugmasini bosishi bilanoq bellashuv start oladi!\n"
             "5. Yakunda butun guruh reytingi e'lon qilinadi.\n\n"
             f"Rasmiy kanal: `{CHANNEL_USERNAME}`\n"
             "╰──────────────────────────────────────────╯"
         )
         bot.send_message(call.message.chat.id, info_text, parse_mode="Markdown")
 
-# --- GURUHDAN /quiz_start BUYRUG'I BERILGANDA ---
+# --- GURUHDAN /quiz_start BUYRUG'I BERILGANDA (3 KISHILIK SHART BILAN) ---
 @bot.message_handler(commands=['quiz_start'])
 def cmd_quiz_start_group(message):
     chat_type = message.chat.type
@@ -1213,7 +1211,7 @@ def cmd_quiz_start_group(message):
         except Exception as e:
             bot.reply_to(message, f"❌ Xatolik yuz berdi: {e}")
     else:
-        bot.reply_to(message, "Ushbu buyruq faqat Telegram guruhlarida ishlaydi.")
+        bot.reply_to(message, "Ushbu buyruq faqat Telegram guruhlarida ishlaydi. Botda individual ishlash uchun menyudan foydalaning.")
 
 # --- ADMIN KANALGA YUBORISH / BEKOR QILISH HANDLERI ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith(("send_chan_", "cancel_")))
@@ -1484,7 +1482,7 @@ def default_inline_query(inline_query):
     except Exception as e:
         print(f"Inline query xatosi: {e}")
 
-# --- ADMIN USER MANAGER VA CHIQIB KETGANLARNI MONITORING QILISH ---
+# --- ADMIN USER MANAGER ---
 def get_users_page_markup(page=0, per_page=8):
     users = load_data(USERS_FILE)
     items = list(users.items())
@@ -1576,7 +1574,6 @@ def callback_admin_user_management(call):
                 )
                 bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi: `{target_uid}` ({u_name})", parse_mode="Markdown")
             except Exception as e:
-                # Bloklaganini aniqlash va bazaga belgilash
                 if "blocked by the user" in str(e):
                     users_db = load_data(USERS_FILE)
                     if str(target_uid) in users_db:
@@ -1753,7 +1750,7 @@ def cmd_send_pm(message):
             save_data(USERS_FILE, users_db)
         bot.reply_to(message, f"❌ Foydalanuvchi botni bloklagan.")
 
-# --- KANALGA DOIMIY INTELLEKTUAL YANGILANISHLAR (AVTOPOSTING LOOP) ---
+# --- KANALGA DOIMIY INTELLEKTUAL YANGILANISHLAR ---
 def auto_poster_loop():
     tz = pytz.timezone('Asia/Tashkent')
     sent_flags = {"08:30": False, "20:30": False}
@@ -1767,7 +1764,6 @@ def auto_poster_loop():
                 for k in sent_flags:
                     sent_flags[k] = False
 
-            # TONGGI 08:30 — NOYOB ALLOMALAR HIKMATI (DAVRLAR ROTATSIYASI)
             if current_time == "08:30" and not sent_flags["08:30"]:
                 hikmat_full = get_verified_didactic_content("hikmat")
                 clean_text = hikmat_full.split("📚 Aniq manba:")[0].strip()
@@ -1775,7 +1771,6 @@ def auto_poster_loop():
                 bot.send_message(CHANNEL_USERNAME, channel_post, parse_mode="Markdown")
                 sent_flags["08:30"] = True
 
-            # KECHKI 20:30 — BMB KECHKI TEST SINOVI (3 TA QUIZ)
             elif current_time == "20:30" and not sent_flags["20:30"]:
                 bot.send_message(CHANNEL_USERNAME, "🧠 **KECHKI INTELLEKT: BMB TEST SINOVI**\n\nBugungi bilimlaringizni sinab ko'ring:")
                 for _ in range(3):
@@ -1839,7 +1834,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        f"🏛 **AI TILSHUNOS & METODIST (v10.7)** portaliga xush kelibsiz!\n"
+        f"🏛 **AI TILSHUNOS & METODIST (v10.8)** portaliga xush kelibsiz!\n"
         f"{streak_msg}\n"
         "Quyidagi asosiy yo'nalishlardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
@@ -1990,5 +1985,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.7 (Gamification & Retention) faol ishga tushdi...")
+print("AI Tilshunos v10.8 (Instant Solo Quiz) faol ishga tushdi...")
 bot.infinity_polling()
