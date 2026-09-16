@@ -3,7 +3,7 @@ import threading
 import json
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import requests
 from flask import Flask, render_template_string
@@ -40,7 +40,7 @@ WEBAPP_HTML = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>BMB Test Reytingi & Statistika</title>
+  <title>BMB Test Reytingi & Shaxsiy Kabinet</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -82,24 +82,24 @@ WEBAPP_HTML = """
     }
     .stats-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
       margin-bottom: 18px;
     }
     .stat-card {
       background: var(--card);
-      padding: 12px;
+      padding: 12px 6px;
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       text-align: center;
     }
     .stat-val {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       color: var(--primary);
     }
     .stat-lbl {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-dim);
       margin-top: 2px;
     }
@@ -141,25 +141,30 @@ WEBAPP_HTML = """
     .score {
       font-weight: 700;
       color: var(--primary);
-      font-size: 14px;
+      font-size: 13px;
+      text-align: right;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="badge">MILLIY SERTIFIKAT & BMB</div>
-    <h1>🏆 Jonli Reyting Doskasi</h1>
+    <h1>🏆 Jonli Reyting & Darajalar</h1>
     <div class="sub">@onatilidanyordam hamjamiyati</div>
   </div>
 
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-val">{{ total_users }}</div>
-      <div class="stat-lbl">Faol Bot A'zolari</div>
+      <div class="stat-lbl">A'zolar</div>
     </div>
     <div class="stat-card">
       <div class="stat-val">{{ total_tested }}</div>
-      <div class="stat-lbl">Sinovdan O'tganlar</div>
+      <div class="stat-lbl">Test topshirganlar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ active_streaks }}</div>
+      <div class="stat-lbl">🔥 Faol seriyalar</div>
     </div>
   </div>
 
@@ -169,9 +174,12 @@ WEBAPP_HTML = """
       <div class="rank rank-{{ user.rank }}">{{ user.rank_icon }}</div>
       <div class="info">
         <div class="name">{{ user.name }}</div>
-        <div class="details">{{ user.date }} • ⏳ {{ user.duration_str }}</div>
+        <div class="details">🔥 {{ user.streak }} kun seriya • {{ user.points }} ball</div>
       </div>
-      <div class="score">{{ user.correct }}/30</div>
+      <div class="score">
+        {{ user.correct }}/30 to'g'ri<br>
+        <span style="font-size:10px; color:var(--text-dim); font-weight:normal;">⏳ {{ user.duration_str }}</span>
+      </div>
     </div>
     {% else %}
     <div style="text-align: center; padding: 20px; color: var(--text-dim); font-size: 13px;">
@@ -192,32 +200,50 @@ WEBAPP_HTML = """
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v10.6 (Admin User Manager Edition) Faol!"
+    return "AI Tilshunos & Metodist v10.7 (Gamification & Retention Edition) Faol!"
 
 @app.route('/leaderboard')
 def webapp_leaderboard():
     results = load_data(RESULTS_FILE)
     users = load_data(USERS_FILE)
-    sorted_res = sorted(results.items(), key=lambda x: (-x[1].get("correct", 0), x[1].get("duration", 999999)))[:20]
+    
+    # Saralash: Eng ko'p to'g'ri javob, so'ngra ballar (points) va vaqt
+    sorted_res = sorted(
+        results.items(), 
+        key=lambda x: (
+            -x[1].get("correct", 0), 
+            -users.get(str(x[0]), {}).get("points", 0),
+            x[1].get("duration", 999999)
+        )
+    )[:25]
     
     top_list = []
+    active_streak_count = 0
+    for u_id, u_info in users.items():
+        if u_info.get("streak", 0) > 1:
+            active_streak_count += 1
+
     for idx, (uid, info) in enumerate(sorted_res, 1):
         icon = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else f"#{idx}"
         dur = info.get("duration", 0)
         dur_str = f"{dur//60}m {dur%60}s"
+        u_record = users.get(str(uid), {})
+        
         top_list.append({
             "rank": idx,
             "rank_icon": icon,
             "name": info.get("name", "Ishtirokchi"),
             "correct": info.get("correct", 0),
             "duration_str": dur_str,
-            "date": info.get("date", "")
+            "streak": u_record.get("streak", 1),
+            "points": u_record.get("points", 0)
         })
 
     return render_template_string(
         WEBAPP_HTML,
         total_users=len(users),
         total_tested=len(results),
+        active_streaks=active_streak_count,
         top_users=top_list
     )
 
@@ -276,6 +302,54 @@ def get_next_quiz_number(quiz_type):
     counters[quiz_type] = current
     save_data(COUNTERS_FILE, counters)
     return current
+
+# --- GAMIFIKATSIYA VA STREAK (KUNLIK SERIYA) HISOBLASH ---
+def update_user_streak(user):
+    users = load_data(USERS_FILE)
+    u_id = str(user.id)
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    yesterday_str = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    
+    user_record = users.get(u_id, {
+        "first_name": user.first_name or "",
+        "username": user.username or "",
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "points": 0,
+        "streak": 0,
+        "last_active": "",
+        "status": "active"
+    })
+    
+    last_active = user_record.get("last_active", "")
+    streak = user_record.get("streak", 0)
+    points = user_record.get("points", 0)
+    streak_broken = False
+
+    if last_active == today_str:
+        # Bugun allaqachon kirgan
+        pass
+    elif last_active == yesterday_str:
+        # Kecha kirgan bo'lsa streak oshadi
+        streak += 1
+        points += 25  # Kunlik uzluksiz kirish bonusi
+        user_record["last_active"] = today_str
+    else:
+        # Bir kun yoki ko'p tashlab yuborgan bo'lsa
+        if last_active != "":
+            streak_broken = True
+        streak = 1
+        points += 10
+        user_record["last_active"] = today_str
+
+    user_record["first_name"] = user.first_name or user_record.get("first_name", "")
+    user_record["username"] = user.username or user_record.get("username", "")
+    user_record["streak"] = streak
+    user_record["points"] = points
+    user_record["status"] = "active"
+
+    users[u_id] = user_record
+    save_data(USERS_FILE, users)
+    return streak, points, streak_broken
 
 # --- MUKAMMAL MAVZULAR KATALOGI ---
 THEME_CATALOG = {
@@ -363,17 +437,7 @@ SECURITY_WARNING = (
     "╰─────────────────────────────────────────────╯"
 )
 
-def save_user(user):
-    users = load_data(USERS_FILE)
-    u_id = str(user.id)
-    if u_id not in users:
-        users[u_id] = {
-            "first_name": user.first_name or "",
-            "username": user.username or "",
-            "date": datetime.now().strftime("%Y-%m-%d %H:%M")
-        }
-        save_data(USERS_FILE, users)
-
+# --- MENYULAR TUZILISHI ---
 def get_main_menu(user_id=None):
     markup = tele_types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.row(
@@ -383,6 +447,10 @@ def get_main_menu(user_id=None):
     markup.row(
         tele_types.KeyboardButton("🎒 Abituriyentlar uchun"),
         tele_types.KeyboardButton("🔬 Ilmiy izlanuvchilar uchun")
+    )
+    markup.row(
+        tele_types.KeyboardButton("👤 Shaxsiy kabinet"),
+        tele_types.KeyboardButton("🏆 Jonli Reyting Doskasi")
     )
     if user_id and int(user_id) == int(ADMIN_ID):
         markup.row(
@@ -402,7 +470,7 @@ def send_section_card(chat_id, group_name):
             "▫️ Aruz tizimi: hijolar vazni, bahrlar va taf'ilalar\n"
             "▫️ Eski turkiy til manbalari hamda nodir leksik qatlam\n"
             "▫️ Rahmatullayev etimologik lug'ati asosidagi tahlillar\n\n"
-            "👇 *Kerakli tahlil turini quyidagi tugmalardan tanlang:* \n"
+            "👇 *Kerakli tahlil turini tanlang:* \n"
             "╰─────────────────────────────────────────────╯"
         )
         markup = tele_types.InlineKeyboardMarkup(row_width=2)
@@ -474,6 +542,48 @@ def send_section_card(chat_id, group_name):
             tele_types.InlineKeyboardButton(text="📄 Konferensiya Tezisi Loyihasi", callback_data="btn_tezis")
         )
         bot.send_photo(chat_id, img, caption=caption, parse_mode="Markdown", reply_markup=markup)
+
+# --- SHAXSIY KABINETNI KO'RSATISH ---
+def show_user_profile(chat_id, user):
+    users = load_data(USERS_FILE)
+    results = load_data(RESULTS_FILE)
+    u_id = str(user.id)
+    
+    u_data = users.get(u_id, {})
+    points = u_data.get("points", 0)
+    streak = u_data.get("streak", 1)
+    
+    # Test natijalari
+    test_data = results.get(u_id, {})
+    best_correct = test_data.get("correct", 0)
+    
+    # Umumiy o'rnini aniqlash
+    sorted_res = sorted(results.items(), key=lambda x: -x[1].get("correct", 0))
+    rank = "Ishtirok etmagan"
+    for idx, (uid_k, info_v) in enumerate(sorted_res, 1):
+        if uid_k == u_id:
+            rank = f"#{idx}-o'rin"
+            break
+
+    profile_text = (
+        "╭──── 👤 **SIZNING SHAXSIY KABINETINGIZ** ────╮\n\n"
+        f"▫️ **Ism-familiya:** {user.first_name}\n"
+        f"▫️ **Telegram ID:** `{user.id}`\n\n"
+        f"🔥 **Olovli seriya (Streak):** `{streak} kun uzluksiz`\n"
+        f"🎖 **To'plangan ballar (XP):** `{points} ball`\n"
+        f"📊 **BMB testdagi eng yaxshi natija:** `{best_correct}/30 to'g'ri`\n"
+        f"🏆 **Respublika reytingidagi o'rningiz:** `{rank}`\n\n"
+        "💡 *Eslatma: Har kuni botga kirib test ishlash orqali olovli seriyangizni saqlab qoling va qo'shimcha bonus ballarga ega bo'ling!*\n"
+        "╰─────────────────────────────────────────────╯"
+    )
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        tele_types.InlineKeyboardButton(
+            text="🏆 Jonli Reyting Doskasi (Mini-App)", 
+            web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
+        )
+    )
+    bot.send_message(chat_id, profile_text, parse_mode="Markdown", reply_markup=markup)
 
 # --- MAVZULASHTIRILGAN TEST BOSHQARUV MARKAZI ---
 def send_themed_test_hub(chat_id):
@@ -867,6 +977,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
     else:
         scores = tracker["scores"] if tracker else {}
         results = load_data(RESULTS_FILE)
+        users = load_data(USERS_FILE)
 
         if scores:
             for uid, info in scores.items():
@@ -876,7 +987,12 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                     "duration": duration_total,
                     "date": datetime.now().strftime("%Y-%m-%d %H:%M")
                 }
+                # Test ishlagani uchun qo'shimcha ball berish
+                if str(uid) in users:
+                    users[str(uid)]["points"] = users[str(uid)].get("points", 0) + (info["correct"] * 2)
+
             save_data(RESULTS_FILE, results)
+            save_data(USERS_FILE, users)
 
             sorted_participants = sorted(scores.items(), key=lambda x: x[1]["correct"], reverse=True)
             leaderboard_text = ""
@@ -1368,7 +1484,7 @@ def default_inline_query(inline_query):
     except Exception as e:
         print(f"Inline query xatosi: {e}")
 
-# --- ADMIN USER MANAGER (FOYDALANUVCHILARNI KO'RISH VA XABAR YO'LLASH) ---
+# --- ADMIN USER MANAGER VA CHIQIB KETGANLARNI MONITORING QILISH ---
 def get_users_page_markup(page=0, per_page=8):
     users = load_data(USERS_FILE)
     items = list(users.items())
@@ -1379,16 +1495,22 @@ def get_users_page_markup(page=0, per_page=8):
     end_idx = min(start_idx + per_page, total_users)
     current_items = items[start_idx:end_idx]
 
-    text = f"👥 **BOT FOYDALANUVCHILARI (Jami: {total_users} ta)**\n"
+    active_count = sum(1 for _, u in items if u.get("status") != "blocked")
+    blocked_count = total_users - active_count
+
+    text = f"👥 **BOT FOYDALANUVCHILARI**\n"
+    text += f"▫️ Jami: `{total_users}` | Faol: `{active_count}` | ❌ To'xtatgan: `{blocked_count}`\n"
     text += f"📄 Sahifa: `{page + 1}/{total_pages}`\n\n"
 
     markup = tele_types.InlineKeyboardMarkup(row_width=2)
     for idx, (uid, data) in enumerate(current_items, start=start_idx + 1):
         name = data.get("first_name", "Foydalanuvchi")
         uname = f"@{data['username']}" if data.get("username") else "usernamesiz"
-        dt = data.get("date", "")
-        text += f"`{idx}.` **{name}** ({uname})\n    └ ID: `{uid}` • Sana: `{dt}`\n"
-        # Har bir a'zoga bevosita xabar yo'llash tugmasi
+        st = "🟢" if data.get("status") != "blocked" else "🔴"
+        streak = data.get("streak", 1)
+        points = data.get("points", 0)
+        
+        text += f"`{idx}.` {st} **{name}** ({uname})\n    └ ID: `{uid}` • 🔥 {streak} kun • `{points} ball`\n"
         btn_label = f"💬 {name[:12]}..." if len(name) > 12 else f"💬 {name}"
         markup.add(tele_types.InlineKeyboardButton(text=btn_label, callback_data=f"sendpm_{uid}"))
 
@@ -1454,7 +1576,13 @@ def callback_admin_user_management(call):
                 )
                 bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi: `{target_uid}` ({u_name})", parse_mode="Markdown")
             except Exception as e:
-                bot.send_message(cid, f"❌ Xabarni yetkazib bo'lmadi: {e}\n*(Foydalanuvchi botni bloklagan bo'lishi mumkin)*")
+                # Bloklaganini aniqlash va bazaga belgilash
+                if "blocked by the user" in str(e):
+                    users_db = load_data(USERS_FILE)
+                    if str(target_uid) in users_db:
+                        users_db[str(target_uid)]["status"] = "blocked"
+                        save_data(USERS_FILE, users_db)
+                bot.send_message(cid, f"❌ Xabarni yetkazib bo'lmadi: Foydalanuvchi botni bloklagan.")
 
         bot.register_next_step_handler(msg, forward_pm_text)
 
@@ -1477,7 +1605,11 @@ def callback_admin_user_management(call):
                     )
                     bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi (`{target_id}`)", parse_mode="Markdown")
                 except Exception as e:
-                    bot.send_message(cid, f"❌ Yetkazib bo'lmadi: {e}")
+                    users_db = load_data(USERS_FILE)
+                    if str(target_id) in users_db:
+                        users_db[str(target_id)]["status"] = "blocked"
+                        save_data(USERS_FILE, users_db)
+                    bot.send_message(cid, f"❌ Yetkazib bo'lmadi: Foydalanuvchi botni bloklagan.")
             bot.register_next_step_handler(msg_txt, send_direct_msg)
         bot.register_next_step_handler(msg, ask_id_step)
 
@@ -1496,9 +1628,9 @@ def callback_admin_user_management(call):
                 return
             users = load_data(USERS_FILE)
             success = 0
-            fail = 0
+            blocked = 0
             bot.send_message(cid, f"🚀 {len(users)} ta a'zoga xabar yo'llash boshlandi...")
-            for uid_key in users.keys():
+            for uid_key in list(users.keys()):
                 try:
                     bot.send_message(
                         uid_key,
@@ -1507,16 +1639,29 @@ def callback_admin_user_management(call):
                         parse_mode="Markdown"
                     )
                     success += 1
+                    users[uid_key]["status"] = "active"
                     time.sleep(0.04)
-                except Exception:
-                    fail += 1
-            bot.send_message(cid, f"✅ **Tarqatish yakunlandi!**\n\n▫️ Yetkazildi: `{success} ta`\n▫️ Yetkazilmadi: `{fail} ta`", parse_mode="Markdown")
+                except Exception as ex:
+                    if "blocked by the user" in str(ex):
+                        users[uid_key]["status"] = "blocked"
+                        blocked += 1
+            save_data(USERS_FILE, users)
+            bot.send_message(
+                cid, 
+                f"✅ **Tarqatish yakunlandi!**\n\n"
+                f"▫️ Yetkazildi: `{success} ta`\n"
+                f"▫️ Botni bloklaganlar: `{blocked} ta`", 
+                parse_mode="Markdown"
+            )
         bot.register_next_step_handler(msg, broadcast_step)
 
     elif data == "admin_back_to_panel":
         users = load_data(USERS_FILE)
         results = load_data(RESULTS_FILE)
         ch_count = bot.get_chat_member_count(CHANNEL_USERNAME)
+
+        active_u = sum(1 for _, u in users.items() if u.get("status") != "blocked")
+        blocked_u = len(users) - active_u
 
         markup = tele_types.InlineKeyboardMarkup(row_width=1)
         markup.add(
@@ -1533,7 +1678,9 @@ def callback_admin_user_management(call):
             message_id=mid,
             text=(
                 f"📊 **BOSHQARUV VA STATISTIKA PANELI (ADMIN):**\n\n"
-                f"▫️ Jami bot a'zolari: `{len(users)} nafar`\n"
+                f"▫️ Jami ro'yxatdan o'tganlar: `{len(users)} nafar`\n"
+                f"▫️ Faol foydalanuvchilar: `{active_u} nafar`\n"
+                f"▫️ Botni to'xtatganlar: `{blocked_u} nafar`\n"
                 f"▫️ Test topshirganlar: `{len(results)} nafar`\n"
                 f"▫️ Rasmiy kanal a'zolari: `{ch_count} nafar`\n\n"
                 "Quyidagi boshqaruv amallaridan birini tanlang:"
@@ -1555,9 +1702,9 @@ def cmd_broadcast(message):
 
     users = load_data(USERS_FILE)
     success = 0
-    fail = 0
+    blocked = 0
     bot.reply_to(message, f"📢 {len(users)} ta a'zoga xabar yo'llash boshlandi...")
-    for uid_key in users.keys():
+    for uid_key in list(users.keys()):
         try:
             bot.send_message(
                 uid_key,
@@ -1566,10 +1713,18 @@ def cmd_broadcast(message):
                 parse_mode="Markdown"
             )
             success += 1
+            users[uid_key]["status"] = "active"
             time.sleep(0.04)
-        except Exception:
-            fail += 1
-    bot.send_message(message.chat.id, f"✅ **Tarqatish yakunlandi!**\n\n▫️ Yetkazildi: `{success} ta`\n▫️ Yetkazilmadi: `{fail} ta`", parse_mode="Markdown")
+        except Exception as ex:
+            if "blocked by the user" in str(ex):
+                users[uid_key]["status"] = "blocked"
+                blocked += 1
+    save_data(USERS_FILE, users)
+    bot.send_message(
+        message.chat.id, 
+        f"✅ **Tarqatish yakunlandi!**\n\n▫️ Yetkazildi: `{success} ta`\n▫️ Botni to'xtatganlar: `{blocked} ta`", 
+        parse_mode="Markdown"
+    )
 
 @bot.message_handler(commands=['pm'])
 def cmd_send_pm(message):
@@ -1592,21 +1747,100 @@ def cmd_send_pm(message):
         )
         bot.reply_to(message, f"✅ Xabar `{target_id}` ga yetkazildi!", parse_mode="Markdown")
     except Exception as e:
-        bot.reply_to(message, f"❌ Yetkazib bo'lmadi: {e}")
+        users_db = load_data(USERS_FILE)
+        if str(target_id) in users_db:
+            users_db[str(target_id)]["status"] = "blocked"
+            save_data(USERS_FILE, users_db)
+        bot.reply_to(message, f"❌ Foydalanuvchi botni bloklagan.")
+
+# --- KANALGA DOIMIY INTELLEKTUAL YANGILANISHLAR (AVTOPOSTING LOOP) ---
+def auto_poster_loop():
+    tz = pytz.timezone('Asia/Tashkent')
+    sent_flags = {"08:30": False, "20:30": False}
+
+    while True:
+        try:
+            now = datetime.now(tz)
+            current_time = now.strftime("%H:%M")
+
+            if current_time == "00:01":
+                for k in sent_flags:
+                    sent_flags[k] = False
+
+            # TONGGI 08:30 — NOYOB ALLOMALAR HIKMATI (DAVRLAR ROTATSIYASI)
+            if current_time == "08:30" and not sent_flags["08:30"]:
+                hikmat_full = get_verified_didactic_content("hikmat")
+                clean_text = hikmat_full.split("📚 Aniq manba:")[0].strip()
+                channel_post = f"☀️ **TONGGI HIKMAT & ILMIY TAFAKKUR**\n\n{clean_text}\n\n───────────────\n🌟 **Rasmiy kanal:** `{CHANNEL_USERNAME}`"
+                bot.send_message(CHANNEL_USERNAME, channel_post, parse_mode="Markdown")
+                sent_flags["08:30"] = True
+
+            # KECHKI 20:30 — BMB KECHKI TEST SINOVI (3 TA QUIZ)
+            elif current_time == "20:30" and not sent_flags["20:30"]:
+                bot.send_message(CHANNEL_USERNAME, "🧠 **KECHKI INTELLEKT: BMB TEST SINOVI**\n\nBugungi bilimlaringizni sinab ko'ring:")
+                for _ in range(3):
+                    try:
+                        p_single = (
+                            "BMB (DTM) standarti bo'yicha 5-11-sinf Ona tili va adabiyot darsliklaridan 1 ta Quiz test tuzing. "
+                            "Diniy va siyosiy mavzulardan mutlaqo chetlaning. Faqat JSON formatida javob bering:\n"
+                            "{\n"
+                            '  "question": "Savol matni",\n'
+                            '  "options": ["A", "B", "C", "D"],\n'
+                            '  "correct_option_id": 0,\n'
+                            '  "explanation": "Qisqa izoh"\n'
+                            "}"
+                        )
+                        raw = ai_client.models.generate_content(
+                            model="gemini-3.6-flash",
+                            contents=p_single,
+                            config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, temperature=0.8)
+                        ).text.strip()
+                        if "```json" in raw:
+                            raw = raw.split("```json")[1].split("```")[0].strip()
+                        elif "```" in raw:
+                            raw = raw.split("```")[1].split("```")[0].strip()
+                        q_obj = json.loads(raw)
+                        bot.send_poll(
+                            chat_id=CHANNEL_USERNAME,
+                            question=f"⏳ {q_obj['question'][:280]}",
+                            options=[opt[:95] for opt in q_obj["options"][:4]],
+                            type="quiz",
+                            correct_option_id=q_obj["correct_option_id"],
+                            explanation=f"{q_obj.get('explanation', '')}\n👉 {CHANNEL_USERNAME}"[:190],
+                            is_anonymous=True
+                        )
+                        time.sleep(3)
+                    except Exception:
+                        pass
+                sent_flags["20:30"] = True
+
+            time.sleep(30)
+        except Exception as e:
+            print(f"Auto-posting xatosi: {e}")
+            time.sleep(30)
+
+threading.Thread(target=auto_poster_loop, daemon=True).start()
 
 # --- START BUYRUG'I ---
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    save_user(message.from_user)
+    streak, points, streak_broken = update_user_streak(message.from_user)
 
     if not is_subscribed(message.from_user.id):
         send_subscription_prompt(message.chat.id)
         return
 
+    streak_msg = ""
+    if streak_broken:
+        streak_msg = "\n⚠️ *Siz kecha botga kirmaganingiz sababli olovli seriyangiz uzildi va qaytadan boshlandi! Har kuni kirib turishni unutmang.*\n"
+    else:
+        streak_msg = f"\n🔥 **Olovli seriya:** `{streak} kun davom etmoqda!` (+25 XP olindi)\n"
+
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v10.6)** portaliga xush kelibsiz!\n\n"
+        f"🏛 **AI TILSHUNOS & METODIST (v10.7)** portaliga xush kelibsiz!\n"
+        f"{streak_msg}\n"
         "Quyidagi asosiy yo'nalishlardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va Attestatsiya testlari\n"
@@ -1619,7 +1853,7 @@ def send_welcome(message):
 
 @bot.callback_query_handler(func=lambda call: call.data in ["check_sub"])
 def callback_check_sub(call):
-    save_user(call.from_user)
+    update_user_streak(call.from_user)
     if is_subscribed(call.from_user.id):
         bot.answer_callback_query(call.id, "🎉 Obuna tasdiqlandi!")
         try:
@@ -1633,7 +1867,7 @@ def callback_check_sub(call):
 # --- ASOSIY MENYU XABARLARI ISHLOVCHISI ---
 @bot.message_handler(func=lambda msg: True)
 def handle_all_messages(message):
-    save_user(message.from_user)
+    update_user_streak(message.from_user)
 
     if not is_subscribed(message.from_user.id):
         send_subscription_prompt(message.chat.id)
@@ -1647,7 +1881,24 @@ def handle_all_messages(message):
         bot.send_message(message.chat.id, "📋 Asosiy toifalardan birini tanlang:", reply_markup=get_main_menu(u_id))
         return
 
-    # 1. 4 TA MAQSADLI TOIFA (BANNER-CARD BILAN CHIQARISH)
+    elif text == "👤 Shaxsiy kabinet":
+        show_user_profile(message.chat.id, message.from_user)
+
+    elif text == "🏆 Jonli Reyting Doskasi":
+        markup = tele_types.InlineKeyboardMarkup(row_width=1)
+        markup.add(
+            tele_types.InlineKeyboardButton(
+                text="🏆 Jonli Reyting Doskasi (Mini-App)", 
+                web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
+            )
+        )
+        bot.send_message(
+            message.chat.id, 
+            "🏆 **BMB VA MILLIY SERTIFIKAT JONLI REYTINGI**\n\n"
+            "Quyidagi tugma orqali butun respublika bo'yicha ishtirokchilarning eng yuqori natijalari va olovli kunlar seriyasini ko'rishingiz mumkin:", 
+            reply_markup=markup
+        )
+
     elif text == "🎓 Talabalar uchun":
         send_section_card(message.chat.id, "talaba")
 
@@ -1660,11 +1911,13 @@ def handle_all_messages(message):
     elif text == "🔬 Ilmiy izlanuvchilar uchun":
         send_section_card(message.chat.id, "izlanuvchi")
 
-    # 2. FAQAT ADMINGA MO'LJALLANGAN BOSHQARUV PANELI
     elif text == "📊 Boshqaruv & Statistika" and is_admin:
         users = load_data(USERS_FILE)
         results = load_data(RESULTS_FILE)
         ch_count = bot.get_chat_member_count(CHANNEL_USERNAME)
+
+        active_u = sum(1 for _, u in users.items() if u.get("status") != "blocked")
+        blocked_u = len(users) - active_u
 
         markup = tele_types.InlineKeyboardMarkup(row_width=1)
         markup.add(
@@ -1680,10 +1933,12 @@ def handle_all_messages(message):
         bot.send_message(
             message.chat.id,
             f"📊 **BOSHQARUV VA STATISTIKA PANELI (ADMIN):**\n\n"
-            f"▫️ Jami bot a'zolari: `{len(users)} nafar`\n"
+            f"▫️ Jami ro'yxatdan o'tganlar: `{len(users)} nafar`\n"
+            f"▫️ Faol foydalanuvchilar: `{active_u} nafar`\n"
+            f"▫️ Botni to'xtatganlar (bloklaganlar): `{blocked_u} nafar`\n"
             f"▫️ Test topshirganlar: `{len(results)} nafar`\n"
             f"▫️ Rasmiy kanal a'zolari: `{ch_count} nafar`\n\n"
-            "Quyidagi boshqaruv amallaridan birini tanlang:",
+            "Kerakli amaliyotni tanlang:",
             parse_mode="Markdown",
             reply_markup=markup
         )
@@ -1735,5 +1990,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.6 (Admin User Manager) faol ishga tushdi...")
+print("AI Tilshunos v10.7 (Gamification & Retention) faol ishga tushdi...")
 bot.infinity_polling()
