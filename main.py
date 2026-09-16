@@ -192,7 +192,7 @@ WEBAPP_HTML = """
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v10.5 (Theme Catalog Edition) Faol!"
+    return "AI Tilshunos & Metodist v10.6 (Admin User Manager Edition) Faol!"
 
 @app.route('/leaderboard')
 def webapp_leaderboard():
@@ -277,7 +277,7 @@ def get_next_quiz_number(quiz_type):
     save_data(COUNTERS_FILE, counters)
     return current
 
-# --- MUKAMMAL MAVZULAR KATALOGI (BMB / DARSLIKLAR STANDARTI) ---
+# --- MUKAMMAL MAVZULAR KATALOGI ---
 THEME_CATALOG = {
     "cat_fonetika": {
         "title": "🗣 Fonetika, orfoepiya va imlo qoidalari",
@@ -475,7 +475,7 @@ def send_section_card(chat_id, group_name):
         )
         bot.send_photo(chat_id, img, caption=caption, parse_mode="Markdown", reply_markup=markup)
 
-# --- MAVZULASHTIRILGAN TEST BOSHQARUV MARKAZI (KATALOG YOKI ERKIN KIRITISH) ---
+# --- MAVZULASHTIRILGAN TEST BOSHQARUV MARKAZI ---
 def send_themed_test_hub(chat_id):
     caption = (
         "╭── 📚 **MAVZULASHTIRILGAN BMB TEST MARKAZI** ──╮\n\n"
@@ -1368,6 +1368,232 @@ def default_inline_query(inline_query):
     except Exception as e:
         print(f"Inline query xatosi: {e}")
 
+# --- ADMIN USER MANAGER (FOYDALANUVCHILARNI KO'RISH VA XABAR YO'LLASH) ---
+def get_users_page_markup(page=0, per_page=8):
+    users = load_data(USERS_FILE)
+    items = list(users.items())
+    total_users = len(items)
+    total_pages = max(1, (total_users + per_page - 1) // per_page)
+    
+    start_idx = page * per_page
+    end_idx = min(start_idx + per_page, total_users)
+    current_items = items[start_idx:end_idx]
+
+    text = f"👥 **BOT FOYDALANUVCHILARI (Jami: {total_users} ta)**\n"
+    text += f"📄 Sahifa: `{page + 1}/{total_pages}`\n\n"
+
+    markup = tele_types.InlineKeyboardMarkup(row_width=2)
+    for idx, (uid, data) in enumerate(current_items, start=start_idx + 1):
+        name = data.get("first_name", "Foydalanuvchi")
+        uname = f"@{data['username']}" if data.get("username") else "usernamesiz"
+        dt = data.get("date", "")
+        text += f"`{idx}.` **{name}** ({uname})\n    └ ID: `{uid}` • Sana: `{dt}`\n"
+        # Har bir a'zoga bevosita xabar yo'llash tugmasi
+        btn_label = f"💬 {name[:12]}..." if len(name) > 12 else f"💬 {name}"
+        markup.add(tele_types.InlineKeyboardButton(text=btn_label, callback_data=f"sendpm_{uid}"))
+
+    nav_btns = []
+    if page > 0:
+        nav_btns.append(tele_types.InlineKeyboardButton(text="⬅️ Oldingi", callback_data=f"usrpage_{page - 1}"))
+    if page + 1 < total_pages:
+        nav_btns.append(tele_types.InlineKeyboardButton(text="Keyingi ➡️", callback_data=f"usrpage_{page + 1}"))
+    if nav_btns:
+        markup.row(*nav_btns)
+
+    markup.add(
+        tele_types.InlineKeyboardButton(text="📢 Hammaga umumiy xabar yo'llash", callback_data="admin_broadcast_start"),
+        tele_types.InlineKeyboardButton(text="👤 ID orqali individual yozish", callback_data="admin_pm_manual")
+    )
+    markup.add(tele_types.InlineKeyboardButton(text="🔙 Boshqaruv menyusi", callback_data="admin_back_to_panel"))
+    return text, markup
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith(("usrpage_", "sendpm_", "admin_broadcast_start", "admin_pm_manual", "admin_back_to_panel", "admin_view_users")))
+def callback_admin_user_management(call):
+    if int(call.from_user.id) != int(ADMIN_ID):
+        bot.answer_callback_query(call.id, "Faqat bot administratori uchun!", show_alert=True)
+        return
+
+    data = call.data
+    cid = call.message.chat.id
+    mid = call.message.message_id
+
+    if data == "admin_view_users":
+        text, markup = get_users_page_markup(page=0)
+        bot.edit_message_text(chat_id=cid, message_id=mid, text=text, parse_mode="Markdown", reply_markup=markup)
+        bot.answer_callback_query(call.id)
+
+    elif data.startswith("usrpage_"):
+        page = int(data.replace("usrpage_", ""))
+        text, markup = get_users_page_markup(page=page)
+        bot.edit_message_text(chat_id=cid, message_id=mid, text=text, parse_mode="Markdown", reply_markup=markup)
+        bot.answer_callback_query(call.id)
+
+    elif data.startswith("sendpm_"):
+        target_uid = data.replace("sendpm_", "")
+        users = load_data(USERS_FILE)
+        u_info = users.get(target_uid, {})
+        u_name = u_info.get("first_name", "Foydalanuvchi")
+
+        bot.answer_callback_query(call.id)
+        msg = bot.send_message(
+            cid,
+            f"✍️ **{u_name}** (`ID: {target_uid}`) ga yubormoqchi bo'lgan xabaringizni yozing:\n"
+            "*(Bekor qilish uchun `/cancel` deb yozing)*",
+            parse_mode="Markdown"
+        )
+        def forward_pm_text(m):
+            if m.text.strip() == "/cancel":
+                bot.send_message(cid, "❌ Xabar yuborish bekor qilindi.")
+                return
+            try:
+                bot.send_message(
+                    target_uid,
+                    f"📬 **Bosh administrator xabarnomasi:**\n\n{m.text}\n\n"
+                    f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
+                    parse_mode="Markdown"
+                )
+                bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi: `{target_uid}` ({u_name})", parse_mode="Markdown")
+            except Exception as e:
+                bot.send_message(cid, f"❌ Xabarni yetkazib bo'lmadi: {e}\n*(Foydalanuvchi botni bloklagan bo'lishi mumkin)*")
+
+        bot.register_next_step_handler(msg, forward_pm_text)
+
+    elif data == "admin_pm_manual":
+        bot.answer_callback_query(call.id)
+        msg = bot.send_message(cid, "👤 Xabar yubormoqchi bo'lgan foydalanuvchining **Telegram ID raqamini** kiriting:")
+        def ask_id_step(m_id):
+            target_id = m_id.text.strip()
+            if not target_id.isdigit():
+                bot.send_message(cid, "❌ Xato! ID raqami faqat sonlardan iborat bo'lishi lozim.")
+                return
+            msg_txt = bot.send_message(cid, f"✍️ `ID: {target_id}` ga yubormoqchi bo'lgan xabar matnini kiriting:")
+            def send_direct_msg(m_text):
+                try:
+                    bot.send_message(
+                        target_id,
+                        f"📬 **Administrator xabarnomasi:**\n\n{m_text.text}\n\n"
+                        f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
+                        parse_mode="Markdown"
+                    )
+                    bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi (`{target_id}`)", parse_mode="Markdown")
+                except Exception as e:
+                    bot.send_message(cid, f"❌ Yetkazib bo'lmadi: {e}")
+            bot.register_next_step_handler(msg_txt, send_direct_msg)
+        bot.register_next_step_handler(msg, ask_id_step)
+
+    elif data == "admin_broadcast_start":
+        bot.answer_callback_query(call.id)
+        msg = bot.send_message(
+            cid,
+            "📢 **Barcha bot foydalanuvchilariga umumiy xabar (Broadcast):**\n\n"
+            "Yubormoqchi bo'lgan xabaringiz matnini kiriting:\n"
+            "*(Bekor qilish uchun `/cancel` deb yozing)*",
+            parse_mode="Markdown"
+        )
+        def broadcast_step(m):
+            if m.text.strip() == "/cancel":
+                bot.send_message(cid, "❌ Bekor qilindi.")
+                return
+            users = load_data(USERS_FILE)
+            success = 0
+            fail = 0
+            bot.send_message(cid, f"🚀 {len(users)} ta a'zoga xabar yo'llash boshlandi...")
+            for uid_key in users.keys():
+                try:
+                    bot.send_message(
+                        uid_key,
+                        f"📢 **Umumiy E'lon:**\n\n{m.text}\n\n"
+                        f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
+                        parse_mode="Markdown"
+                    )
+                    success += 1
+                    time.sleep(0.04)
+                except Exception:
+                    fail += 1
+            bot.send_message(cid, f"✅ **Tarqatish yakunlandi!**\n\n▫️ Yetkazildi: `{success} ta`\n▫️ Yetkazilmadi: `{fail} ta`", parse_mode="Markdown")
+        bot.register_next_step_handler(msg, broadcast_step)
+
+    elif data == "admin_back_to_panel":
+        users = load_data(USERS_FILE)
+        results = load_data(RESULTS_FILE)
+        ch_count = bot.get_chat_member_count(CHANNEL_USERNAME)
+
+        markup = tele_types.InlineKeyboardMarkup(row_width=1)
+        markup.add(
+            tele_types.InlineKeyboardButton(text="👥 Foydalanuvchilar ro'yxatini ko'rish", callback_data="admin_view_users"),
+            tele_types.InlineKeyboardButton(text="📢 Barcha a'zolarga umumiy xabar yo'llash", callback_data="admin_broadcast_start"),
+            tele_types.InlineKeyboardButton(text="👤 Individual xabar yuborish", callback_data="admin_pm_manual"),
+            tele_types.InlineKeyboardButton(
+                text="🏆 Jonli Reyting Doskasi (Mini-App)", 
+                web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
+            )
+        )
+        bot.edit_message_text(
+            chat_id=cid,
+            message_id=mid,
+            text=(
+                f"📊 **BOSHQARUV VA STATISTIKA PANELI (ADMIN):**\n\n"
+                f"▫️ Jami bot a'zolari: `{len(users)} nafar`\n"
+                f"▫️ Test topshirganlar: `{len(results)} nafar`\n"
+                f"▫️ Rasmiy kanal a'zolari: `{ch_count} nafar`\n\n"
+                "Quyidagi boshqaruv amallaridan birini tanlang:"
+            ),
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+        bot.answer_callback_query(call.id)
+
+# --- BUYRUQLAR: /send VA /pm ---
+@bot.message_handler(commands=['send'])
+def cmd_broadcast(message):
+    if int(message.from_user.id) != int(ADMIN_ID):
+        return
+    text_to_send = message.text.replace("/send", "").strip()
+    if not text_to_send:
+        bot.reply_to(message, "Xabar matnini kiriting. Masalan: `/send Yangi test qo'shildi!`", parse_mode="Markdown")
+        return
+
+    users = load_data(USERS_FILE)
+    success = 0
+    fail = 0
+    bot.reply_to(message, f"📢 {len(users)} ta a'zoga xabar yo'llash boshlandi...")
+    for uid_key in users.keys():
+        try:
+            bot.send_message(
+                uid_key,
+                f"📢 **Umumiy E'lon:**\n\n{text_to_send}\n\n"
+                f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
+                parse_mode="Markdown"
+            )
+            success += 1
+            time.sleep(0.04)
+        except Exception:
+            fail += 1
+    bot.send_message(message.chat.id, f"✅ **Tarqatish yakunlandi!**\n\n▫️ Yetkazildi: `{success} ta`\n▫️ Yetkazilmadi: `{fail} ta`", parse_mode="Markdown")
+
+@bot.message_handler(commands=['pm'])
+def cmd_send_pm(message):
+    if int(message.from_user.id) != int(ADMIN_ID):
+        return
+    parts = message.text.split(maxsplit=2)
+    if len(parts) < 3:
+        bot.reply_to(message, "Foydalanish: `/pm USER_ID xabar matni`\nMasalan: `/pm 5423849679 Assalomu alaykum!`", parse_mode="Markdown")
+        return
+    
+    target_id = parts[1].strip()
+    pm_text = parts[2].strip()
+
+    try:
+        bot.send_message(
+            target_id,
+            f"📬 **Bosh administrator xabarnomasi:**\n\n{pm_text}\n\n"
+            f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
+            parse_mode="Markdown"
+        )
+        bot.reply_to(message, f"✅ Xabar `{target_id}` ga yetkazildi!", parse_mode="Markdown")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Yetkazib bo'lmadi: {e}")
+
 # --- START BUYRUG'I ---
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -1380,7 +1606,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v10.5)** portaliga xush kelibsiz!\n\n"
+        "🏛 **AI TILSHUNOS & METODIST (v10.6)** portaliga xush kelibsiz!\n\n"
         "Quyidagi asosiy yo'nalishlardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va Attestatsiya testlari\n"
@@ -1421,6 +1647,7 @@ def handle_all_messages(message):
         bot.send_message(message.chat.id, "📋 Asosiy toifalardan birini tanlang:", reply_markup=get_main_menu(u_id))
         return
 
+    # 1. 4 TA MAQSADLI TOIFA (BANNER-CARD BILAN CHIQARISH)
     elif text == "🎓 Talabalar uchun":
         send_section_card(message.chat.id, "talaba")
 
@@ -1433,6 +1660,7 @@ def handle_all_messages(message):
     elif text == "🔬 Ilmiy izlanuvchilar uchun":
         send_section_card(message.chat.id, "izlanuvchi")
 
+    # 2. FAQAT ADMINGA MO'LJALLANGAN BOSHQARUV PANELI
     elif text == "📊 Boshqaruv & Statistika" and is_admin:
         users = load_data(USERS_FILE)
         results = load_data(RESULTS_FILE)
@@ -1440,6 +1668,9 @@ def handle_all_messages(message):
 
         markup = tele_types.InlineKeyboardMarkup(row_width=1)
         markup.add(
+            tele_types.InlineKeyboardButton(text="👥 Foydalanuvchilar ro'yxatini ko'rish", callback_data="admin_view_users"),
+            tele_types.InlineKeyboardButton(text="📢 Barcha a'zolarga umumiy xabar yo'llash", callback_data="admin_broadcast_start"),
+            tele_types.InlineKeyboardButton(text="👤 Individual xabar yuborish", callback_data="admin_pm_manual"),
             tele_types.InlineKeyboardButton(
                 text="🏆 Jonli Reyting Doskasi (Mini-App)", 
                 web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
@@ -1448,11 +1679,11 @@ def handle_all_messages(message):
 
         bot.send_message(
             message.chat.id,
-            f"📊 **Boshqaruv Paneli (Admin):**\n\n"
+            f"📊 **BOSHQARUV VA STATISTIKA PANELI (ADMIN):**\n\n"
             f"▫️ Jami bot a'zolari: `{len(users)} nafar`\n"
             f"▫️ Test topshirganlar: `{len(results)} nafar`\n"
-            f"▫️ Rasmiy kanal obunachilari: `{ch_count} nafar`\n"
-            f"▫️ Xabar tarqatish: `/send matn`",
+            f"▫️ Rasmiy kanal a'zolari: `{ch_count} nafar`\n\n"
+            "Quyidagi boshqaruv amallaridan birini tanlang:",
             parse_mode="Markdown",
             reply_markup=markup
         )
@@ -1502,7 +1733,7 @@ def handle_all_messages(message):
             bot.send_message(message.chat.id, f"❌ Xatolik: {e}")
 
     else:
-        bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
+        bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.5 (Theme Catalog Edition) faol ishga tushdi...")
+print("AI Tilshunos v10.6 (Admin User Manager) faol ishga tushdi...")
 bot.infinity_polling()
