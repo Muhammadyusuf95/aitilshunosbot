@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v10.0 (Admin Approval & Pedagogical Evaluation Edition) Faol!"
+    return "AI Tilshunos & Metodist v10.1 (Multi-Epoch Didactic Edition) Faol!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -51,7 +51,6 @@ ai_client = genai.Client(api_key=GEMINI_API_KEY)
 USERS_FILE = "users.json"
 RESULTS_FILE = "test_results.json"
 
-# Jonli test oqimlari va navbatdagi tasdiqlar
 ACTIVE_QUIZ_TRACKER = {}
 POLL_CORRECT_MAP = {}
 READY_MATCHES = {}
@@ -64,18 +63,38 @@ IMZO = (
     "╰───────────────────────╯"
 )
 
+# --- TARIXIY DAVRLAR RO'YXATI (DAVRLAR VA MANBALAR ROTATSIYASI) ---
+HISTORICAL_EPOCHS = [
+    {
+        "epoch": "Qadimgi va ilk o'rta asrlar turkiy yozma obidalari (XI-XII asrlar)",
+        "sources": "Yusuf Xos Hojibning 'Qutadg'u bilig', Mahmud Koshg'ariyning 'Devonu lug'atit turk', Ahmad Yugnakiyning 'Hibat ul-haqoyiq' yoki Kul tegin / To'nyuquq bitiklari"
+    },
+    {
+        "epoch": "Temuriylar davri va Oltin asr mumtoz adabiyoti (XV-XVI asrlar)",
+        "sources": "Alisher Navoiy ('Mahbub ul-qulub', 'Nazm ul-javohir', 'Xamsa'), Zahiriddin Muhammad Bobur ('Boburnoma', 'Mubayyin'), Lutfiy yoki Husayn Boyqaro asarlari"
+    },
+    {
+        "epoch": "XVII-XIX asrlar o'zbek mumtoz adabiyoti va ma'rifati",
+        "sources": "Boborahim Mashrab, Turdi Forog'iy, Muhammadrizo Ogahiy ('Riyoz ud-davla', 'Gulshani davlat'), Munis Xorazmiy yoki Nodirabegim asarlari"
+    },
+    {
+        "epoch": "XX asr boshi Jadid ma'rifatparvarlik harakati davri",
+        "sources": "Mahmudxo'ja Behbudiy maqolalari, Abdulla Avloniy ('Turkiy Guliston yoxud axloq'), Munavvarqori Abdurashidxonov, Abdurauf Fitrat ('Rahbari najot') yoki Abdulhamid Cho'lpon publitsistikasi"
+    },
+    {
+        "epoch": "XX asr o'zbek adabiyoti durdonalari va ma'rifiy merosi",
+        "sources": "Abdulla Qodiriy ('O'tkan kunlar', 'Mehrobdan chayon'), Muso Toshmuhammad o'g'li Oybek, G'afur G'ulom, Erkin Vohidov ('Donishqishloq latifalari', 'Daftari ruhiyat'), Abdulla Oripov yoki O'tkir Hoshimov ('Daftar hoshiyasidagi bitiklar')"
+    }
+]
+
 # --- QAT'IY XAVFSIZLIK VA MAZMUN FILTRI ---
 FORBIDDEN_KEYWORDS = [
-    # Siyosat va davlat boshqaruvi
     "prezident", "mirziyoyev", "hokim", "vazir", "hukumat", "davlat boshqaruvi", 
     "siyosat", "saylov", "muxolifat", "deputat", "amaldor", "partiya", "vazirlik",
-    # Din, aqida va diniy amallar
     "din", "islom", "namoz", "hadis", "oyat", "qur'on", "shariat", "masjid",
     "xristian", "cherkov", "yahudiy", "fatvo", "ro'za", "mulla", "imom", "taqvo",
-    # Huquqiy va tibbiy sohalar
     "sud", "prokuror", "advokat", "jinoyat kodeksi", "modda", "qamoq", "tibbiyot",
     "davolash", "dori", "kasallik", "tashxis", "shifokor", "retsept",
-    # Ekstremizm, buzg'unchilik va odob me'yorlari
     "ekstremizm", "terrorizm", "jihod", "vahobiy", "hizb", "inqilob", "qurol", "portlash",
     "ahmoq", "tentak", "haromi", "iflos", "padar", "fosiq", "kofir", "fahisha", "jalab"
 ]
@@ -137,7 +156,6 @@ def get_main_menu(user_id=None):
         tele_types.KeyboardButton("🎒 Abituriyentlar uchun"),
         tele_types.KeyboardButton("🔬 Ilmiy izlanuvchilar uchun")
     )
-    # Faqat adminga ko'rinadigan bo'limlar
     if user_id and int(user_id) == int(ADMIN_ID):
         markup.row(
             tele_types.KeyboardButton("☀️ Kun hikmati (Admin)"),
@@ -161,28 +179,6 @@ def get_group_menu(group_name):
     elif group_name == "izlanuvchi":
         markup.row(tele_types.KeyboardButton("📑 Ilmiy maqola (OAK)"), tele_types.KeyboardButton("📄 Ilmiy tezis (Konferensiya)"))
     
-    markup.row(tele_types.KeyboardButton("🔙 Asosiy menyu"))
-    return markup
-
-def get_sub_menu(category):
-    markup = tele_types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    labels = {
-        "maqola": ("✍️ Mavzuni kiritish", "🎲 Tasodifiy mavzu rejasi"),
-        "tezis": ("✍️ Tezis mavzusini kiritish", "🎲 Tasodifiy tezis rejasi"),
-        "konspekt": ("✍️ Mavzuni kiritaman", "🎲 Namunaviy dars ishlanmasi"),
-        "esse": ("✍️ Esseni yuborish", "🎲 Namunaviy esse tahlili"),
-        "metod": ("✍️ Mavzuni kiritaman", "🎲 Tasodifiy metod"),
-        "gazal": ("✍️ Baytni yuborish", "🎲 Tasodifiy mumtoz bayt"),
-        "aruz": ("✍️ Bayt kiritish", "🎲 Namunaviy aruz tahlili"),
-        "qadim": ("✍️ Tarixiy so'zni kiritish", "🎲 Tasodifiy qadimgi so'z"),
-        "izoh": ("✍️ So'zni kiritish", "🎲 Tasodifiy O'TIL so'zi"),
-        "etimologiya": ("✍️ So'zni kiritish", "🎲 Tasodifiy etimologiya"),
-        "imlo": ("✍️ So'z/jumlani kiritish", "🎲 Ko'p adashiladigan so'z"),
-        "hikmat": ("🎲 Yangi hikmat olish", "🔙 Asosiy menyu"),
-        "motiv": ("🎲 Yangi motivatsiya olish", "🔙 Asosiy menyu")
-    }
-    btn1, btn2 = labels.get(category, ("✍️ O'zim kiritaman", "🎲 Tasodifiy"))
-    markup.row(tele_types.KeyboardButton(btn1), tele_types.KeyboardButton(btn2))
     markup.row(tele_types.KeyboardButton("🔙 Asosiy menyu"))
     return markup
 
@@ -235,9 +231,8 @@ SYSTEM_INSTRUCTION = (
     "3. Tibbiy va huquqiy maslahatlar mutlaqo berilmaydi.\n"
     "4. Ekstremizm, axloqsizlik va buzg'unchilik 100% rad etiladi.\n\n"
     "HIKMAT VA MOTIVATSIYA TALABI:\n"
-    "Fikrlar mutlaqo sun'iy intellekt tomonidan to'qilmasin! Faqat mumtoz allomalar, adiblar (Navoiy, Bobur, "
-    "Qodiriy, Cho'lpon, Behbudiy) yoki jahon mutafakkirlarining kitoblari va rasmiy nashrlaridan olingan "
-    "haqiqiy manbasi bilan keltirilsin."
+    "Fikrlar mutlaqo sun'iy ravishda o'ylab topilmasin! Faqat berilgan tarixiy davrning nodir adabiy manbalaridan, "
+    "mutafakkir va allomalarining haqiqiy asarlaridan keltirilib, aniq kitob nomi va beti/bobi ilmiy asosda berilsin."
 )
 
 # --- NATIJALARNI ADMINGA TASDIQLASH BILAN YO'NALTIRISH ---
@@ -253,7 +248,6 @@ def deliver_response(user_id, text):
         pass
 
     if is_admin:
-        # Adminga tasdiqlash tugmasi bilan yuboriladi
         post_id = f"post_{int(time.time())}_{random.randint(100, 999)}"
         ADMIN_POST_STORAGE[post_id] = text
 
@@ -269,7 +263,6 @@ def deliver_response(user_id, text):
             reply_markup=markup
         )
     else:
-        # Oddiy foydalanuvchiga faqat o'ziga boradi
         bot.send_message(user_id, text, parse_mode="Markdown")
 
 # --- AI GENERATSIYA FUNKSIYASI ---
@@ -484,10 +477,8 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             except Exception:
                 pass
 
-        # Berilgan vaqt + 2 soniya o'tish vaqti
         time.sleep(duration_per_q + 2)
 
-    # --- REYTING JADVALI ---
     tracker = ACTIVE_QUIZ_TRACKER.pop(target_chat_id, None)
     if is_channel:
         finish_msg = (
@@ -648,28 +639,42 @@ def callback_admin_approval(call):
         except Exception:
             pass
 
-# --- ADMIN: KUN HIKMATI VA MOTIVATSIYA GENERATSIYASI ---
+# --- ADMIN: KUN HIKMATI VA MOTIVATSIYA GENERATSIYASI (DAVRLAR ROTATSIYASI BILAN) ---
 def get_verified_didactic_content(content_type="hikmat"):
+    chosen_epoch = random.choice(HISTORICAL_EPOCHS)
     seed = random.randint(1000, 99999)
+
     if content_type == "hikmat":
         prompt = (
-            f"Alisher Navoiy, Zahiriddin Muhammad Bobur, Mahmud Koshg'ariy, Sa'diy Sheroziy yoki mumtoz o'zbek adiblarining "
-            f"kitoblaridan ta'lim, axloq, ilm va qanoat haqidagi 1 ta haqiqiy didaktik hikmatni manbasi bilan keltiring (Seed #{seed}).\n"
-            "QAT'IY TALAB: O'zingizdan o'ylab topmang! Haqiqiy kitob va asar nomini bering. "
-            "Diniy, siyosiy, tibbiy yoki huquqiy mavzulardan mutlaqo chetlaning.\n\n"
-            "Format:\n"
+            f"Siz o'zbek adabiyoti tarixi va manbashunoslik bo'yicha yuksak eksiz.\n"
+            f"Aynan quyidagi adabiy-tarixiy davrga mansub durdona asarlardan 1 ta didaktik hikmatni keltiring:\n"
+            f"🏛 **Davr:** {chosen_epoch['epoch']}\n"
+            f"📜 **Tavsiya etiladigan manbalar:** {chosen_epoch['sources']}\n"
+            f"Identifikator: #{seed}\n\n"
+            "QAT'IY TALABLAR:\n"
+            "1. Mazkur hikmat ilm, odob, qanoat, vaqt qadri, adolat yoki donolik xususida bo'lsin.\n"
+            "2. Sun'iy ravishda to'qilmasin! Haqiqiy kitob, asar, doston yoki manbadan aniq iqtibos oling.\n"
+            "3. Diniy, siyosiy, tibbiy yoki huquqiy mavzulardan 100% chetlashing.\n\n"
+            "Qat'iy format (faqat shu ko'rinishda bering):\n"
+            "🏛 **Davr:** [Tanlangan davr nomi]\n\n"
             "[HIKMAT MATNI]\n\n"
-            "📚 Aniq manba: [Muallif, asar nomi, qo'lyozma/nashr ko'rsatkichi]"
+            "📚 Aniq manba: [Muallif, asar nomi, bob yoki bayt ko'rsatkichi]"
         )
     else:
         prompt = (
-            f"Abdulla Avloniy, Munavvarqori, Cho'lpon, Abdurauf Fitrat yoki jadid allomalari asarlaridan "
-            f"yoshlarni ilm olishga, taraqqiyotga, o'qishga va shaxsiy kamolotga undovchi 1 ta haqiqiy ruhlantiruvchi, motivatsion fikr keltiring (Seed #{seed}).\n"
-            "QAT'IY TALAB: Sun'iy to'qilmasin! Haqiqiy asardan olinsin. "
-            "Diniy, siyosiy yoki noo'rin mavzular mutlaqo bo'lmasin.\n\n"
-            "Format:\n"
+            f"Siz ma'rifiy meros va milliy taraqqiyot bo'yicha mutaxassis olimsiz.\n"
+            f"Aynan quyidagi davr mutafakkirlari, adiblari yoki allomalarining asarlaridan insonni ilm olishga, "
+            f"o'qish-o'rganishga, shaxsiy rivojlanishga va g'ayrat ko'rsatishga undovchi 1 ta ruhiy-motivatsion fikr keltiring:\n"
+            f"🏛 **Davr:** {chosen_epoch['epoch']}\n"
+            f"📜 **Tavsiya etiladigan manbalar:** {chosen_epoch['sources']}\n"
+            f"Identifikator: #{seed}\n\n"
+            "QAT'IY TALABLAR:\n"
+            "1. Sun'iy to'qilmasin! Berilgan davr allomalarining haqiqiy risola, doston, roman yoki maqolalaridan olinsin.\n"
+            "2. Diniy, siyosiy, tibbiy yoki huquqiy mavzulardan mutlaqo chetlashing.\n\n"
+            "Qat'iy format (faqat shu ko'rinishda bering):\n"
+            "🏛 **Davr:** [Tanlangan davr nomi]\n\n"
             "[MOTIVATSIYA MATNI]\n\n"
-            "📚 Aniq manba: [Muallif, kitob/maqola nomi va yili]"
+            "📚 Aniq manba: [Muallif, asar nomi, chop etilgan nashr yoki sahifa ko'rsatkichi]"
         )
 
     response = ai_client.models.generate_content(
@@ -677,12 +682,12 @@ def get_verified_didactic_content(content_type="hikmat"):
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
-            temperature=0.3
+            temperature=0.7
         )
     )
     return response.text.strip()
 
-# --- ADMINNING HIKMAT/MOTIVATSIYA TANLOVI ---
+# --- ADMINNING HIKMAT/MOTIVATSIYA KANALGA JOYLASHTIRISH HANDLERI ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith("pub_"))
 def callback_publish_quote(call):
     if int(call.from_user.id) != int(ADMIN_ID):
@@ -694,7 +699,6 @@ def callback_publish_quote(call):
         bot.answer_callback_query(call.id, "Matn eskirgan.", show_alert=True)
         return
 
-    # Manba qismini qirqib tashlab, faqat matn va kanal linkini qoldirish
     clean_text = text_data.split("📚 Aniq manba:")[0].strip()
     channel_post = f"{clean_text}\n\n───────────────\n🌟 **Rasmiy kanal:** {CHANNEL_USERNAME}"
 
@@ -721,7 +725,7 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        "🏛 **AI TILSHUNOS & METODIST (v10.0)** portaliga xush kelibsiz!\n\n"
+        "🏛 **AI TILSHUNOS & METODIST (v10.1)** portaliga xush kelibsiz!\n\n"
         "Quyidagi maqsadli toifalardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va 40 talik Attestatsiya testi\n"
@@ -777,7 +781,7 @@ def handle_all_messages(message):
         return
 
     elif text == "☀️ Kun hikmati (Admin)" and is_admin:
-        bot.send_message(message.chat.id, "⏳ *Haqiqiy manbali didaktik hikmat olinmoqda...*", parse_mode="Markdown")
+        bot.send_message(message.chat.id, "⏳ *Tarixiy davrlar bo'yicha yangi hikmat saralanmoqda...*", parse_mode="Markdown")
         try:
             hikmat_full = get_verified_didactic_content("hikmat")
             p_id = f"hik_{int(time.time())}"
@@ -800,7 +804,7 @@ def handle_all_messages(message):
         return
 
     elif text == "⚡️ Motivatsiya (Admin)" and is_admin:
-        bot.send_message(message.chat.id, "⏳ *Haqiqiy manbali motivatsion fikr olinmoqda...*", parse_mode="Markdown")
+        bot.send_message(message.chat.id, "⏳ *Tarixiy davrlar bo'yicha ma'rifiy motivatsiya saralanmoqda...*", parse_mode="Markdown")
         try:
             motiv_full = get_verified_didactic_content("motiv")
             p_id = f"mot_{int(time.time())}"
@@ -885,7 +889,7 @@ def handle_all_messages(message):
         except Exception as e:
             bot.send_message(message.chat.id, f"❌ Xatolik: {e}")
 
-    # 5. BOSHQARUVNING BOSHQA BUYRUQLARI (Adabiy tahlil, dars ishlanmasi va h.k.)
+    # 5. BOSHQARUVNING BOSHQA BUYRUQLARI
     elif text == "📋 Dars ishlanmasi":
         msg = bot.reply_to(message, "📋 Qaysi sinf va mavzu bo'yicha dars ishlanmasi kerak? Yozib yuboring:")
         p = "Umumta'lim maktabi uchun '{input}' mavzusida to'liq 45 daqiqalik dars ishlanmasi (konspekt) tuzing."
@@ -970,5 +974,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.0 faol ishga tushdi...")
+print("AI Tilshunos v10.1 (Multi-Epoch Didactic Edition) faol ishga tushdi...")
 bot.infinity_polling()
