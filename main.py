@@ -2319,3 +2319,71 @@ def handle_all_messages(message):
 
 print("AI Tilshunos v10.9 (National Certificate Edition) faol ishga tushdi...")
 bot.infinity_polling()
+import json
+import os
+import random
+
+
+def load_local_knowledge_base(file_path="baza.json"):
+  """baza.json faylini xavfsiz o'qish"""
+  if os.path.exists(file_path):
+    try:
+      with open(file_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+    except Exception as e:
+      print(f"JSON yuklashda xatolik: {e}")
+      return None
+  return None
+
+
+def get_themed_bmb_questions(theme_name, generate_quiz_batch_fn=None):
+  # 1. Avval baza.json dagi aprobatsiya va mavzuli testlarni tekshirish
+  local_base = load_local_knowledge_base()
+  if local_base and "tests" in local_base and len(local_base["tests"]) > 0:
+    base_tests = local_base["tests"]
+
+    # Agar umumiy BMB yoki barcha savollar so'ralsa
+    if any(k in theme_name.lower() for k in ["barcha", "umumiy", "dtm", "bmb"]):
+      selected = random.sample(base_tests, min(len(base_tests), 30))
+      return selected
+
+    # Agar aniq bo'lim nomi bo'yicha bazadan qidirilsa
+    filtered = [
+        t
+        for t in base_tests
+        if theme_name.lower() in t.get("bolim", "").lower()
+    ]
+    if len(filtered) >= 5:
+      return random.sample(filtered, min(len(filtered), 30))
+
+  # 2. Agar mavzu bo'yicha bazada test yetarli bo'lmasa, baza.json dagi uslubni AI ga etalon qilib berish
+  seed = random.randint(10000, 99999)
+  style_sample = ""
+  if local_base and "tests" in local_base:
+    # Etalon uchun dastlabki 2 ta namunani AI ga taqdim etish
+    sample_q = local_base["tests"][:2]
+    style_sample = (
+        "\nNAMUNAVIY ETALON TESTLAR TUZILISHI:\n"
+        f"{json.dumps(sample_q, ensure_ascii=False, indent=2)}\n"
+    )
+
+  prompt = (
+      "O'zbekiston Respublikasi BMB (DTM) va Milliy sertifikat standarti bo'yicha "
+      f"aynan '{theme_name}' mavzusida TO'LIQ 30 TA original Quiz test tuzing (Seed #{seed}).\n"
+      f"{style_sample}\n"
+      "TALABLAR: Yuqoridagi etalon kabi chuqur, grammatik aniq va darslik mezonlariga mos bo'lsin. "
+      "Diniy va siyosiy mavzulardan mutlaqo chetlashing.\n"
+      "Faqat JSON formatida berilsin:\n"
+      "[\n"
+      "  {\n"
+      '    "question": "Savol matni",\n'
+      '    "options": ["A", "B", "C", "D"],\n'
+      '    "correct_option_id": 0,\n'
+      '    "explanation": "Qisqa ilmiy izoh"\n'
+      "  }\n"
+      "]"
+  )
+
+  if generate_quiz_batch_fn:
+    return generate_quiz_batch_fn(prompt, 30)
+  return prompt
