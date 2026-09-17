@@ -1,3 +1,49 @@
+# --- BAZA.JSON BILAN INTEGRATSIYA QILINGAN TEST TIZIMI ---
+def load_local_knowledge_base():
+    """GitHub repozitoriyasidagi baza.json faylini xavfsiz o'qish"""
+    if os.path.exists("baza.json"):
+        try:
+            with open("baza.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return None
+    return None
+
+def get_themed_bmb_questions(theme_name):
+    # 1. Avval baza.json dagi aprobatsiya testlarini tekshirish
+    local_base = load_local_knowledge_base()
+    if local_base and "tests" in local_base and len(local_base["tests"]) > 0:
+        base_tests = local_base["tests"]
+        # Agar umumiy BMB so'ralsa, tayyor aprobatsiya savollarini aralashtirib berish
+        if "barcha" in theme_name.lower() or "umumiy" in theme_name.lower():
+            selected = random.sample(base_tests, min(len(base_tests), 30))
+            return selected
+
+    # 2. Agar mavzu bo'yicha yangi test kerak bo'lsa, baza.json dagi uslubni AI ga etalon qilib berish
+    seed = random.randint(10000, 99999)
+    style_sample = ""
+    if local_base and "tests" in local_base:
+        # Etalon uchun 2 ta namunani AI ga ko'rsatish
+        sample_q = local_base["tests"][:2]
+        style_sample = f"\nNAMUNAVIY ETALON TESTLAR TUZILISHI:\n{json.dumps(sample_q, ensure_ascii=False)}\n"
+
+    prompt = (
+        f"O'zbekiston Respublikasi BMB (DTM) va Milliy sertifikat standarti bo'yicha "
+        f"aynan '{theme_name}' mavzusida TO'LIQ 30 TA original Quiz test tuzing (Seed #{seed}).\n"
+        f"{style_sample}\n"
+        "TALABLAR: Yuqoridagi etalon kabi chuqur, grammatik aniq va darslik mezonlariga mos bo'lsin. "
+        "Diniy va siyosiy mavzulardan mutlaqo chetlashing.\n"
+        "Faqat JSON formatida berilsin:\n"
+        "[\n"
+        "  {\n"
+        '    "question": "Savol matni",\n'
+        '    "options": ["A", "B", "C", "D"],\n'
+        '    "correct_option_id": 0,\n'
+        '    "explanation": "Qisqa ilmiy izoh"\n'
+        "  }\n"
+        "]"
+    )
+    return generate_quiz_batch(prompt, 30)
 {
   "manbalar": [
     "So'z yasalishi (Fazliddin O'taganov)",
@@ -339,6 +385,411 @@
       ],
       "javob": "A",
       "manba": "Savollar @Onatilidanyordam_2.pdf[cite: 11]"
+    }
+  ]
+}
+{
+  "manba": "Hodiyev Education - Muxtasar grammatika testlar to'plami",
+  "bolimlar": [
+    {
+      "bolim_nomi": "Til – ijtimoiy hodisa (Test 0.1)",
+      "testlar": [
+        {
+          "id": "til_01_1",
+          "savol": "Qaysi javobda dunyoda so'z jihatdan eng badavlat til nomi berilgan?",
+          "variantlar": {
+            "A": "arab tili",
+            "B": "ingliz tili",
+            "C": "ispan tili",
+            "D": "xitoy tili"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "til_01_2",
+          "savol": "Olimlarning hisob-kitoblariga ko'ra, bugungi kunda insoniyat nechta tildan muomala vositasi sifatida foydalanib kelmoqda?",
+          "variantlar": {
+            "A": "3000",
+            "B": "5000",
+            "C": "7000",
+            "D": "9000"
+          },
+          "javob": "D"
+        },
+        {
+          "id": "til_01_3",
+          "savol": "Quyida ko'rsatilgan davlatlarning qaysi birida fors tili aloqa-aralashuv quroli sanaladi?",
+          "variantlar": {
+            "A": "Tojikiston",
+            "B": "Qatar",
+            "C": "Eron",
+            "D": "Yaman"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "til_01_4",
+          "savol": "Ma'lumki, jamiyatdan uzilgan, insonlarning aloqa-aralashuviga xizmat qilmaydigan til o'lik til sanaladi. Qaysi javobda ana shunday til nomi berilgan?",
+          "variantlar": {
+            "A": "boshqird tili",
+            "B": "shved tili",
+            "C": "lotin tili",
+            "D": "mo'g'ul tili"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "til_01_5",
+          "savol": "Qaysi ilmiy mulohaza to'g'ri emas?",
+          "variantlar": {
+            "A": "Til jamiyatga, ya'ni odamlarning o'zaro munosabatga kirishuviga xizmat qiladi.",
+            "B": "Har qanday til asrlar davomida rivojlanib, boyib boradi.",
+            "C": "Bir-biriga yaqin, umumiy jihatlari ko'p bo'lgan tillar qarindosh tillar sanaladi.",
+            "D": "Dunyo tillar qarindoshligiga ko'ra til oilalariga bo'linadi."
+          },
+          "javob": "B"
+        },
+        {
+          "id": "til_01_6",
+          "savol": "Qaysi javoda turkiy tillar oilasiga mansub bo'lmagan tillar berilgan?",
+          "variantlar": {
+            "A": "qoraqalpoq, turkman, qozoq",
+            "B": "ozarbayjon, tatar, chuvash",
+            "C": "tojik, afg'on, arab",
+            "D": "gagauz, xakas, yoqut"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "til_01_7",
+          "savol": "Hozirgi Xitoy Xalq Respublikasi hududida yashayotgan turkkyzabon xalq nomi qaysi javobda qayd etilgan?",
+          "variantlar": {
+            "A": "boshqird",
+            "B": "uyg'ur",
+            "C": "qirg'iz",
+            "D": "tuva"
+          },
+          "javob": "B"
+        },
+        {
+          "id": "til_01_8",
+          "savol": "Qaysi javobda qadimgi oltoy tilidan kelib chiqmagan, tarixiy ildizlari turkiy tillar bilan tutashmaydigan til nomi qayd etilgan?",
+          "variantlar": {
+            "A": "yapon tili",
+            "B": "koreys tili",
+            "C": "tungus-manjur tili",
+            "D": "xitoy tili"
+          },
+          "javob": "D"
+        },
+        {
+          "id": "til_01_9",
+          "savol": "Turkiy tillar oilasining qarluq guruhiga mansub tillar berilgan javobni toping.",
+          "variantlar": {
+            "A": "o'zbek, uyg'ur",
+            "B": "turk, turkman",
+            "C": "qirg'iz, qozoq",
+            "D": "tojik, afg'on"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "til_01_10",
+          "savol": "Usmonli turk va ozar tili turkiy tillar oilasining qaysi guruhiga mansub?",
+          "variantlar": {
+            "A": "qorluq guruhi",
+            "B": "o'g'uz guruhi",
+            "C": "qipchoq guruhi",
+            "D": "chigil guruhi"
+          },
+          "javob": "B"
+        },
+        {
+          "id": "til_01_11",
+          "savol": "\"Ozbekiston Respublikasida davlat tiliga yoki boshqa tillarga mensimay yoki xusumat bilan qarash taqiqlanadi.\" \"Davlat tili haqida\"gi Qonunning nechanchi moddasida shunday deb bitilgan?",
+          "variantlar": {
+            "A": "1-modda",
+            "B": "2-modda",
+            "C": "18-modda",
+            "D": "24-modda"
+          },
+          "javob": "D"
+        },
+        {
+          "id": "til_01_12",
+          "savol": "\"Davlat tili haqida\"gi Qonun necha moddadan iborat?",
+          "variantlar": {
+            "A": "128 modda",
+            "B": "96 modda",
+            "C": "52 modda",
+            "D": "24 modda"
+          },
+          "javob": "D"
+        },
+        {
+          "id": "til_01_13",
+          "savol": "Qaysi javobda bir-biriga qarindosh bo'lgan tillar nomi berilgan?",
+          "variantlar": {
+            "A": "rus, fors, ingliz",
+            "B": "yapon, hind, golland",
+            "C": "xitoy, koreys, mo'g'ul",
+            "D": "afg'on, arab, turkman"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "til_01_14",
+          "savol": "Qaysi javobda xalqaro tillar nomi berilgan?",
+          "variantlar": {
+            "A": "ingliz, ispan, fransuz, rus, arab, xitoy",
+            "B": "ingliz, hind, xitoy, yapon, rus, ispan",
+            "C": "xitoy, hind, ingliz, nemis, fransuz, rus",
+            "D": "fransuz, nemis, ispan, italyan, ingliz, Portugal"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "til_01_15",
+          "savol": "Bugungi kunda turkiy tillar oilasi nechta tilni qamrab oladi?",
+          "variantlar": {
+            "A": "yigitmaga yaqin",
+            "B": "o'ttizga yaqin",
+            "C": "qirqqa yaqin",
+            "D": "yuzga yaqin"
+          },
+          "javob": "B"
+        }
+      ]
+    },
+    {
+      "bolim_nomi": "Morfologiyaga kirish (Test 0.2)",
+      "testlar": [
+        {
+          "id": "morf_02_1",
+          "savol": "So'zlarning atash ma'nolarini o'rganadigan tilshunoslik bo'limi qanday nomlanadi?",
+          "variantlar": {
+            "A": "morfologiya",
+            "B": "leksikologiya",
+            "C": "leksikografiya",
+            "D": "morfemika"
+          },
+          "javob": "B"
+        },
+        {
+          "id": "morf_02_2",
+          "savol": "So'zlarning borliqdagi ma'lum narsa-hodisa, belgi-xususiyat, harakat-holat kabilarni ifodalashi qaysi ma'nosi sanaladi?",
+          "variantlar": {
+            "A": "grammatik ma'nosi",
+            "B": "uslubiy ma'nosi",
+            "C": "atash ma'nosi",
+            "D": "ko'chma ma'nosi"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "morf_02_3",
+          "savol": "So'zlarni turkumlarga ajratishda, avvalo, qanday xususiyati hisobga olinadi?",
+          "variantlar": {
+            "A": "gapdagi sintaktik vazifasi",
+            "B": "umumiy grammatik ma'nosi",
+            "C": "yasalishi va yasalish uchun asos bo'lishi",
+            "D": "atash ma'nosining bor-yo'qligi"
+          },
+          "javob": "B"
+        },
+        {
+          "id": "morf_02_4",
+          "savol": "Grammatik shakllar deganda qanday qo'shimchalar tushuniladi?",
+          "variantlar": {
+            "A": "so'z yasovchi qo'shimchalar",
+            "B": "lug'aviy shakl yasovchi qo'shimchalar",
+            "C": "shakl yasovchi qo'shimchalar",
+            "D": "sintaktik shakl yasovchi qo'shimchalar"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "morf_02_5",
+          "savol": "Qaysi javobda yordamchi so'zlar (ko'makchi, bog'lovchi, yuklama)larga xos bo'lgan xususiyatlar to'g'ri ko'rsatilgan?\n1) atash ma'nosiga ega emas;\n2) ma'lum so'roqqa javob bo'lmaydi;\n3) gapda sintaktik vazifa bajarmaydi;\n4) grammatik ma'noga ega emas.",
+          "variantlar": {
+            "A": "1,2,3",
+            "B": "1,2,4",
+            "C": "1,3,4",
+            "D": "2,3,4"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "morf_02_6",
+          "savol": "Qaysi javobda atash ma'nosiga ega bo'lgan so'zlar berilgan?",
+          "variantlar": {
+            "A": "shu, o'sha, bu",
+            "B": "hamda, sari, axir",
+            "C": "chuchuk, beshinchi, ertalab",
+            "D": "Lochin, Zumrad, Rayhon"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "morf_02_7",
+          "savol": "Qaysi turkumga oid so'zlar harakat-holatning belgisini ifodalashga xizmat qiladi?",
+          "variantlar": {
+            "A": "ot",
+            "B": "sifat",
+            "C": "ravish",
+            "D": "fe'l"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "morf_02_8",
+          "savol": "Ovchi qo'liga dasht durbinini oldi va atrofni sinchkovlik bilan uzoq kuzatib turdi.\nUshbu gapda nechta so'z atash (leksik) ma'nosiga ega emas?",
+          "variantlar": {
+            "A": "1 ta",
+            "B": "2 ta",
+            "C": "3 ta",
+            "D": "4 ta"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "morf_02_9",
+          "savol": "Qanday so'zlar atash ma'nosiga ega bo'lmaydi?\n1) mustaqil fe'llar; 2) ko'makchi fe'llar; 3) to'liqsiz fe'llar; 4) olmoshlar; 5) atoqli otlar",
+          "variantlar": {
+            "A": "1,2,3,4",
+            "B": "2,3,4,5",
+            "C": "3,4,5",
+            "D": "2,3,4"
+          },
+          "javob": "B"
+        },
+        {
+          "id": "morf_02_10",
+          "savol": "So'zlarning grammatik ma'nolari va ularni ifodalovchi grammatik shakllarni o'rganuvchi tilshunoslik qanday nomlanadi?",
+          "variantlar": {
+            "A": "morfologiya",
+            "B": "leksikologiya",
+            "C": "sintaksis",
+            "D": "morfemika"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "morf_02_11",
+          "savol": "Qaysi javobda \"olmalarni\" so'zining lug'aviy ma'nolari berilgan?\n1) mevali daraxt; 2) daraxt mevasi; 3) ko'plik ifodalangan ot; 4) kelishik ifodalangan ot",
+          "variantlar": {
+            "A": "1,2",
+            "B": "3,4",
+            "C": "1,2,3,4",
+            "D": "1,3"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "morf_02_12",
+          "savol": "Qaysi javobda predmetning belgisini ifodalovchi so'zlar berilgan?",
+          "variantlar": {
+            "A": "gul, tuproq, bog'",
+            "B": "eski, yassi, chuqur",
+            "C": "sekin, doim, biroz",
+            "D": "birov, barcha, shunday"
+          },
+          "javob": "B"
+        },
+        {
+          "id": "morf_02_13",
+          "savol": "Qaysi grammatik ma'no maxsus grammatik shaklsiz ifodalanadi?",
+          "variantlar": {
+            "A": "o'tgan zamon",
+            "B": "majhul nisbat",
+            "C": "bo'lishlilik",
+            "D": "shart mayli"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "morf_02_14",
+          "savol": "Berilgan so'z tarkibidagi grammatik shakllar qanday grammatik ma'nolarni ifodalashga xizmat qilgan? o'qitmadik\n1) orttirma nisbat ma'nosi; 2) o'tgan zamon ma'nosi; 3) bo'lishsizlik ma'nosi; 4) I shaxs, ko'plik ma'nosi",
+          "variantlar": {
+            "A": "1,2,4",
+            "B": "1,3,4",
+            "C": "1,2,3,4",
+            "D": "2,3,4"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "morf_02_15",
+          "savol": "Grammatik ma'nosi umumiy bo'lgan so'zlarni toping.",
+          "variantlar": {
+            "A": "kitob, suv, yaproq",
+            "B": "qizil, oltovlon, bola",
+            "C": "o'qimoq, jo'rttaga, og'ir",
+            "D": "yozish, olqish, sarg'ish"
+          },
+          "javob": "A"
+        }
+      ]
+    },
+    {
+      "bolim_nomi": "Fe'l: Zamon va shaxs-son (Test 0.3)",
+      "testlar": [
+        {
+          "id": "fel_zamon_1",
+          "savol": "Qaysi javobda harakat-holatning gap aytilayotgan paytga nisbati farqlanadigan fe'llar berilgan?",
+          "variantlar": {
+            "A": "bajargan, bajarmoqda, bajarmoqchi",
+            "B": "bajaryapman, bajaryapsan, bajaryapti",
+            "C": "bajardi, bajartirdi, bajarildi",
+            "D": "bajardi, bajargin, bajarsa"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "fel_zamon_2",
+          "savol": "Qaysi javobda harakat-holatning bajaruvchisi (subyekti)ga ko'ra farqlanadigan fe'llar berilgan?",
+          "variantlar": {
+            "A": "bajargan, bajarmoqda, bajarmoqchi",
+            "B": "bajaryapman, bajaryapsan, bajaryapti",
+            "C": "bajardi, bajartirdi, bajarildi",
+            "D": "bajardi, bajargin, bajarsa"
+          },
+          "javob": "B"
+        },
+        {
+          "id": "fel_zamon_3",
+          "savol": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli so'zlovchining bevosita o'zi ko'rgan, guvohi bo'lgan harakat-holatni ifodalaydi?",
+          "variantlar": {
+            "A": "-di",
+            "B": "-ib(-b)",
+            "C": "-gan",
+            "D": "-gay"
+          },
+          "javob": "A"
+        },
+        {
+          "id": "fel_zamon_4",
+          "savol": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli harakat-holatning ilgariroq yoki uzoq o'tgan zamonda sodir bo'lganini ifodalaydi?",
+          "variantlar": {
+            "A": "-di",
+            "B": "-ib(-b)",
+            "C": "-gan",
+            "D": "-gay"
+          },
+          "javob": "C"
+        },
+        {
+          "id": "fel_zamon_5",
+          "savol": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli ilgari ro'y bergan harakat-holatning so'zlovchi tomonidan eshitib bilinganini ifodalaydi?",
+          "variantlar": {
+            "A": "-di",
+            "B": "-ib(-b)",
+            "C": "-gan",
+            "D": "-gay"
+          },
+          "javob": "B"
+        }
+      ]
     }
   ]
 }
