@@ -1,10 +1,234 @@
 {
-  "source_title": "MILLIY TEST SINOVI (Eshmurodov aprobatsiya)",
-  "total_questions": 44,
+  "source_title": "ONA TILI VA ADABIYOT TESTLAR BAZASI",
+  "total_questions": 60,
+  "manbalar": [
+    "MILLIY TEST SINOVI (Eshmurodov aprobatsiya)",
+    "Asosiy @Onatilidanyordam_2.pdf",
+    "Savollar @Onatilidanyordam_2.pdf",
+    "Hodiyev Education - Muxtasar grammatika testlar to'plami",
+    "Majburiy fan Ona tili (Variant 1)",
+    "So'z yasalishi (Fazliddin O'taganov)",
+    "Tezkor Grammatika (Muhammadyusuf Ikromov)"
+  ],
+  "morfologiya_va_yasalish": {
+    "ot_yasalishi": [
+      {"qo'shimcha": "-a", "asos_turkum": "Taqlid", "misollar": ["qahqaha", "do'mbira"]},
+      {"qo'shimcha": "-ak", "asos_turkum": "Taqlid", "misollar": ["pirpirak", "guldurak", "varrak", "qarsak", "xurrak"]},
+      {"qo'shimcha": "-archilik", "asos_turkum": "Sifat", "misollar": ["ocharchilik"]},
+      {"qo'shimcha": "-at", "asos_turkum": "Fe'l", "misollar": ["o'lat"]},
+      {"qo'shimcha": "-at", "asos_turkum": "Sifat", "misollar": ["ko'kat"]},
+      {"qo'shimcha": "-bin", "asos_turkum": "Ot", "misollar": ["folbin"]},
+      {"qo'shimcha": "-bon", "asos_turkum": "Ot", "misollar": ["darvozabon", "tarozibon", "bog'bon"]},
+      {"qo'shimcha": "-boz", "asos_turkum": "Ot", "misollar": ["dorboz", "masxaraboz", "qimorboz"]},
+      {"qo'shimcha": "-voy", "asos_turkum": "Ot", "misollar": ["nonvoy"]},
+      {"qo'shimcha": "-vchi / -uvchi", "asos_turkum": "Fe'l", "misollar": ["uchuvchi", "o'quvchi", "aniqlovchi", "yozuvchi"]},
+      {"qo'shimcha": "-gar / -kar", "asos_turkum": "Ot", "misollar": ["zargar", "da'vogar", "miskar"]},
+      {"qo'shimcha": "-garchilik", "asos_turkum": "Ot", "misollar": ["odamgarchilik", "yog'ingarchilik"]},
+      {"qo'shimcha": "-garchilik", "asos_turkum": "Sifat", "misollar": ["namgarchilik", "sharmandagarchilik"]},
+      {"qo'shimcha": "-gi / -ki / -qi / -g'i / -g'u", "asos_turkum": "Fe'l", "misollar": ["sevgi", "supurgi", "kulgulik", "turtki", "sanchqi", "tuyg'u", "tomizg'i"]},
+      {"qo'shimcha": "-gir", "asos_turkum": "Ot", "misollar": ["jahongir", "fazogir"]},
+      {"qo'shimcha": "-gich / -kich / -qich / -g'ich", "asos_turkum": "Fe'l", "misollar": ["kulgich", "ko'rsatkich", "tutqich", "chizg'ich", "keskich"]},
+      {"qo'shimcha": "-gin / -qin / -g'in / -gun / -qun", "asos_turkum": "Fe'l", "misollar": ["tizgin", "to'lqin", "quvg'in", "surgun"]},
+      {"qo'shimcha": "-goh", "asos_turkum": "Ot", "misollar": ["ziyoratgoh", "bazmgoh"]},
+      {"qo'shimcha": "-doq / -dak", "asos_turkum": "Fe'l", "misollar": ["qo'ndoq", "kekirdak", "yugurdak"]},
+      {"qo'shimcha": "-diq", "asos_turkum": "Ot", "misollar": ["o'rindiq"]},
+      {"qo'shimcha": "-diq", "asos_turkum": "Fe'l", "misollar": ["qoldiq", "hordiq"]},
+      {"qo'shimcha": "-don", "asos_turkum": "Ot", "misollar": ["kuldon", "qalamdon", "suxandon"]},
+      {"qo'shimcha": "-dor", "asos_turkum": "Ot", "misollar": ["muhrdor", "chorvador", "hukmdor"]},
+      {"qo'shimcha": "-dosh", "asos_turkum": "Ot", "misollar": ["sinfdosh", "sirdosh"]},
+      {"qo'shimcha": "-do'z", "asos_turkum": "Ot", "misollar": ["kashtado'z", "do'ppido'z"]},
+      {"qo'shimcha": "-zor", "asos_turkum": "Ot", "misollar": ["gulzor", "bug'doyzor"]},
+      {"qo'shimcha": "-ik", "asos_turkum": "Fe'l", "misollar": ["ko'rik", "kekirik", "bitik"]},
+      {"qo'shimcha": "-ildoq", "asos_turkum": "Taqlid", "misollar": ["hiqildoq"]},
+      {"qo'shimcha": "-imlik", "asos_turkum": "Fe'l", "misollar": ["o'simlik", "ichimlik"]},
+      {"qo'shimcha": "-in", "asos_turkum": "Fe'l", "misollar": ["yig'in", "ekin"]},
+      {"qo'shimcha": "-(i)ndi / -undi", "asos_turkum": "Fe'l", "misollar": ["chiqindi", "chirindi", "kuyundi"]},
+      {"qo'shimcha": "-iston", "asos_turkum": "Ot", "misollar": ["guliston", "O'zbekiston", "qabriston"]},
+      {"qo'shimcha": "-it", "asos_turkum": "Fe'l", "misollar": ["chiqit"]},
+      {"qo'shimcha": "-iq / -uq", "asos_turkum": "Fe'l", "misollar": ["kesatiq", "buyruq", "tortiq"]},
+      {"qo'shimcha": "-k", "asos_turkum": "Fe'l", "misollar": ["ko'rk", "kurak", "elak"]},
+      {"qo'shimcha": "-kash", "asos_turkum": "Ot", "misollar": ["qalamkash", "aravakash"]},
+      {"qo'shimcha": "-kilik / -gilik", "asos_turkum": "Fe'l", "misollar": ["ichkilik", "ko'rgilik"]},
+      {"qo'shimcha": "-kor", "asos_turkum": "Ot", "misollar": ["sholikor", "san'atkor", "paxtakor"]},
+      {"qo'shimcha": "-kov", "asos_turkum": "Ot", "misollar": ["go'rkov"]},
+      {"qo'shimcha": "-lik / -liq", "asos_turkum": "Ot", "misollar": ["bolalik", "boshliq", "otliq"]},
+      {"qo'shimcha": "-lik", "asos_turkum": "Sifat", "misollar": ["yaxshilik", "ezgulik", "donolik"]},
+      {"qo'shimcha": "-lik", "asos_turkum": "Son", "misollar": ["birlik", "to'rtlik"]},
+      {"qo'shimcha": "-lik", "asos_turkum": "Olmosh", "misollar": ["o'zlik", "menlik"]},
+      {"qo'shimcha": "-lik", "asos_turkum": "Ravish", "misollar": ["tezlik", "birgalik"]},
+      {"qo'shimcha": "-lik / -liq", "asos_turkum": "Modal", "misollar": ["borliq", "yo'qlik"]},
+      {"qo'shimcha": "-loq", "asos_turkum": "Ot", "misollar": ["o'tloq", "toshloq"]}
+    ],
+    "sifat_yasalishi": [
+      {"qo'shimcha": "-a", "asos_turkum": "Fe'l", "misollar": ["to'la", "ko'tara (savdo)"]},
+      {"qo'shimcha": "-avon", "asos_turkum": "Sifat", "misollar": ["zo'ravon"]},
+      {"qo'shimcha": "-aki", "asos_turkum": "Ot", "misollar": ["og'zaki", "yuzaki"]},
+      {"qo'shimcha": "-aki", "asos_turkum": "Taqlid", "misollar": ["shartaki"]},
+      {"qo'shimcha": "-ag'on", "asos_turkum": "Fe'l", "misollar": ["bilag'on", "chopag'on"]},
+      {"qo'shimcha": "ba- / bo-", "asos_turkum": "Ot", "misollar": ["baodob", "boobro'", "badavlat"]},
+      {"qo'shimcha": "bad-", "asos_turkum": "Ot", "misollar": ["badbaxt", "badnafs", "badfe'l"]},
+      {"qo'shimcha": "bar-", "asos_turkum": "Ot", "misollar": ["barqaror", "bardavom"]},
+      {"qo'shimcha": "be-", "asos_turkum": "Ot", "misollar": ["bedavo", "beor", "beg'ubor", "behayo"]},
+      {"qo'shimcha": "-bin", "asos_turkum": "Sifat", "misollar": ["kaltabin", "nekbin"]},
+      {"qo'shimcha": "-boz", "asos_turkum": "Ot", "misollar": ["safsataboz", "xotinboz", "va'daboz"]},
+      {"qo'shimcha": "-bon", "asos_turkum": "Ot", "misollar": ["mehribon"]},
+      {"qo'shimcha": "-vash", "asos_turkum": "Ot", "misollar": ["devonavash", "parivash"]},
+      {"qo'shimcha": "-vor", "asos_turkum": "Sifat", "misollar": ["ulug'vor"]},
+      {"qo'shimcha": "-vor", "asos_turkum": "Ot", "misollar": ["umidvor"]},
+      {"qo'shimcha": "-vuch / -ovuch", "asos_turkum": "Fe'l", "misollar": ["iskovuch", "hurkovuch"]},
+      {"qo'shimcha": "-gay / -kay", "asos_turkum": "Ot", "misollar": ["kungay"]},
+      {"qo'shimcha": "-kay", "asos_turkum": "Sifat", "misollar": ["terskay"]},
+      {"qo'shimcha": "-gar", "asos_turkum": "Ot", "misollar": ["ig'vogar", "hiylagar"]},
+      {"qo'shimcha": "-gi / -ki / -qi", "asos_turkum": "Ot", "misollar": ["kuzgi", "sirtqi", "ichki", "tashqi"]},
+      {"qo'shimcha": "-gi", "asos_turkum": "Ravish", "misollar": ["avvalgi", "ertalabgi"]},
+      {"qo'shimcha": "-gir / -kir / -qir / -g'ir / -qur", "asos_turkum": "Fe'l", "misollar": ["sezgir", "keskir", "topqir", "olg'ir", "uchqur"]},
+      {"qo'shimcha": "-gin / -gun", "asos_turkum": "Ot", "misollar": ["g'amgin", "gulgun"]},
+      {"qo'shimcha": "-go'y", "asos_turkum": "Ot", "misollar": ["xushomadgo'y", "rostgo'y"]},
+      {"qo'shimcha": "-diq", "asos_turkum": "Fe'l", "misollar": ["tashlandiq"]},
+      {"qo'shimcha": "-don", "asos_turkum": "Ot", "misollar": ["qadrdon", "gapdon"]},
+      {"qo'shimcha": "-dor", "asos_turkum": "Ot", "misollar": ["aybdor", "daxldor", "hosildor"]},
+      {"qo'shimcha": "-dosh", "asos_turkum": "Ot", "misollar": ["ohangdosh", "sirdosh"]},
+      {"qo'shimcha": "-zada", "asos_turkum": "Ot", "misollar": ["alamzada", "yurakzada"]},
+      {"qo'shimcha": "-i", "asos_turkum": "Ot", "misollar": ["qozoqi", "qishloqi", "bozori", "jannati"]},
+      {"qo'shimcha": "-iv", "asos_turkum": "Ot", "misollar": ["obyektiv", "subyektiv"]},
+      {"qo'shimcha": "-iy / -viy", "asos_turkum": "Ot", "misollar": ["ilmiy", "shaxsiy", "moliyaviy", "diniy", "devoriy"]},
+      {"qo'shimcha": "-iy", "asos_turkum": "Modal", "misollar": ["zaruriy"]},
+      {"qo'shimcha": "-ik", "asos_turkum": "Ot", "misollar": ["geologik", "realistik"]},
+      {"qo'shimcha": "-ik", "asos_turkum": "Fe'l", "misollar": ["egik", "bukik", "teshik"]},
+      {"qo'shimcha": "-ildoq", "asos_turkum": "Taqlid", "misollar": ["akildoq", "chiyildoq", "liqqildoq"]},
+      {"qo'shimcha": "-imli", "asos_turkum": "Fe'l", "misollar": ["yoqimli", "sevimli", "to'yimli"]},
+      {"qo'shimcha": "-in", "asos_turkum": "Fe'l", "misollar": ["to'lin", "to'kin"]},
+      {"qo'shimcha": "-in", "asos_turkum": "Ot", "misollar": ["erkin", "rangin", "g'ishtin"]},
+      {"qo'shimcha": "-inki", "asos_turkum": "Fe'l", "misollar": ["ko'tarinki"]},
+      {"qo'shimcha": "-inch", "asos_turkum": "Fe'l", "misollar": ["shoshilinch", "tiqilinch"]},
+      {"qo'shimcha": "-k / -q / -uq / -g' / -iq", "asos_turkum": "Fe'l", "misollar": ["chirik", "buzuq", "ochiq", "quruq", "issiq", "yorug'"]},
+      {"qo'shimcha": "-kash", "asos_turkum": "Ot", "misollar": ["zahmatkash", "jafokash"]},
+      {"qo'shimcha": "-qin / -g'in / -kun / -g'un", "asos_turkum": "Fe'l", "misollar": ["tushkun", "jo'shqin", "so'lg'in", "turg'un", "sotqin"]},
+      {"qo'shimcha": "-kor", "asos_turkum": "Ot", "misollar": ["zulmkor", "isyonkor", "fidokor"]},
+      {"qo'shimcha": "-l", "asos_turkum": "Fe'l", "misollar": ["tugal"]},
+      {"qo'shimcha": "-li", "asos_turkum": "Ot", "misollar": ["kuchli", "odobli", "aqlli"]},
+      {"qo'shimcha": "-li", "asos_turkum": "Modal", "misollar": ["kerakli"]},
+      {"qo'shimcha": "-lik", "asos_turkum": "Ot", "misollar": ["yozlik", "ko'rpalik", "bayramlik", "qishlik"]},
+      {"qo'shimcha": "-lom", "asos_turkum": "Sifat", "misollar": ["sog'lom"]},
+      {"qo'shimcha": "-m", "asos_turkum": "Fe'l", "misollar": ["qaram"]},
+      {"qo'shimcha": "-ma", "asos_turkum": "Fe'l", "misollar": ["qaynatma", "ko'chma", "qo'shma", "terma", "tug'ma"]},
+      {"qo'shimcha": "-mand", "asos_turkum": "Ot", "misollar": ["ayolmand", "davlatmand", "dardmand"]},
+      {"qo'shimcha": "-mon", "asos_turkum": "Fe'l", "misollar": ["toparmon-tutarmon", "ustabuzarmon"]},
+      {"qo'shimcha": "-msiq / -imsiq", "asos_turkum": "Fe'l", "misollar": ["qarimsiq", "achimsiq"]},
+      {"qo'shimcha": "-namo", "asos_turkum": "Ot", "misollar": ["darveshnamo", "olimnamo"]},
+      {"qo'shimcha": "-namo", "asos_turkum": "Sifat", "misollar": ["tentaknamo"]},
+      {"qo'shimcha": "no-", "asos_turkum": "Ot", "misollar": ["noinsof", "noumid"]},
+      {"qo'shimcha": "no-", "asos_turkum": "Sifat", "misollar": ["noto'g'ri", "nomard", "noma'lum"]},
+      {"qo'shimcha": "-nok", "asos_turkum": "Ot", "misollar": ["alamnok", "g'amnok"]},
+      {"qo'shimcha": "-ndi", "asos_turkum": "Fe'l", "misollar": ["asrandi"]},
+      {"qo'shimcha": "-on / -an", "asos_turkum": "Ot", "misollar": ["za'faron"]},
+      {"qo'shimcha": "-os", "asos_turkum": "Taqlid", "misollar": ["gulduros"]},
+      {"qo'shimcha": "-omuz", "asos_turkum": "Ot", "misollar": ["kinoyaomuz", "hayratomuz"]},
+      {"qo'shimcha": "-ong'ich / -ng'ich", "asos_turkum": "Fe'l", "misollar": ["tepong'ich", "tishlong'ich"]},
+      {"qo'shimcha": "-oq", "asos_turkum": "Fe'l", "misollar": ["qo'rqoq", "baqiroq"]},
+      {"qo'shimcha": "-parast", "asos_turkum": "Ot", "misollar": ["mansabparast", "xayolparast"]},
+      {"qo'shimcha": "-parvar", "asos_turkum": "Ot", "misollar": ["adolatparvar", "xalqparvar"]},
+      {"qo'shimcha": "-rli / -arli", "asos_turkum": "Fe'l", "misollar": ["arzirli", "zerikarli"]},
+      {"qo'shimcha": "-saro", "asos_turkum": "Ot", "misollar": ["motamsaro"]},
+      {"qo'shimcha": "ser-", "asos_turkum": "Ot", "misollar": ["serhosil", "sershovqin", "sergap"]},
+      {"qo'shimcha": "-siz", "asos_turkum": "Ot", "misollar": ["sanoqsiz", "tuzsiz", "o'rinsiz"]},
+      {"qo'shimcha": "-simon", "asos_turkum": "Ot", "misollar": ["sharsimon", "naysimon", "oysimon"]},
+      {"qo'shimcha": "-xo'r", "asos_turkum": "Sifat", "misollar": ["tekinxo'r"]},
+      {"qo'shimcha": "-xo'r", "asos_turkum": "Ot", "misollar": ["poraxo'r"]},
+      {"qo'shimcha": "-ch", "asos_turkum": "Fe'l", "misollar": ["tinch", "jirkanch"]},
+      {"qo'shimcha": "-cha", "asos_turkum": "Ot", "misollar": ["farg'onacha"]},
+      {"qo'shimcha": "-chak / -choq / -chiq", "asos_turkum": "Fe'l", "misollar": ["kuyunchak", "tortinchoq", "qizg'anchiq"]},
+      {"qo'shimcha": "-chan", "asos_turkum": "Ot", "misollar": ["talabchan", "harakatchan"]},
+      {"qo'shimcha": "-chan", "asos_turkum": "Harakat nomi", "misollar": ["yashovchan", "o'suvchan"]},
+      {"qo'shimcha": "-chi", "asos_turkum": "Fe'l", "misollar": ["ayirmachi"]},
+      {"qo'shimcha": "-chi", "asos_turkum": "Sifat", "misollar": ["a'lochi", "bekorchi"]},
+      {"qo'shimcha": "-chil", "asos_turkum": "Ot", "misollar": ["dardchil", "izchil"]},
+      {"qo'shimcha": "-chil", "asos_turkum": "Ravish", "misollar": ["kamchil"]},
+      {"qo'shimcha": "-shta", "asos_turkum": "Fe'l", "misollar": ["sinashta"]},
+      {"qo'shimcha": "-shumul", "asos_turkum": "Ot", "misollar": ["olamshumul"]},
+      {"qo'shimcha": "-qa", "asos_turkum": "Fe'l", "misollar": ["qisqa"]},
+      {"qo'shimcha": "-qa", "asos_turkum": "Ot", "misollar": ["loyqa"]},
+      {"qo'shimcha": "-qi", "asos_turkum": "Fe'l", "misollar": ["vaysaqi", "sayroqi"]},
+      {"qo'shimcha": "-qoq", "asos_turkum": "Fe'l", "misollar": ["urishqoq", "qochqoq"]}
+    ],
+    "ravish_yasalishi": [
+      {"qo'shimcha": "-an", "asos_turkum": "Ot", "misollar": ["tasodifan", "fikran", "xayolan", "vijdonan"]},
+      {"qo'shimcha": "-an", "asos_turkum": "Sifat", "misollar": ["qat'iyan"]},
+      {"qo'shimcha": "-an", "asos_turkum": "Modal", "misollar": ["majburan"]},
+      {"qo'shimcha": "bar-", "asos_turkum": "Ot", "misollar": ["barvaqt"]},
+      {"qo'shimcha": "be-", "asos_turkum": "Ot", "misollar": ["beijozat", "bevosita", "betinim", "bemalol", "beomon"]},
+      {"qo'shimcha": "-iga / -siga", "asos_turkum": "Ot", "misollar": ["surunkasiga", "nomiga", "asronchasiga"]},
+      {"qo'shimcha": "-iga", "asos_turkum": "Sifat", "misollar": ["ko'ndalangiga", "chinakamiga"]},
+      {"qo'shimcha": "-siga", "asos_turkum": "Olmosh", "misollar": ["yalpisiga", "shunaqasiga"]},
+      {"qo'shimcha": "-lab", "asos_turkum": "Ot", "misollar": ["oylab", "donalab", "bo'g'inlab"]},
+      {"qo'shimcha": "-lab", "asos_turkum": "Sifat", "misollar": ["yaxshilab"]},
+      {"qo'shimcha": "-lab", "asos_turkum": "Son", "misollar": ["bittalab"]},
+      {"qo'shimcha": "-lay / -layin", "asos_turkum": "Sifat", "misollar": ["tiriklayin", "yoshlayin"]},
+      {"qo'shimcha": "-lay", "asos_turkum": "Olmosh", "misollar": ["butunlay"]},
+      {"qo'shimcha": "-larcha", "asos_turkum": "Ot", "misollar": ["qahramonlarcha", "otalarcha", "do'stlarcha"]},
+      {"qo'shimcha": "-larcha", "asos_turkum": "Sifat", "misollar": ["vahshiylarcha", "telbalarcha", "mardlarcha"]},
+      {"qo'shimcha": "-ligicha", "asos_turkum": "Sifat", "misollar": ["yangiligicha", "xomligicha", "butunligicha"]},
+      {"qo'shimcha": "-namo", "asos_turkum": "Ot", "misollar": ["hazilnamo"]},
+      {"qo'shimcha": "-namo", "asos_turkum": "Sifat", "misollar": ["oliftanamo"]},
+      {"qo'shimcha": "-namo", "asos_turkum": "Sifatdosh", "misollar": ["uyalgannamo"]},
+      {"qo'shimcha": "-n / -in", "asos_turkum": "Ot", "misollar": ["yozin-qishin"]},
+      {"qo'shimcha": "-in", "asos_turkum": "Sifat", "misollar": ["ochin-to'qin"]},
+      {"qo'shimcha": "-n / -in", "asos_turkum": "Ravish", "misollar": ["ertan-kechin", "ostin-ustun"]},
+      {"qo'shimcha": "-ona", "asos_turkum": "Ot", "misollar": ["do'stona"]},
+      {"qo'shimcha": "-ona", "asos_turkum": "Sifat", "misollar": ["mardona", "oqilona", "fidokorona"]},
+      {"qo'shimcha": "-cha", "asos_turkum": "Ot", "misollar": ["o'zbekcha", "yigitcha"]},
+      {"qo'shimcha": "-cha", "asos_turkum": "Olmosh", "misollar": ["o'zicha"]},
+      {"qo'shimcha": "-siz", "asos_turkum": "Ot", "misollar": ["to'xtovsiz"]}
+    ],
+    "fel_yasalishi": [
+      {"qo'shimcha": "-a", "asos_turkum": "Ot", "misollar": ["sana", "tuna", "yasha", "o'yna"]},
+      {"qo'shimcha": "-a", "asos_turkum": "Sifat", "misollar": ["bo'sha", "qiyna"]},
+      {"qo'shimcha": "-a", "asos_turkum": "Taqlid", "misollar": ["shildira", "guldura"]},
+      {"qo'shimcha": "-an", "asos_turkum": "Ot", "misollar": ["kuchan"]},
+      {"qo'shimcha": "-i", "asos_turkum": "Ot", "misollar": ["ranji", "changi", "avji"]},
+      {"qo'shimcha": "-i", "asos_turkum": "Sifat", "misollar": ["tinchi", "boyi"]},
+      {"qo'shimcha": "-illa", "asos_turkum": "Taqlid", "misollar": ["chirqilla", "guvulla", "zirilla", "shovulla", "taqilla"]},
+      {"qo'shimcha": "-ik", "asos_turkum": "Ot", "misollar": ["ko'zik"]},
+      {"qo'shimcha": "-ik", "asos_turkum": "Son", "misollar": ["birik"]},
+      {"qo'shimcha": "-ik", "asos_turkum": "Ravish", "misollar": ["kechik"]},
+      {"qo'shimcha": "-ir", "asos_turkum": "Ot", "misollar": ["gapir", "ko'pir"]},
+      {"qo'shimcha": "-ira", "asos_turkum": "Taqlid", "misollar": ["miltira", "yaltira", "zirqira", "yarqira", "qaltira"]},
+      {"qo'shimcha": "-y / -ay", "asos_turkum": "Ot", "misollar": ["kuchay"]},
+      {"qo'shimcha": "-ay", "asos_turkum": "Sifat", "misollar": ["ulg'ay", "pasay", "susay", "qoray", "yoshar"]},
+      {"qo'shimcha": "-ay", "asos_turkum": "Ravish", "misollar": ["kamay", "ozay", "ko'pay"]},
+      {"qo'shimcha": "-ka", "asos_turkum": "Ot", "misollar": ["iska"]},
+      {"qo'shimcha": "-la", "asos_turkum": "Ot", "misollar": ["egovla", "moyla", "bolala", "gulla", "yog'la", "ishla"]},
+      {"qo'shimcha": "-la", "asos_turkum": "Sifat", "misollar": ["maydala", "tozala", "yaxshila", "tikla", "tekisla"]},
+      {"qo'shimcha": "-la", "asos_turkum": "Olmosh", "misollar": ["sizla", "senla"]},
+      {"qo'shimcha": "-la", "asos_turkum": "Ravish", "misollar": ["tezla", "sekinla"]},
+      {"qo'shimcha": "-la", "asos_turkum": "Undov", "misollar": ["dodla", "chuhla", "ohla"]},
+      {"qo'shimcha": "-la", "asos_turkum": "Taqlid", "misollar": ["gumburla", "shivirla", "shitirla"]},
+      {"qo'shimcha": "-la", "asos_turkum": "Modal", "misollar": ["yo'qla"]},
+      {"qo'shimcha": "-lan", "asos_turkum": "Ot", "misollar": ["faxrlan", "gavdalan", "lazzatlan", "zavqlan", "jonlan"]},
+      {"qo'shimcha": "-lan", "asos_turkum": "Sifat", "misollar": ["shodlan", "achchiqlan", "sergaklan"]},
+      {"qo'shimcha": "-lan", "asos_turkum": "Son", "misollar": ["ikkilan"]},
+      {"qo'shimcha": "-lash", "asos_turkum": "Ot", "misollar": ["do'stlash", "suhbatlash", "ahdlash", "bahslash", "dardlash"]},
+      {"qo'shimcha": "-lash", "asos_turkum": "Sifat", "misollar": ["yiriklash", "osonlash", "asabiylash", "oydinlash"]},
+      {"qo'shimcha": "-lash", "asos_turkum": "Son", "misollar": ["birlash"]},
+      {"qo'shimcha": "-lash", "asos_turkum": "Ravish", "misollar": ["birgalash"]},
+      {"qo'shimcha": "-lat", "asos_turkum": "Sifat", "misollar": ["qoyillat"]},
+      {"qo'shimcha": "-ol", "asos_turkum": "Modal", "misollar": ["yo'qol"]},
+      {"qo'shimcha": "-r / -ar", "asos_turkum": "Sifat", "misollar": ["oqar", "ko'kar", "qisqar", "eskir"]},
+      {"qo'shimcha": "-ra", "asos_turkum": "Taqlid", "misollar": ["ho'ngra", "mara", "ingra"]},
+      {"qo'shimcha": "-si", "asos_turkum": "Olmosh", "misollar": ["mensi"]},
+      {"qo'shimcha": "-si", "asos_turkum": "Sifat", "misollar": ["garangsi"]},
+      {"qo'shimcha": "-sin", "asos_turkum": "Sifat", "misollar": ["qiziqsin", "yotsin"]},
+      {"qo'shimcha": "-sit", "asos_turkum": "Sifat", "misollar": ["kamsit"]},
+      {"qo'shimcha": "-sira", "asos_turkum": "Ot", "misollar": ["uyqusira", "suvsira"]},
+      {"qo'shimcha": "-sira", "asos_turkum": "Sifat", "misollar": ["begonasira", "yotsira"]},
+      {"qo'shimcha": "-sira", "asos_turkum": "Olmosh", "misollar": ["sensira"]}
+    ]
+  },
   "tests": [
     {
-      "id": 1,
+      "id": "mts_1",
       "type": "quiz",
+      "bolim": "Imlo",
       "question": "Imloviy jihatdan to'g'ri yozilgan so'zlar qatorini aniqlang.",
       "options": [
         "bahri bayt, namoyonda, qoyida",
@@ -16,8 +240,9 @@
       "explanation": "B javob to'g'ri. 'Qazoyi qadar', 'qobiliyat', 'muammo' so'zlari amaldagi rasmiy imlo qoidalariga to'liq mos keladi."
     },
     {
-      "id": 2,
+      "id": "mts_2",
       "type": "quiz",
+      "bolim": "Imlo",
       "question": "Gapda imloviy jihatdan noto'g'ri yozilgan so'z berilgan javobni aniqlang.",
       "options": [
         "Yolg'onchilik takabburlik, chaqimchilik izzat-obro`ni barbot qiladi.",
@@ -29,8 +254,9 @@
       "explanation": "A javobda 'barbot' emas, 'barbod' shaklida 'd' harfi bilan yozilishi lozim."
     },
     {
-      "id": 3,
+      "id": "mts_3",
       "type": "quiz",
+      "bolim": "Leksikologiya",
       "question": "So'zlarning ma'nosi to'g'ri izohlangan javobni aniqlang.",
       "options": [
         "Hostel - qo'noqxona",
@@ -42,8 +268,9 @@
       "explanation": "Hostel - arzon yotoqxona tipidagi qo'noqxona ma'nosini to'g'ri ifodalaydi."
     },
     {
-      "id": 4,
+      "id": "mts_4",
       "type": "quiz",
+      "bolim": "Leksikologiya",
       "question": "O'zaro ma'nodoshlik hosil qila olmaydigan so'zlar qatorini aniqlang.",
       "options": [
         "vaqt, chog', mavrid",
@@ -55,8 +282,9 @@
       "explanation": "C qatorda 'amr' buyruq ma'nosida, 'xon' va 'shoh' esa hukmdorlik unvonlaridir, ular o'zaro to'liq sinonim bo'la olmaydi."
     },
     {
-      "id": 5,
+      "id": "mts_5",
       "type": "quiz",
+      "bolim": "Uslubiyat",
       "question": "Qaysi gapda qo'shimcha qo'llash bilan bog'liq uslubiy xatolik mavjud emas?",
       "options": [
         "U to`qayzorda sassiq alaflarning, qamashlarning, guli раухоп qiluvchi to`ng`izlarning ko`pligidan ajablanmadi",
@@ -68,8 +296,9 @@
       "explanation": "B javobda grammatik va uslubiy jihatdan qo'shimchalar xatosiz va o'rinli qo'llangan."
     },
     {
-      "id": 6,
+      "id": "mts_6",
       "type": "quiz",
+      "bolim": "Uslubiyat",
       "question": "Quyidagi qaysi gapda uslubiy g'alizlik kuzatilmagan?",
       "options": [
         "Hangoma ko`p uchrar hayotga doir, Keksa bir qalamchi odam bor edi...",
@@ -81,8 +310,9 @@
       "explanation": "B javobdagi she'riy parchada uslubiy va sintaktik g'alizliklar uchramaydi."
     },
     {
-      "id": 7,
+      "id": "mts_7",
       "type": "quiz",
+      "bolim": "Morfemika",
       "question": "Farosatsizlik, axloqsizlik orqasida faqat huzur-halovatga mukkasidan ketganlarning, yengil-yelpi fikrlovchilarning hayoti sariq chaqaga ham arzimaydi. Ushbu gap yuzasidan nechtasi to'g'ri?",
       "options": [
         "bittasi",
@@ -94,8 +324,9 @@
       "explanation": "Gapdagi morfemik tahlil bo'yicha berilgan hukmlardan 2 tasi to'g'ri hisoblanadi."
     },
     {
-      "id": 8,
+      "id": "mts_8",
       "type": "quiz",
+      "bolim": "Morfologiya",
       "question": "Berilgan uchala she'riy parchada ham ishtirok etgan umumiy fe'l shakllarini aniqlang.",
       "options": [
         "1, 3, 6 (II shaxs birlik, o'timli fe'l, buyruq-istak mayli)",
@@ -107,8 +338,9 @@
       "explanation": "Uchala parchada ham buyruq maylidagi (ko'r, bo'l, o'p), II shaxs birlikdagi va o'timli fe'llar mushtarak qatnashgan."
     },
     {
-      "id": 9,
+      "id": "mts_9",
       "type": "quiz",
+      "bolim": "Morfologiya",
       "question": "Keltirilgan parchalardagi so'z turkumlari haqida berilgan TO'G'RI mulohazani toping.",
       "options": [
         "I qismda mustaqil so'z turkumidan biri bo'lgan olmoshning beshta ma'no turiga oid so'zlar qatnashgan.",
@@ -120,8 +352,9 @@
       "explanation": "Uchala parchada ham ravish turkumiga oid so'zlar (har qalay, oz, juda, to'la) qatnashgan."
     },
     {
-      "id": 10,
+      "id": "mts_10",
       "type": "quiz",
+      "bolim": "Sintaksis",
       "question": "'Mening beshigimga otilgan ul o'q sizning umringizni uzgan, ehtimol.' Ushbu gapdagi tobe bog'lanishlarga oid to'g'ri hukmni aniqlang.",
       "options": [
         "Ushbu gapda tobe qismi sifatlovchi aniqlovchi, hol vazifasini bajargan fe'lli so'z birikmalari qatnashgan.",
@@ -133,8 +366,9 @@
       "explanation": "Aniqlovchi tobelangan hokim so'z ('o'q') ega vazifasida kelib, kesimga tobelangan."
     },
     {
-      "id": 11,
+      "id": "mts_11",
       "type": "quiz",
+      "bolim": "Sintaksis",
       "question": "Gapdagi so'zlarning mazmun va grammatik jihatdan bog'lanishi to'g'ri ko'rsatilgan javobni aniqlang.",
       "options": [
         "qadriyatlarni belgilab, natijaga intilish orqali inson o'z hayotini baxtli qiladi.",
@@ -146,8 +380,9 @@
       "explanation": "Mazkur javobda sintaktik aloqalar va so'z birikmasi munosabatlari qat'iy to'g'ri aks ettirilgan."
     },
     {
-      "id": 12,
+      "id": "mts_12",
       "type": "quiz",
+      "bolim": "Punktuatsiya",
       "question": "Qaysi gaplarda vergul bir xil punktuatsion qoida asosida qo'yilgan?",
       "options": [
         "4, 6 (Undalmalarni ajratish qoidasi)",
@@ -159,8 +394,9 @@
       "explanation": "4 va 6-gaplarda vergul gapdagi undalmalarni ('Usta', 'janob dorug'a') ajratish uchun qo'llangan."
     },
     {
-      "id": 13,
+      "id": "mts_13",
       "type": "quiz",
+      "bolim": "Adabiyot",
       "question": "Abdulhamid Cho'lponning 'Men qochmadim' she'ri mazmuniga oid to'g'ri fikrni toping.",
       "options": [
         "Lirik qahramonning jamiyatdan ajralib, mustaqil yo'l tanlashi",
@@ -172,8 +408,9 @@
       "explanation": "She'rda ijodkorning 'o'zlik' va 'ko'plik' tushunchalari hamda unga qo'yilgan asossiz ayblovlarga qarshi ma'naviy isyoni aks etgan."
     },
     {
-      "id": 14,
+      "id": "mts_14",
       "type": "quiz",
+      "bolim": "Adabiyot",
       "question": "Nazar Eshonqulning 'Shamol tutib bo'lmaydi' hikoyasidagi parcha orqali nima ifodalangan?",
       "options": [
         "Qishloqning shaharga nisbatan iqtisodiy tanazzulga yuz tutgani",
@@ -185,8 +422,9 @@
       "explanation": "Buldozerlar eski uyni qulatayotganda tersotaliklar o'z xotirasi va o'tmishini yemirayotganlik ramzi aks etgan."
     },
     {
-      "id": 15,
+      "id": "mts_15",
       "type": "quiz",
+      "bolim": "Adabiyot",
       "question": "Asqad Muxtorning 'Chinor' romani mazmuni haqidagi XATO hukmni ko'rsating.",
       "options": [
         "Romanda kasbga sadoqatli, yosh bo'lishiga qaramay konda ishlaydigan yigitning ayanchli taqdiri qalamga olingan.",
@@ -198,8 +436,9 @@
       "explanation": "Romanda qaltis vaziyatda xiyonat va yolg'izlanish motivlari fojiaviy tarzda ko'rsatilgan, bu hukm romanga mos kelmaydi."
     },
     {
-      "id": 16,
+      "id": "mts_16",
       "type": "quiz",
+      "bolim": "Adabiyot",
       "question": "Qizlarini uzatishda boylik va shahar orzusida sovchilarni qaytargan Sadriddin cho'loq obrazi qaysi asarda uchraydi?",
       "options": [
         "O'tkan kunlar",
@@ -211,8 +450,9 @@
       "explanation": "Cho'lponning 'Kecha va kunduz' romanida Zebi (Zebiniso)ning otasi Razzoq so'fi bilan bir qatorda Sadriddin cho'loq timsoli uchraydi."
     },
     {
-      "id": 17,
+      "id": "mts_17",
       "type": "quiz",
+      "bolim": "Adabiyot",
       "question": "'O'jar' hikoyasi haqida to'g'ri fikrni toping.",
       "options": [
         "Zargarov va Qutbiddinov birinchi marta ulfatlik dasturxoni ustida dildan suhbat qurishgan edi.",
@@ -224,8 +464,9 @@
       "explanation": "Zargarovning mulohazalarida manmanlik va o'zini boshqalardan ustun qo'yish illati yaqqol seziladi."
     },
     {
-      "id": 18,
+      "id": "mts_18",
       "type": "quiz",
+      "bolim": "Matn bilan ishlash",
       "question": "'Bug'doy, arpa, suli' matni bo'yicha qaysi gap to'g'ri shakllantirilgan?",
       "options": [
         "Suli urug'i dukkakli don ekinlaridan bo'shagan yerlarga ekiladi. Arpa esa ko'kat uchun ro'vaklash-gullash davrida o'riladi...",
@@ -237,8 +478,9 @@
       "explanation": "Matnda arpaning pivo, yem-xashak va oziq-ovqat sanoatida asosiy xomashyo ekanligi aniq bayon etilgan."
     },
     {
-      "id": 19,
+      "id": "mts_19",
       "type": "quiz",
+      "bolim": "Adabiyot",
       "question": "Aziz Nesinning 'Ustasi faranglar' hikoyasida 'quruvchilik zakovati sezilib turgan' yangi direktor qaysi ishi bilan tarixda qolgan?",
       "options": [
         "Muhtaram Ruhibey: maktabimizga birinchi bo'lib gimnastika maydonchasi qurdirib berdi.",
@@ -250,8 +492,9 @@
       "explanation": "Oldingi beton maydon ustiga tuproq to'kdirib gul va daraxtlar ektirgan direktor Muhtaram Najotibey bo'lib, u birinchi bo'lib bog' yaratgan direktor sifatida Faxriy xonaga kiritilgan."
     },
     {
-      "id": 20,
+      "id": "mts_20",
       "type": "quiz",
+      "bolim": "Adabiyot va uslubiyat",
       "question": "Aziz Nesinning 'Ustasi faranglar' hikoyasida [1] raqami bilan berilgan 'Qurilish bobida bunisi eski direktorni bir cho'qishda qochiradiganga o'xshaydi' gapi orqali qanday uslubiy ma'no ifodalangan?",
       "options": [
         "Kinoya, kesatiq",
@@ -261,6 +504,636 @@
       ],
       "correct_option_id": 0,
       "explanation": "Hikoyadagi bu ibora yangi kelgan rahbarning maqsadsiz isrofgarchiligiga nisbatan o'tkir kinoya va kesatiqni ifodalaydi."
+    },
+    {
+      "id": "dtm_1_1",
+      "type": "quiz",
+      "bolim": "Fe'l zamonlari",
+      "question": "Qaysi gapda fe'lning o'tgan zamon shakli kelasi zamon ma'nosida qo'llangan?",
+      "options": [
+        "Bir vaqt qarasam, yig'layapman, hech o'zimni bosolmayman.",
+        "Agar mening gapimni tushungan bo'lsang, yur men bilan, ketdik.",
+        "Ular allaqachon bir qarorga kelgan edilar.",
+        "Men bu mehmonni kuzatib borayotirman."
+      ],
+      "correct_option_id": 1,
+      "explanation": "'ketdik' fe'li o'tgan zamon shaklida bo'lsa-da, kelasi zamondagi harakatni anglatadi."
+    },
+    {
+      "id": "dtm_1_6",
+      "type": "quiz",
+      "bolim": "Leksikologiya",
+      "question": "Qaysi javobda ot turkumiga oid o'zaro ma'nodosh so'zlar juftligi berilgan?",
+      "options": [
+        "husn - go'zal",
+        "tantiqlik - saxiylik",
+        "tabassum - yig'i",
+        "sovg'a - tuhfa"
+      ],
+      "correct_option_id": 3,
+      "explanation": "Sovg'a va tuhfa so'zlarining har ikkisi ham ot turkumiga oid to'liq ma'nodosh so'zlardir."
+    },
+    {
+      "id": "dtm_1_23",
+      "type": "quiz",
+      "bolim": "Modal so'zlar",
+      "question": "Quyida berilganlardan qaysilari modal so'z hisoblanadi?\n1) xullas; 2) faqat; 3) darhaqiqat; 4) xayriyat; 5) chunki; 6) biroq.",
+      "options": [
+        "2, 3, 6",
+        "1, 3, 4",
+        "3, 4, 5, 6",
+        "1, 2, 4, 5"
+      ],
+      "correct_option_id": 1,
+      "explanation": "xullas, darhaqiqat va xayriyat modal so'zlar hisoblanadi."
+    },
+    {
+      "id": "dtm_2_5",
+      "type": "quiz",
+      "bolim": "Leksikologiya",
+      "question": "\"Ozuqa zaxiralarimizning hammasi ertaga bitadi.\" Ushbu gapda bitmoq so'zi qaysi ma'noda qo'llangan?",
+      "options": [
+        "tugamoq, tamom bo'lmoq",
+        "yozuv orqali ifodalamoq",
+        "et unib, birikib tuzalmoq",
+        "o'sib-unmoq"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Zaxiraning bitishi uning tugashi, tamom bo'lishini bildiradi."
+    },
+    {
+      "id": "dtm_2_14",
+      "type": "quiz",
+      "bolim": "Fe'l nisbatlari",
+      "question": "Qaysi javobda o'zlik nisbatidagi fe'llar berilgan?",
+      "options": [
+        "jimirlamoq, silkinmoq",
+        "ko'rinmoq, kiyinmoq",
+        "taralmoq, yiqitmoq",
+        "o'ylanmoq, sarg'aymoq"
+      ],
+      "correct_option_id": 1,
+      "explanation": "ko'rinmoq va kiyinmoq fe'llarida harakat bajaruvchining o'z ustida bajarilgan."
+    },
+    {
+      "id": "dtm_3_10",
+      "type": "quiz",
+      "bolim": "Ma'no ko'chishi",
+      "question": "\"Urush ko'plarning yostig'ini quritdi.\" Berilgan gapda ma'no ko'chishning qaysi turi mavjud?",
+      "options": [
+        "metafora",
+        "sinekdoxa",
+        "vazifadoshlik",
+        "metonimiya"
+      ],
+      "correct_option_id": 3,
+      "explanation": "Yostiqni quritmoq iborasi aloqadorlik asosida metonimik ko'chish hisoblanadi."
+    },
+    {
+      "id": "dtm_4_13",
+      "type": "quiz",
+      "bolim": "Ko'makchi",
+      "question": "Qaysi javobda yo'nalish ma'nosini ifodalagan sof ko'makchi(lar) to'g'ri ko'rsatilgan?\n1) tomon; 2) sari; 3) qarab; 4) qadar; 5) sayin; 6) bo'ylab",
+      "options": [
+        "2",
+        "1, 2, 3, 6",
+        "2, 4",
+        "1, 2, 5"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Yo'nalish ma'nosini ifodalovchi sof ko'makchi faqat 'sari' hisoblanadi (tomon - ot-ko'makchi, qarab - fe'l-ko'makchi)."
+    },
+    {
+      "id": "dtm_6_16",
+      "type": "quiz",
+      "bolim": "Ko'makchi",
+      "question": "Berilganlardan qaysilari sof ko'makchi hisoblanadi?\n1) singari; 2) bilan; 3) ammo; 4) uzra; 5) keyin; 6) xayriyat; 7) qadar",
+      "options": [
+        "1, 2, 4, 7",
+        "2, 3, 5, 7",
+        "1, 3, 6, 7",
+        "2, 4, 5, 6"
+      ],
+      "correct_option_id": 0,
+      "explanation": "singari, bilan, uzra, qadar so'zlari sof ko'makchilardir."
+    },
+    {
+      "id": "attestatsiya_8",
+      "type": "quiz",
+      "bolim": "Adabiyot",
+      "question": "\"Ravshan\" dostonida kallarning o'ziga xos jihatlari qaysi javobda to'g'ri ko'rsatilgan?",
+      "options": [
+        "Aynoq - polvon, Jaynoq - masxaraboz, Tersak - sinchi, Ersak - mergan",
+        "Aynoq - mergan, Jaynoq - polvon, Tersak - masxaraboz, Ersak - sinchi",
+        "Aynoq - sinchi, Jaynoq - mergan, Tersak - polvon, Ersak - masxaraboz",
+        "Aynoq - masxaraboz, Jaynoq - sinchi, Tersak - mergan, Ersak - polvon"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Dostonda Aynoq - polvon, Jaynoq - masxaraboz, Tersak - sinchi, Ersak - mergan sifatida tasvirlangan."
+    },
+    {
+      "id": "attestatsiya_180",
+      "type": "quiz",
+      "bolim": "Adabiyot",
+      "question": "\"Sab'ai sayyor\"da maqtovni kutgan Bahrom Diloromdan zid munosabatni ko'rgach, uni qanday jazoga buyuradi?",
+      "options": [
+        "uzun sochlariga oyoq-qo'lini bog'lab, biyobonga tashlab ketishni",
+        "zindonga tashlashni",
+        "dordan osishni",
+        "o'zga yurtga quvg'in qilishni"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Bahrom Diloromning sochlariga oyoq-qo'lini bog'latib, kimsasiz biyobonga tashlatadi."
+    },
+    {
+      "id": "til_01_1",
+      "type": "quiz",
+      "bolim": "Til – ijtimoiy hodisa",
+      "question": "Qaysi javobda dunyoda so'z jihatdan eng badavlat til nomi berilgan?",
+      "options": [
+        "arab tili",
+        "ingliz tili",
+        "ispan tili",
+        "xitoy tili"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Lug'at boyligi va ma'nodosh so'zlarga boyligi jihatidan arab tili eng badavlat til sanaladi."
+    },
+    {
+      "id": "til_01_2",
+      "type": "quiz",
+      "bolim": "Til – ijtimoiy hodisa",
+      "question": "Olimlarning hisob-kitoblariga ko'ra, bugungi kunda insoniyat nechta tildan muomala vositasi sifatida foydalanib kelmoqda?",
+      "options": [
+        "3000",
+        "5000",
+        "7000",
+        "9000"
+      ],
+      "correct_option_id": 3,
+      "explanation": "Olimlarning hisoblariga ko'ra dunyo bo'yicha 9000 ga yaqin til muomala vositasi hisoblanadi."
+    },
+    {
+      "id": "til_01_3",
+      "type": "quiz",
+      "bolim": "Til – ijtimoiy hodisa",
+      "question": "Quyida ko'rsatilgan davlatlarning qaysi birida fors tili aloqa-aralashuv quroli sanaladi?",
+      "options": [
+        "Tojikiston",
+        "Qatar",
+        "Eron",
+        "Yaman"
+      ],
+      "correct_option_id": 2,
+      "explanation": "Fors tili Eron Islom Respublikasining rasmiy aloqa vositasidir."
+    },
+    {
+      "id": "til_01_4",
+      "type": "quiz",
+      "bolim": "Til – ijtimoiy hodisa",
+      "question": "Ma'lumki, jamiyatdan uzilgan, insonlarning aloqa-aralashuviga xizmat qilmaydigan til o'lik til sanaladi. Qaysi javobda ana shunday til nomi berilgan?",
+      "options": [
+        "boshqird tili",
+        "shved tili",
+        "lotin tili",
+        "mo'g'ul tili"
+      ],
+      "correct_option_id": 2,
+      "explanation": "Lotin tili bugungi kunda tirik so'zlashuvda qo'llanilmaydigan o'lik til sanaladi."
+    },
+    {
+      "id": "til_01_5",
+      "type": "quiz",
+      "bolim": "Til – ijtimoiy hodisa",
+      "question": "Qaysi ilmiy mulohaza to'g'ri emas?",
+      "options": [
+        "Til jamiyatga, ya'ni odamlarning o'zaro munosabatga kirishuviga xizmat qiladi.",
+        "Har qanday til asrlar davomida rivojlanib, boyib boradi.",
+        "Bir-biriga yaqin, umumiy jihatlari ko'p bo'lgan tillar qarindosh tillar sanaladi.",
+        "Dunyo tillar qarindoshligiga ko'ra til oilalariga bo'linadi."
+      ],
+      "correct_option_id": 1,
+      "explanation": "Barcha tillar ham doimiy boyib boravermaydi, ayrim tillar yo'qolib, iste'moldan chiqadi."
+    },
+    {
+      "id": "til_01_6",
+      "type": "quiz",
+      "bolim": "Turkiy tillar oilasi",
+      "question": "Qaysi javoda turkiy tillar oilasiga mansub bo'lmagan tillar berilgan?",
+      "options": [
+        "qoraqalpoq, turkman, qozoq",
+        "ozarbayjon, tatar, chuvash",
+        "tojik, afg'on, arab",
+        "gagauz, xakas, yoqut"
+      ],
+      "correct_option_id": 2,
+      "explanation": "Tojik va afg'on tillari hind-yevropa, arab tili esa somiy-homiy oilasiga kiradi."
+    },
+    {
+      "id": "til_01_7",
+      "type": "quiz",
+      "bolim": "Turkiy tillar oilasi",
+      "question": "Hozirgi Xitoy Xalq Respublikasi hududida yashayotgan turkkyzabon xalq nomi qaysi javobda qayd etilgan?",
+      "options": [
+        "boshqird",
+        "uyg'ur",
+        "qirg'iz",
+        "tuva"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Uyg'ur xalqi XXR tarkibida yashovchi asosiy turkiy xalqlardan biridir."
+    },
+    {
+      "id": "til_01_8",
+      "type": "quiz",
+      "bolim": "Til oilalari",
+      "question": "Qaysi javobda qadimgi oltoy tilidan kelib chiqmagan, tarixiy ildizlari turkiy tillar bilan tutashmaydigan til nomi qayd etilgan?",
+      "options": [
+        "yapon tili",
+        "koreys tili",
+        "tungus-manjur tili",
+        "xitoy tili"
+      ],
+      "correct_option_id": 3,
+      "explanation": "Xitoy tili oltoy emas, balki xitoy-tibet til oilasiga mansub."
+    },
+    {
+      "id": "til_01_9",
+      "type": "quiz",
+      "bolim": "Turkiy tillar oilasi",
+      "question": "Turkiy tillar oilasining qarluq guruhiga mansub tillar berilgan javobni toping.",
+      "options": [
+        "o'zbek, uyg'ur",
+        "turk, turkman",
+        "qirg'iz, qozoq",
+        "tojik, afg'on"
+      ],
+      "correct_option_id": 0,
+      "explanation": "O'zbek va uyg'ur tillari qarluq guruhiga mansub."
+    },
+    {
+      "id": "til_01_10",
+      "type": "quiz",
+      "bolim": "Turkiy tillar oilasi",
+      "question": "Usmonli turk va ozar tili turkiy tillar oilasining qaysi guruhiga mansub?",
+      "options": [
+        "qorluq guruhi",
+        "o'g'uz guruhi",
+        "qipchoq guruhi",
+        "chigil guruhi"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Turk va ozarbayjon tillari o'g'uz guruhini tashkil etadi."
+    },
+    {
+      "id": "til_01_11",
+      "type": "quiz",
+      "bolim": "Davlat tili haqidagi qonun",
+      "question": "\"Ozbekiston Respublikasida davlat tiliga yoki boshqa tillarga mensimay yoki xusumat bilan qarash taqiqlanadi.\" \"Davlat tili haqida\"gi Qonunning nechanchi moddasida shunday deb bitilgan?",
+      "options": [
+        "1-modda",
+        "2-modda",
+        "18-modda",
+        "24-modda"
+      ],
+      "correct_option_id": 3,
+      "explanation": "Mazkur qoida 'Davlat tili haqida'gi Qonunning 24-moddasida mustahkamlangan."
+    },
+    {
+      "id": "til_01_12",
+      "type": "quiz",
+      "bolim": "Davlat tili haqidagi qonun",
+      "question": "\"Davlat tili haqida\"gi Qonun necha moddadan iborat?",
+      "options": [
+        "128 modda",
+        "96 modda",
+        "52 modda",
+        "24 modda"
+      ],
+      "correct_option_id": 3,
+      "explanation": "'Davlat tili haqida'gi Qonun 24 moddadan tashkil topgan."
+    },
+    {
+      "id": "til_01_13",
+      "type": "quiz",
+      "bolim": "Til oilalari",
+      "question": "Qaysi javobda bir-biriga qarindosh bo'lgan tillar nomi berilgan?",
+      "options": [
+        "rus, fors, ingliz",
+        "yapon, hind, golland",
+        "xitoy, koreys, mo'g'ul",
+        "afg'on, arab, turkman"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Rus, fors va ingliz tillarining barchasi Hind-yevropa tillari oilasiga mansub."
+    },
+    {
+      "id": "til_01_14",
+      "type": "quiz",
+      "bolim": "Xalqaro tillar",
+      "question": "Qaysi javobda xalqaro tillar nomi berilgan?",
+      "options": [
+        "ingliz, ispan, fransuz, rus, arab, xitoy",
+        "ingliz, hind, xitoy, yapon, rus, ispan",
+        "xitoy, hind, ingliz, nemis, fransuz, rus",
+        "fransuz, nemis, ispan, italyan, ingliz, Portugal"
+      ],
+      "correct_option_id": 0,
+      "explanation": "BMT tomonidan tan olingan rasmiy 6 ta xalqaro til ko'rsatilgan."
+    },
+    {
+      "id": "til_01_15",
+      "type": "quiz",
+      "bolim": "Turkiy tillar oilasi",
+      "question": "Bugungi kunda turkiy tillar oilasi nechta tilni qamrab oladi?",
+      "options": [
+        "yigitmaga yaqin",
+        "o'ttizga yaqin",
+        "qirqqa yaqin",
+        "yuzga yaqin"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Turkiy tillar oilasiga bugungi kunda o'ttizga yaqin jonli til kiradi."
+    },
+    {
+      "id": "morf_02_1",
+      "type": "quiz",
+      "bolim": "Morfologiyaga kirish",
+      "question": "So'zlarning atash ma'nolarini o'rganadigan tilshunoslik bo'limi qanday nomlanadi?",
+      "options": [
+        "morfologiya",
+        "leksikologiya",
+        "leksikografiya",
+        "morfemika"
+      ],
+      "correct_option_id": 1,
+      "explanation": "So'zlarning leksik (atash) ma'nolarini leksikologiya o'rganadi."
+    },
+    {
+      "id": "morf_02_2",
+      "type": "quiz",
+      "bolim": "Morfologiyaga kirish",
+      "question": "So'zlarning borliqdagi ma'lum narsa-hodisa, belgi-xususiyat, harakat-holat kabilarni ifodalashi qaysi ma'nosi sanaladi?",
+      "options": [
+        "grammatik ma'nosi",
+        "uslubiy ma'nosi",
+        "atash ma'nosi",
+        "ko'chma ma'nosi"
+      ],
+      "correct_option_id": 2,
+      "explanation": "Bu so'zning lug'aviy (atash) ma'nosi hisoblanadi."
+    },
+    {
+      "id": "morf_02_3",
+      "type": "quiz",
+      "bolim": "Morfologiyaga kirish",
+      "question": "So'zlarni turkumlarga ajratishda, avvalo, qanday xususiyati hisobga olinadi?",
+      "options": [
+        "gapdagi sintaktik vazifasi",
+        "umumiy grammatik ma'nosi",
+        "yasalishi va yasalish uchun asos bo'lishi",
+        "atash ma'nosining bor-yo'qligi"
+      ],
+      "correct_option_id": 1,
+      "explanation": "So'zlarning umumiy grammatik ma'nosi turkumlarga ajratishning asosiy mezonidir."
+    },
+    {
+      "id": "morf_02_4",
+      "type": "quiz",
+      "bolim": "Morfologiyaga kirish",
+      "question": "Grammatik shakllar deganda qanday qo'shimchalar tushuniladi?",
+      "options": [
+        "so'z yasovchi qo'shimchalar",
+        "lug'aviy shakl yasovchi qo'shimchalar",
+        "shakl yasovchi qo'shimchalar",
+        "sintaktik shakl yasovchi qo'shimchalar"
+      ],
+      "correct_option_id": 2,
+      "explanation": "Grammatik shakllar tushunchasi shakl yasovchi (lug'aviy va sintaktik shakl yasovchilar) tizimini qamrab oladi."
+    },
+    {
+      "id": "morf_02_5",
+      "type": "quiz",
+      "bolim": "Yordamchi so'zlar",
+      "question": "Qaysi javobda yordamchi so'zlar (ko'makchi, bog'lovchi, yuklama)larga xos bo'lgan xususiyatlar to'g'ri ko'rsatilgan?\n1) atash ma'nosiga ega emas;\n2) ma'lum so'roqqa javob bo'lmaydi;\n3) gapda sintaktik vazifa bajarmaydi;\n4) grammatik ma'noga ega emas.",
+      "options": [
+        "1,2,3",
+        "1,2,4",
+        "1,3,4",
+        "2,3,4"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Yordamchi so'zlar o'z grammatik ma'nosiga ega bo'ladi, demak 1, 2 va 3-xususiyatlar to'g'ri."
+    },
+    {
+      "id": "morf_02_6",
+      "type": "quiz",
+      "bolim": "Leksikologiya",
+      "question": "Qaysi javobda atash ma'nosiga ega bo'lgan so'zlar berilgan?",
+      "options": [
+        "shu, o'sha, bu",
+        "hamda, sari, axir",
+        "chuchuk, beshinchi, ertalab",
+        "Lochin, Zumrad, Rayhon"
+      ],
+      "correct_option_id": 2,
+      "explanation": "chuchuk (sifat), beshinchi (son), ertalab (ravish) aniq lug'aviy (atash) ma'noga ega."
+    },
+    {
+      "id": "morf_02_7",
+      "type": "quiz",
+      "bolim": "Ravish",
+      "question": "Qaysi turkumga oid so'zlar harakat-holatning belgisini ifodalashga xizmat qiladi?",
+      "options": [
+        "ot",
+        "sifat",
+        "ravish",
+        "fe'l"
+      ],
+      "correct_option_id": 2,
+      "explanation": "Harakat yoki holatning belgisini ravish turkumi ifodalaydi."
+    },
+    {
+      "id": "morf_02_8",
+      "type": "quiz",
+      "bolim": "Leksikologiya",
+      "question": "Ovchi qo'liga dasht durbinini oldi va atrofni sinchkovlik bilan uzoq kuzatib turdi.\nUshbu gapda nechta so'z atash (leksik) ma'nosiga ega emas?",
+      "options": [
+        "1 ta",
+        "2 ta",
+        "3 ta",
+        "4 ta"
+      ],
+      "correct_option_id": 2,
+      "explanation": "'va' (bog'lovchi), 'bilan' (ko'makchi), 'turdi' (ko'makchi fe'l) mustaqil atash ma'nosiga ega emas."
+    },
+    {
+      "id": "morf_02_9",
+      "type": "quiz",
+      "bolim": "Leksikologiya",
+      "question": "Qanday so'zlar atash ma'nosiga ega bo'lmaydi?\n1) mustaqil fe'llar; 2) ko'makchi fe'llar; 3) to'liqsiz fe'llar; 4) olmoshlar; 5) atoqli otlar",
+      "options": [
+        "1,2,3,4",
+        "2,3,4,5",
+        "3,4,5",
+        "2,3,4"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Ko'makchi fe'llar, to'liqsiz fe'llar, olmoshlar va atoqli otlar sof atash ma'nosiga ega emas sanaladi."
+    },
+    {
+      "id": "morf_02_10",
+      "type": "quiz",
+      "bolim": "Morfologiyaga kirish",
+      "question": "So'zlarning grammatik ma'nolari va ularni ifodalovchi grammatik shakllarni o'rganuvchi tilshunoslik qanday nomlanadi?",
+      "options": [
+        "morfologiya",
+        "leksikologiya",
+        "sintaksis",
+        "morfemika"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Grammatik shakl va so'z turkumlarini o'rganuvchi soha morfologiyadir."
+    },
+    {
+      "id": "morf_02_11",
+      "type": "quiz",
+      "bolim": "Leksikologiya",
+      "question": "Qaysi javobda \"olmalarni\" so'zining lug'aviy ma'nolari berilgan?\n1) mevali daraxt; 2) daraxt mevasi; 3) ko'plik ifodalangan ot; 4) kelishik ifodalangan ot",
+      "options": [
+        "1,2",
+        "3,4",
+        "1,2,3,4",
+        "1,3"
+      ],
+      "correct_option_id": 0,
+      "explanation": "1 va 2 lug'aviy ma'nolardir, 3 va 4 esa grammatik shakl va ma'nolarni ko'rsatadi."
+    },
+    {
+      "id": "morf_02_12",
+      "type": "quiz",
+      "bolim": "Sifat",
+      "question": "Qaysi javobda predmetning belgisini ifodalovchi so'zlar berilgan?",
+      "options": [
+        "gul, tuproq, bog'",
+        "eski, yassi, chuqur",
+        "sekin, doim, biroz",
+        "birov, barcha, shunday"
+      ],
+      "correct_option_id": 1,
+      "explanation": "eski, yassi, chuqur sifatlari predmetning belgisini bildiradi."
+    },
+    {
+      "id": "morf_02_13",
+      "type": "quiz",
+      "bolim": "Morfologiyaga kirish",
+      "question": "Qaysi grammatik ma'no maxsus grammatik shaklsiz ifodalanadi?",
+      "options": [
+        "o'tgan zamon",
+        "majhul nisbat",
+        "bo'lishlilik",
+        "shart mayli"
+      ],
+      "correct_option_id": 2,
+      "explanation": "Bo'lishlilik ma'nosi fe'l asosining o'zida nol shakl vositasida ifodalanadi."
+    },
+    {
+      "id": "morf_02_14",
+      "type": "quiz",
+      "bolim": "Morfologiya",
+      "question": "Berilgan so'z tarkibidagi grammatik shakllar qanday grammatik ma'nolarni ifodalashga xizmat qilgan? o'qitmadik\n1) orttirma nisbat ma'nosi; 2) o'tgan zamon ma'nosi; 3) bo'lishsizlik ma'nosi; 4) I shaxs, ko'plik ma'nosi",
+      "options": [
+        "1,2,4",
+        "1,3,4",
+        "1,2,3,4",
+        "2,3,4"
+      ],
+      "correct_option_id": 2,
+      "explanation": "o'qi-t(-t: orttirma), -ma(-ma: bo'lishsizlik), -di(-di: zamon), -k(-k: shaxs-son). Barchasi mavjud."
+    },
+    {
+      "id": "morf_02_15",
+      "type": "quiz",
+      "bolim": "Morfologiya",
+      "question": "Grammatik ma'nosi umumiy bo'lgan so'zlarni toping.",
+      "options": [
+        "kitob, suv, yaproq",
+        "qizil, oltovlon, bola",
+        "o'qimoq, jo'rttaga, og'ir",
+        "yozish, olqish, sarg'ish"
+      ],
+      "correct_option_id": 0,
+      "explanation": "kitob, suv, yaproq so'zlari umumiy 'predmetlik' ma'nosiga ega bo'lgan otlardir."
+    },
+    {
+      "id": "fel_zamon_1",
+      "type": "quiz",
+      "bolim": "Fe'l: Zamon",
+      "question": "Qaysi javobda harakat-holatning gap aytilayotgan paytga nisbati farqlanadigan fe'llar berilgan?",
+      "options": [
+        "bajargan, bajarmoqda, bajarmoqchi",
+        "bajaryapman, bajaryapsan, bajaryapti",
+        "bajardi, bajartirdi, bajarildi",
+        "bajardi, bajargin, bajarsa"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Nutq paytiga nisbat zamonni bildiradi: o'tgan (bajargan), hozirgi (bajarmoqda), kelasi (bajarmoqchi)."
+    },
+    {
+      "id": "fel_zamon_2",
+      "type": "quiz",
+      "bolim": "Fe'l: Shaxs-son",
+      "question": "Qaysi javobda harakat-holatning bajaruvchisi (subyekti)ga ko'ra farqlanadigan fe'llar berilgan?",
+      "options": [
+        "bajargan, bajarmoqda, bajarmoqchi",
+        "bajaryapman, bajaryapsan, bajaryapti",
+        "bajardi, bajartirdi, bajarildi",
+        "bajardi, bajargin, bajarsa"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Bajaruvchi subyekt shaxs-son qo'shimchalari bilan farqlanadi: -man (I), -san (II), -ti (III)."
+    },
+    {
+      "id": "fel_zamon_3",
+      "type": "quiz",
+      "bolim": "Fe'l: Zamon",
+      "question": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli so'zlovchining bevosita o'zi ko'rgan, guvohi bo'lgan harakat-holatni ifodalaydi?",
+      "options": [
+        "-di",
+        "-ib(-b)",
+        "-gan",
+        "-gay"
+      ],
+      "correct_option_id": 0,
+      "explanation": "-di qo'shimchasi yaqin o'tgan zamon va bevosita guvohlik ma'nosini ifodalaydi."
+    },
+    {
+      "id": "fel_zamon_4",
+      "type": "quiz",
+      "bolim": "Fe'l: Zamon",
+      "question": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli harakat-holatning ilgariroq yoki uzoq o'tgan zamonda sodir bo'lganini ifodalaydi?",
+      "options": [
+        "-di",
+        "-ib(-b)",
+        "-gan",
+        "-gay"
+      ],
+      "correct_option_id": 2,
+      "explanation": "-gan qo'shimchasi uzoq o'tgan zamon shaklidir."
+    },
+    {
+      "id": "fel_zamon_5",
+      "type": "quiz",
+      "bolim": "Fe'l: Zamon",
+      "question": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli ilgari ro'y bergan harakat-holatning so'zlovchi tomonidan eshitib bilinganini ifodalaydi?",
+      "options": [
+        "-di",
+        "-ib(-b)",
+        "-gan",
+        "-gay"
+      ],
+      "correct_option_id": 1,
+      "explanation": "-ib qo'shimchali o'tgan zamon eshitilganlik, gumon kabi ma'nolarni anglatadi."
     }
   ],
   "open_tasks": [
@@ -287,801 +1160,6 @@
       "type": "open",
       "task": "'Yo rab, ul shahdu shakar, yo labdurur...' to'rtligi qaysi janrda va qaysi san'at asosida yozilgan?",
       "answer": "a) Janri: Tuyuq; b) She'riy san'at: Tajnis (tajnisi tamm)."
-    }
-  ]
-}
-# --- BAZA.JSON BILAN INTEGRATSIYA QILINGAN TEST TIZIMI ---
-def load_local_knowledge_base():
-    """GitHub repozitoriyasidagi baza.json faylini xavfsiz o'qish"""
-    if os.path.exists("baza.json"):
-        try:
-            with open("baza.json", "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return None
-    return None
-
-def get_themed_bmb_questions(theme_name):
-    # 1. Avval baza.json dagi aprobatsiya testlarini tekshirish
-    local_base = load_local_knowledge_base()
-    if local_base and "tests" in local_base and len(local_base["tests"]) > 0:
-        base_tests = local_base["tests"]
-        # Agar umumiy BMB so'ralsa, tayyor aprobatsiya savollarini aralashtirib berish
-        if "barcha" in theme_name.lower() or "umumiy" in theme_name.lower():
-            selected = random.sample(base_tests, min(len(base_tests), 30))
-            return selected
-
-    # 2. Agar mavzu bo'yicha yangi test kerak bo'lsa, baza.json dagi uslubni AI ga etalon qilib berish
-    seed = random.randint(10000, 99999)
-    style_sample = ""
-    if local_base and "tests" in local_base:
-        # Etalon uchun 2 ta namunani AI ga ko'rsatish
-        sample_q = local_base["tests"][:2]
-        style_sample = f"\nNAMUNAVIY ETALON TESTLAR TUZILISHI:\n{json.dumps(sample_q, ensure_ascii=False)}\n"
-
-    prompt = (
-        f"O'zbekiston Respublikasi BMB (DTM) va Milliy sertifikat standarti bo'yicha "
-        f"aynan '{theme_name}' mavzusida TO'LIQ 30 TA original Quiz test tuzing (Seed #{seed}).\n"
-        f"{style_sample}\n"
-        "TALABLAR: Yuqoridagi etalon kabi chuqur, grammatik aniq va darslik mezonlariga mos bo'lsin. "
-        "Diniy va siyosiy mavzulardan mutlaqo chetlashing.\n"
-        "Faqat JSON formatida berilsin:\n"
-        "[\n"
-        "  {\n"
-        '    "question": "Savol matni",\n'
-        '    "options": ["A", "B", "C", "D"],\n'
-        '    "correct_option_id": 0,\n'
-        '    "explanation": "Qisqa ilmiy izoh"\n'
-        "  }\n"
-        "]"
-    )
-    return generate_quiz_batch(prompt, 30)
-{
-  "manbalar": [
-    "So'z yasalishi (Fazliddin O'taganov)",
-    "Tezkor Grammatika (Muhammadyusuf Ikromov)",
-    "Sifat yasalishi",
-    "Ona tili DTM va Attestatsiya to'plamlari"
-  ],
-  "morfologiya_va_yasalish": {
-    "ot_yasalishi": [
-      {"qoshamcha": "-a", "asos_turkum": "Taqlid", "misollar": ["qahqaha", "do'mbira"]},
-      {"qoshamcha": "-ak", "asos_turkum": "Taqlid", "misollar": ["pirpirak", "guldurak", "varrak", "qarsak", "xurrak"]},
-      {"qoshamcha": "-archilik", "asos_turkum": "Sifat", "misollar": ["ocharchilik"]},
-      {"qoshamcha": "-at", "asos_turkum": "Fe'l", "misollar": ["o'lat"]},
-      {"qoshamcha": "-at", "asos_turkum": "Sifat", "misollar": ["ko'kat"]},
-      {"qoshamcha": "-bin", "asos_turkum": "Ot", "misollar": ["folbin"]},
-      {"qoshamcha": "-bon", "asos_turkum": "Ot", "misollar": ["darvozabon", "tarozibon", "bog'bon"]},
-      {"qoshamcha": "-boz", "asos_turkum": "Ot", "misollar": ["dorboz", "masxaraboz", "qimorboz"]},
-      {"qoshamcha": "-voy", "asos_turkum": "Ot", "misollar": ["nonvoy"]},
-      {"qoshamcha": "-vchi / -uvchi", "asos_turkum": "Fe'l", "misollar": ["uchuvchi", "o'quvchi", "aniqlovchi", "yozuvchi"]},
-      {"qoshamcha": "-gar / -kar", "asos_turkum": "Ot", "misollar": ["zargar", "da'vogar", "miskar"]},
-      {"qoshamcha": "-garchilik", "asos_turkum": "Ot", "misollar": ["odamgarchilik", "yog'ingarchilik"]},
-      {"qoshamcha": "-garchilik", "asos_turkum": "Sifat", "misollar": ["namgarchilik", "sharmandagarchilik"]},
-      {"qoshamcha": "-gi / -ki / -qi / -g'i / -g'u", "asos_turkum": "Fe'l", "misollar": ["sevgi", "supurgi", "kulgulik", "turtki", "sanchqi", "tuyg'u", "tomizg'i"]},
-      {"qoshamcha": "-gir", "asos_turkum": "Ot", "misollar": ["jahongir", "fazogir"]},
-      {"qoshamcha": "-gich / -kich / -qich / -g'ich", "asos_turkum": "Fe'l", "misollar": ["kulgich", "ko'rsatkich", "tutqich", "chizg'ich", "keskich"]},
-      {"qoshamcha": "-gin / -qin / -g'in / -gun / -qun", "asos_turkum": "Fe'l", "misollar": ["tizgin", "to'lqin", "quvg'in", "surgun"]},
-      {"qoshamcha": "-goh", "asos_turkum": "Ot", "misollar": ["ziyoratgoh", "bazmgoh"]},
-      {"qoshamcha": "-doq / -dak", "asos_turkum": "Fe'l", "misollar": ["qo'ndoq", "kekirdak", "yugurdak"]},
-      {"qoshamcha": "-diq", "asos_turkum": "Ot", "misollar": ["o'rindiq"]},
-      {"qoshamcha": "-diq", "asos_turkum": "Fe'l", "misollar": ["qoldiq", "hordiq"]},
-      {"qoshamcha": "-don", "asos_turkum": "Ot", "misollar": ["kuldon", "qalamdon", "suxandon"]},
-      {"qoshamcha": "-dor", "asos_turkum": "Ot", "misollar": ["muhrdor", "chorvador", "hukmdor"]},
-      {"qoshamcha": "-dosh", "asos_turkum": "Ot", "misollar": ["sinfdosh", "sirdosh"]},
-      {"qoshamcha": "-do'z", "asos_turkum": "Ot", "misollar": ["kashtado'z", "do'ppido'z"]},
-      {"qoshamcha": "-zor", "asos_turkum": "Ot", "misollar": ["gulzor", "bug'doyzor"]},
-      {"qoshamcha": "-ik", "asos_turkum": "Fe'l", "misollar": ["ko'rik", "kekirik", "bitik"]},
-      {"qoshamcha": "-ildoq", "asos_turkum": "Taqlid", "misollar": ["hiqildoq"]},
-      {"qoshamcha": "-imlik", "asos_turkum": "Fe'l", "misollar": ["o'simlik", "ichimlik"]},
-      {"qoshamcha": "-in", "asos_turkum": "Fe'l", "misollar": ["yig'in", "ekin"]},
-      {"qoshamcha": "-(i)ndi / -undi", "asos_turkum": "Fe'l", "misollar": ["chiqindi", "chirindi", "kuyundi"]},
-      {"qoshamcha": "-iston", "asos_turkum": "Ot", "misollar": ["guliston", "O'zbekiston", "qabriston"]},
-      {"qoshamcha": "-it", "asos_turkum": "Fe'l", "misollar": ["chiqit"]},
-      {"qoshamcha": "-iq / -uq", "asos_turkum": "Fe'l", "misollar": ["kesatiq", "buyruq", "tortiq"]},
-      {"qoshamcha": "-k", "asos_turkum": "Fe'l", "misollar": ["ko'rk", "kurak", "elak"]},
-      {"qoshamcha": "-kash", "asos_turkum": "Ot", "misollar": ["qalamkash", "aravakash"]},
-      {"qoshamcha": "-kilik / -gilik", "asos_turkum": "Fe'l", "misollar": ["ichkilik", "ko'rgilik"]},
-      {"qoshamcha": "-kor", "asos_turkum": "Ot", "misollar": ["sholikor", "san'atkor", "paxtakor"]},
-      {"qoshamcha": "-kov", "asos_turkum": "Ot", "misollar": ["go'rkov"]},
-      {"qoshamcha": "-lik / -liq", "asos_turkum": "Ot", "misollar": ["bolalik", "boshliq", "otliq"]},
-      {"qoshamcha": "-lik", "asos_turkum": "Sifat", "misollar": ["yaxshilik", "ezgulik", "donolik"]},
-      {"qoshamcha": "-lik", "asos_turkum": "Son", "misollar": ["birlik", "to'rtlik"]},
-      {"qoshamcha": "-lik", "asos_turkum": "Olmosh", "misollar": ["o'zlik", "menlik"]},
-      {"qoshamcha": "-lik", "asos_turkum": "Ravish", "misollar": ["tezlik", "birgalik"]},
-      {"qoshamcha": "-lik / -liq", "asos_turkum": "Modal", "misollar": ["borliq", "yo'qlik"]},
-      {"qoshamcha": "-loq", "asos_turkum": "Ot", "misollar": ["o'tloq", "toshloq"]}
-    ],
-    "sifat_yasalishi": [
-      {"qoshamcha": "-a", "asos_turkum": "Fe'l", "misollar": ["to'la", "ko'tara (savdo)"]},
-      {"qoshamcha": "-avon", "asos_turkum": "Sifat", "misollar": ["zo'ravon"]},
-      {"qoshamcha": "-aki", "asos_turkum": "Ot", "misollar": ["og'zaki", "yuzaki"]},
-      {"qoshamcha": "-aki", "asos_turkum": "Taqlid", "misollar": ["shartaki"]},
-      {"qoshamcha": "-ag'on", "asos_turkum": "Fe'l", "misollar": ["bilag'on", "chopag'on"]},
-      {"qoshamcha": "ba- / bo-", "asos_turkum": "Ot", "misollar": ["baodob", "boobro'", "badavlat"]},
-      {"qoshamcha": "bad-", "asos_turkum": "Ot", "misollar": ["badbaxt", "badnafs", "badfe'l"]},
-      {"qoshamcha": "bar-", "asos_turkum": "Ot", "misollar": ["barqaror", "bardavom"]},
-      {"qoshamcha": "be-", "asos_turkum": "Ot", "misollar": ["bedavo", "beor", "beg'ubor", "behayo"]},
-      {"qoshamcha": "-bin", "asos_turkum": "Sifat", "misollar": ["kaltabin", "nekbin"]},
-      {"qoshamcha": "-boz", "asos_turkum": "Ot", "misollar": ["safsataboz", "xotinboz", "va'daboz"]},
-      {"qoshamcha": "-bon", "asos_turkum": "Ot", "misollar": ["mehribon"]},
-      {"qoshamcha": "-vash", "asos_turkum": "Ot", "misollar": ["devonavash", "parivash"]},
-      {"qoshamcha": "-vor", "asos_turkum": "Sifat", "misollar": ["ulug'vor"]},
-      {"qoshamcha": "-vor", "asos_turkum": "Ot", "misollar": ["umidvor"]},
-      {"qoshamcha": "-vuch / -ovuch", "asos_turkum": "Fe'l", "misollar": ["iskovuch", "hurkovuch"]},
-      {"qoshamcha": "-gay / -kay", "asos_turkum": "Ot", "misollar": ["kungay"]},
-      {"qoshamcha": "-kay", "asos_turkum": "Sifat", "misollar": ["terskay"]},
-      {"qoshamcha": "-gar", "asos_turkum": "Ot", "misollar": ["ig'vogar", "hiylagar"]},
-      {"qoshamcha": "-gi / -ki / -qi", "asos_turkum": "Ot", "misollar": ["kuzgi", "sirtqi", "ichki", "tashqi"]},
-      {"qoshamcha": "-gi", "asos_turkum": "Ravish", "misollar": ["avvalgi", "ertalabgi"]},
-      {"qoshamcha": "-gir / -kir / -qir / -g'ir / -qur", "asos_turkum": "Fe'l", "misollar": ["sezgir", "keskir", "topqir", "olg'ir", "uchqur"]},
-      {"qoshamcha": "-gin / -gun", "asos_turkum": "Ot", "misollar": ["g'amgin", "gulgun"]},
-      {"qoshamcha": "-go'y", "asos_turkum": "Ot", "misollar": ["xushomadgo'y", "rostgo'y"]},
-      {"qoshamcha": "-diq", "asos_turkum": "Fe'l", "misollar": ["tashlandiq"]},
-      {"qoshamcha": "-don", "asos_turkum": "Ot", "misollar": ["qadrdon", "gapdon"]},
-      {"qoshamcha": "-dor", "asos_turkum": "Ot", "misollar": ["aybdor", "daxldor", "hosildor"]},
-      {"qoshamcha": "-dosh", "asos_turkum": "Ot", "misollar": ["ohangdosh", "sirdosh"]},
-      {"qoshamcha": "-zada", "asos_turkum": "Ot", "misollar": ["alamzada", "yurakzada"]},
-      {"qoshamcha": "-i", "asos_turkum": "Ot", "misollar": ["qozoqi", "qishloqi", "bozori", "jannati"]},
-      {"qoshamcha": "-iv", "asos_turkum": "Ot", "misollar": ["obyektiv", "subyektiv"]},
-      {"qoshamcha": "-iy / -viy", "asos_turkum": "Ot", "misollar": ["ilmiy", "shaxsiy", "moliyaviy", "diniy", "devoriy"]},
-      {"qoshamcha": "-iy", "asos_turkum": "Modal", "misollar": ["zaruriy"]},
-      {"qoshamcha": "-ik", "asos_turkum": "Ot", "misollar": ["geologik", "realistik"]},
-      {"qoshamcha": "-ik", "asos_turkum": "Fe'l", "misollar": ["egik", "bukik", "teshik"]},
-      {"qoshamcha": "-ildoq", "asos_turkum": "Taqlid", "misollar": ["akildoq", "chiyildoq", "liqqildoq"]},
-      {"qoshamcha": "-imli", "asos_turkum": "Fe'l", "misollar": ["yoqimli", "sevimli", "to'yimli"]},
-      {"qoshamcha": "-in", "asos_turkum": "Fe'l", "misollar": ["to'lin", "to'kin"]},
-      {"qoshamcha": "-in", "asos_turkum": "Ot", "misollar": ["erkin", "rangin", "g'ishtin"]},
-      {"qoshamcha": "-inki", "asos_turkum": "Fe'l", "misollar": ["ko'tarinki"]},
-      {"qoshamcha": "-inch", "asos_turkum": "Fe'l", "misollar": ["shoshilinch", "tiqilinch"]},
-      {"qoshamcha": "-k / -q / -uq / -g' / -iq", "asos_turkum": "Fe'l", "misollar": ["chirik", "buzuq", "ochiq", "quruq", "issiq", "yorug'"]},
-      {"qoshamcha": "-kash", "asos_turkum": "Ot", "misollar": ["zahmatkash", "jafokash"]},
-      {"qoshamcha": "-qin / -g'in / -kun / -g'un", "asos_turkum": "Fe'l", "misollar": ["tushkun", "jo'shqin", "so'lg'in", "turg'un", "sotqin"]},
-      {"qoshamcha": "-kor", "asos_turkum": "Ot", "misollar": ["zulmkor", "isyonkor", "fidokor"]},
-      {"qoshamcha": "-l", "asos_turkum": "Fe'l", "misollar": ["tugal"]},
-      {"qoshamcha": "-li", "asos_turkum": "Ot", "misollar": ["kuchli", "odobli", "aqlli"]},
-      {"qoshamcha": "-li", "asos_turkum": "Modal", "misollar": ["kerakli"]},
-      {"qoshamcha": "-lik", "asos_turkum": "Ot", "misollar": ["yozlik", "ko'rpalik", "bayramlik", "qishlik"]},
-      {"qoshamcha": "-lom", "asos_turkum": "Sifat", "misollar": ["sog'lom"]},
-      {"qoshamcha": "-m", "asos_turkum": "Fe'l", "misollar": ["qaram"]},
-      {"qoshamcha": "-ma", "asos_turkum": "Fe'l", "misollar": ["qaynatma", "ko'chma", "qo'shma", "terma", "tug'ma"]},
-      {"qoshamcha": "-mand", "asos_turkum": "Ot", "misollar": ["ayolmand", "davlatmand", "dardmand"]},
-      {"qoshamcha": "-mon", "asos_turkum": "Fe'l", "misollar": ["toparmon-tutarmon", "ustabuzarmon"]},
-      {"qoshamcha": "-msiq / -imsiq", "asos_turkum": "Fe'l", "misollar": ["qarimsiq", "achimsiq"]},
-      {"qoshamcha": "-namo", "asos_turkum": "Ot", "misollar": ["darveshnamo", "olimnamo"]},
-      {"qoshamcha": "-namo", "asos_turkum": "Sifat", "misollar": ["tentaknamo"]},
-      {"qoshamcha": "no-", "asos_turkum": "Ot", "misollar": ["noinsof", "noumid"]},
-      {"qoshamcha": "no-", "asos_turkum": "Sifat", "misollar": ["noto'g'ri", "nomard", "noma'lum"]},
-      {"qoshamcha": "-nok", "asos_turkum": "Ot", "misollar": ["alamnok", "g'amnok"]},
-      {"qoshamcha": "-ndi", "asos_turkum": "Fe'l", "misollar": ["asrandi"]},
-      {"qoshamcha": "-on / -an", "asos_turkum": "Ot", "misollar": ["za'faron"]},
-      {"qoshamcha": "-os", "asos_turkum": "Taqlid", "misollar": ["gulduros"]},
-      {"qoshamcha": "-omuz", "asos_turkum": "Ot", "misollar": ["kinoyaomuz", "hayratomuz"]},
-      {"qoshamcha": "-ong'ich / -ng'ich", "asos_turkum": "Fe'l", "misollar": ["tepong'ich", "tishlong'ich"]},
-      {"qoshamcha": "-oq", "asos_turkum": "Fe'l", "misollar": ["qo'rqoq", "baqiroq"]},
-      {"qoshamcha": "-parast", "asos_turkum": "Ot", "misollar": ["mansabparast", "xayolparast"]},
-      {"qoshamcha": "-parvar", "asos_turkum": "Ot", "misollar": ["adolatparvar", "xalqparvar"]},
-      {"qoshamcha": "-rli / -arli", "asos_turkum": "Fe'l", "misollar": ["arzirli", "zerikarli"]},
-      {"qoshamcha": "-saro", "asos_turkum": "Ot", "misollar": ["motamsaro"]},
-      {"qoshamcha": "ser-", "asos_turkum": "Ot", "misollar": ["serhosil", "sershovqin", "sergap"]},
-      {"qoshamcha": "-siz", "asos_turkum": "Ot", "misollar": ["sanoqsiz", "tuzsiz", "o'rinsiz"]},
-      {"qoshamcha": "-simon", "asos_turkum": "Ot", "misollar": ["sharsimon", "naysimon", "oysimon"]},
-      {"qoshamcha": "-xo'r", "asos_turkum": "Sifat", "misollar": ["tekinxo'r"]},
-      {"qoshamcha": "-xo'r", "asos_turkum": "Ot", "misollar": ["poraxo'r"]},
-      {"qoshamcha": "-ch", "asos_turkum": "Fe'l", "misollar": ["tinch", "jirkanch"]},
-      {"qoshamcha": "-cha", "asos_turkum": "Ot", "misollar": ["farg'onacha"]},
-      {"qoshamcha": "-chak / -choq / -chiq", "asos_turkum": "Fe'l", "misollar": ["kuyunchak", "tortinchoq", "qizg'anchiq"]},
-      {"qoshamcha": "-chan", "asos_turkum": "Ot", "misollar": ["talabchan", "harakatchan"]},
-      {"qoshamcha": "-chan", "asos_turkum": "Harakat nomi", "misollar": ["yashovchan", "o'suvchan"]},
-      {"qoshamcha": "-chi", "asos_turkum": "Fe'l", "misollar": ["ayirmachi"]},
-      {"qoshamcha": "-chi", "asos_turkum": "Sifat", "misollar": ["a'lochi", "bekorchi"]},
-      {"qoshamcha": "-chil", "asos_turkum": "Ot", "misollar": ["dardchil", "izchil"]},
-      {"qoshamcha": "-chil", "asos_turkum": "Ravish", "misollar": ["kamchil"]},
-      {"qoshamcha": "-shta", "asos_turkum": "Fe'l", "misollar": ["sinashta"]},
-      {"qoshamcha": "-shumul", "asos_turkum": "Ot", "misollar": ["olamshumul"]},
-      {"qoshamcha": "-qa", "asos_turkum": "Fe'l", "misollar": ["qisqa"]},
-      {"qoshamcha": "-qa", "asos_turkum": "Ot", "misollar": ["loyqa"]},
-      {"qoshamcha": "-qi", "asos_turkum": "Fe'l", "misollar": ["vaysaqi", "sayroqi"]},
-      {"qoshamcha": "-qoq", "asos_turkum": "Fe'l", "misollar": ["urishqoq", "qochqoq"]}
-    ],
-    "ravish_yasalishi": [
-      {"qoshamcha": "-an", "asos_turkum": "Ot", "misollar": ["tasodifan", "fikran", "xayolan", "vijdonan"]},
-      {"qoshamcha": "-an", "asos_turkum": "Sifat", "misollar": ["qat'iyan"]},
-      {"qoshamcha": "-an", "asos_turkum": "Modal", "misollar": ["majburan"]},
-      {"qoshamcha": "bar-", "asos_turkum": "Ot", "misollar": ["barvaqt"]},
-      {"qoshamcha": "be-", "asos_turkum": "Ot", "misollar": ["beijozat", "bevosita", "betinim", "bemalol", "beomon"]},
-      {"qoshamcha": "-iga / -siga", "asos_turkum": "Ot", "misollar": ["surunkasiga", "nomiga", "asronchasiga"]},
-      {"qoshamcha": "-iga", "asos_turkum": "Sifat", "misollar": ["ko'ndalangiga", "chinakamiga"]},
-      {"qoshamcha": "-siga", "asos_turkum": "Olmosh", "misollar": ["yalpisiga", "shunaqasiga"]},
-      {"qoshamcha": "-lab", "asos_turkum": "Ot", "misollar": ["oylab", "donalab", "bo'g'inlab"]},
-      {"qoshamcha": "-lab", "asos_turkum": "Sifat", "misollar": ["yaxshilab"]},
-      {"qoshamcha": "-lab", "asos_turkum": "Son", "misollar": ["bittalab"]},
-      {"qoshamcha": "-lay / -layin", "asos_turkum": "Sifat", "misollar": ["tiriklayin", "yoshlayin"]},
-      {"qoshamcha": "-lay", "asos_turkum": "Olmosh", "misollar": ["butunlay"]},
-      {"qoshamcha": "-larcha", "asos_turkum": "Ot", "misollar": ["qahramonlarcha", "otalarcha", "do'stlarcha"]},
-      {"qoshamcha": "-larcha", "asos_turkum": "Sifat", "misollar": ["vahshiylarcha", "telbalarcha", "mardlarcha"]},
-      {"qoshamcha": "-ligicha", "asos_turkum": "Sifat", "misollar": ["yangiligicha", "xomligicha", "butunligicha"]},
-      {"qoshamcha": "-namo", "asos_turkum": "Ot", "misollar": ["hazilnamo"]},
-      {"qoshamcha": "-namo", "asos_turkum": "Sifat", "misollar": ["oliftanamo"]},
-      {"qoshamcha": "-namo", "asos_turkum": "Sifatdosh", "misollar": ["uyalgannamo"]},
-      {"qoshamcha": "-n / -in", "asos_turkum": "Ot", "misollar": ["yozin-qishin"]},
-      {"qoshamcha": "-in", "asos_turkum": "Sifat", "misollar": ["ochin-to'qin"]},
-      {"qoshamcha": "-n / -in", "asos_turkum": "Ravish", "misollar": ["ertan-kechin", "ostin-ustun"]},
-      {"qoshamcha": "-ona", "asos_turkum": "Ot", "misollar": ["do'stona"]},
-      {"qoshamcha": "-ona", "asos_turkum": "Sifat", "misollar": ["mardona", "oqilona", "fidokorona"]},
-      {"qoshamcha": "-cha", "asos_turkum": "Ot", "misollar": ["o'zbekcha", "yigitcha"]},
-      {"qoshamcha": "-cha", "asos_turkum": "Olmosh", "misollar": ["o'zicha"]},
-      {"qoshamcha": "-siz", "asos_turkum": "Ot", "misollar": ["to'xtovsiz"]}
-    ],
-    "fel_yasalishi": [
-      {"qoshamcha": "-a", "asos_turkum": "Ot", "misollar": ["sana", "tuna", "yasha", "o'yna"]},
-      {"qoshamcha": "-a", "asos_turkum": "Sifat", "misollar": ["bo'sha", "qiyna"]},
-      {"qoshamcha": "-a", "asos_turkum": "Taqlid", "misollar": ["shildira", "guldura"]},
-      {"qoshamcha": "-an", "asos_turkum": "Ot", "misollar": ["kuchan"]},
-      {"qoshamcha": "-i", "asos_turkum": "Ot", "misollar": ["ranji", "changi", "avji"]},
-      {"qoshamcha": "-i", "asos_turkum": "Sifat", "misollar": ["tinchi", "boyi"]},
-      {"qoshamcha": "-illa", "asos_turkum": "Taqlid", "misollar": ["chirqilla", "guvulla", "zirilla", "shovulla", "taqilla"]},
-      {"qoshamcha": "-ik", "asos_turkum": "Ot", "misollar": ["ko'zik"]},
-      {"qoshamcha": "-ik", "asos_turkum": "Son", "misollar": ["birik"]},
-      {"qoshamcha": "-ik", "asos_turkum": "Ravish", "misollar": ["kechik"]},
-      {"qoshamcha": "-ir", "asos_turkum": "Ot", "misollar": ["gapir", "ko'pir"]},
-      {"qoshamcha": "-ira", "asos_turkum": "Taqlid", "misollar": ["miltira", "yaltira", "zirqira", "yarqira", "qaltira"]},
-      {"qoshamcha": "-y / -ay", "asos_turkum": "Ot", "misollar": ["kuchay"]},
-      {"qoshamcha": "-ay", "asos_turkum": "Sifat", "misollar": ["ulg'ay", "pasay", "susay", "qoray", "yoshar"]},
-      {"qoshamcha": "-ay", "asos_turkum": "Ravish", "misollar": ["kamay", "ozay", "ko'pay"]},
-      {"qoshamcha": "-ka", "asos_turkum": "Ot", "misollar": ["iska"]},
-      {"qoshamcha": "-la", "asos_turkum": "Ot", "misollar": ["egovla", "moyla", "bolala", "gulla", "yog'la", "ishla"]},
-      {"qoshamcha": "-la", "asos_turkum": "Sifat", "misollar": ["maydala", "tozala", "yaxshila", "tikla", "tekisla"]},
-      {"qoshamcha": "-la", "asos_turkum": "Olmosh", "misollar": ["sizla", "senla"]},
-      {"qoshamcha": "-la", "asos_turkum": "Ravish", "misollar": ["tezla", "sekinla"]},
-      {"qoshamcha": "-la", "asos_turkum": "Undov", "misollar": ["dodla", "chuhla", "ohla"]},
-      {"qoshamcha": "-la", "asos_turkum": "Taqlid", "misollar": ["gumburla", "shivirla", "shitirla"]},
-      {"qoshamcha": "-la", "asos_turkum": "Modal", "misollar": ["yo'qla"]},
-      {"qoshamcha": "-lan", "asos_turkum": "Ot", "misollar": ["faxrlan", "gavdalan", "lazzatlan", "zavqlan", "jonlan"]},
-      {"qoshamcha": "-lan", "asos_turkum": "Sifat", "misollar": ["shodlan", "achchiqlan", "sergaklan"]},
-      {"qoshamcha": "-lan", "asos_turkum": "Son", "misollar": ["ikkilan"]},
-      {"qoshamcha": "-lash", "asos_turkum": "Ot", "misollar": ["do'stlash", "suhbatlash", "ahdlash", "bahslash", "dardlash"]},
-      {"qoshamcha": "-lash", "asos_turkum": "Sifat", "misollar": ["yiriklash", "osonlash", "asabiylash", "oydinlash"]},
-      {"qoshamcha": "-lash", "asos_turkum": "Son", "misollar": ["birlash"]},
-      {"qoshamcha": "-lash", "asos_turkum": "Ravish", "misollar": ["birgalash"]},
-      {"qoshamcha": "-lat", "asos_turkum": "Sifat", "misollar": ["qoyillat"]},
-      {"qoshamcha": "-ol", "asos_turkum": "Modal", "misollar": ["yo'qol"]},
-      {"qoshamcha": "-r / -ar", "asos_turkum": "Sifat", "misollar": ["oqar", "ko'kar", "qisqar", "eskir"]},
-      {"qoshamcha": "-ra", "asos_turkum": "Taqlid", "misollar": ["ho'ngra", "mara", "ingra"]},
-      {"qoshamcha": "-si", "asos_turkum": "Olmosh", "misollar": ["mensi"]},
-      {"qoshamcha": "-si", "asos_turkum": "Sifat", "misollar": ["garangsi"]},
-      {"qoshamcha": "-sin", "asos_turkum": "Sifat", "misollar": ["qiziqsin", "yotsin"]},
-      {"qoshamcha": "-sit", "asos_turkum": "Sifat", "misollar": ["kamsit"]},
-      {"qoshamcha": "-sira", "asos_turkum": "Ot", "misollar": ["uyqusira", "suvsira"]},
-      {"qoshamcha": "-sira", "asos_turkum": "Sifat", "misollar": ["begonasira", "yotsira"]},
-      {"qoshamcha": "-sira", "asos_turkum": "Olmosh", "misollar": ["sensira"]}
-    ]
-  },
-  "testlar_banki": [
-    {
-      "id": "dtm_1_1",
-      "savol": "Qaysi gapda fe'lning o'tgan zamon shakli kelasi zamon ma'nosida qo'llangan?",
-      "variantlar": [
-        "A) Bir vaqt qarasam, yig'layapman, hech o'zimni bosolmayman.",
-        "B) Agar mening gapimni tushungan bo'lsang, yur men bilan, ketdik.",
-        "C) Ular allaqachon bir qarorga kelgan edilar.",
-        "D) Men bu mehmonni kuzatib borayotirman."
-      ],
-      "javob": "B",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "dtm_1_6",
-      "savol": "Qaysi javobda ot turkumiga oid o'zaro ma'nodosh so'zlar juftligi berilgan?",
-      "variantlar": [
-        "A) husn - go'zal",
-        "B) tantiqlik - saxiylik",
-        "C) tabassum - yig'i",
-        "D) sovg'a - tuhfa"
-      ],
-      "javob": "D",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "dtm_1_23",
-      "savol": "Quyida berilganlardan qaysilari modal so'z hisoblanadi?\n1) xullas; 2) faqat; 3) darhaqiqat; 4) xayriyat; 5) chunki; 6) biroq.",
-      "variantlar": [
-        "A) 2, 3, 6",
-        "B) 1, 3, 4",
-        "C) 3, 4, 5, 6",
-        "D) 1, 2, 4, 5"
-      ],
-      "javob": "B",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "dtm_2_5",
-      "savol": "\"Ozuqa zaxiralarimizning hammasi ertaga bitadi.\" Ushbu gapda bitmoq so'zi qaysi ma'noda qo'llangan?",
-      "variantlar": [
-        "A) tugamoq, tamom bo'lmoq",
-        "B) yozuv orqali ifodalamoq",
-        "C) et unib, birikib tuzalmoq",
-        "D) o'sib-unmoq"
-      ],
-      "javob": "A",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "dtm_2_14",
-      "savol": "Qaysi javobda o'zlik nisbatidagi fe'llar berilgan?",
-      "variantlar": [
-        "A) jimirlamoq, silkinmoq",
-        "B) ko'rinmoq, kiyinmoq",
-        "C) taralmoq, yiqitmoq",
-        "D) o'ylanmoq, sarg'aymoq"
-      ],
-      "javob": "B",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "dtm_3_10",
-      "savol": "\"Urush ko'plarning yostig'ini quritdi.\" Berilgan gapda ma'no ko'chishning qaysi turi mavjud?",
-      "variantlar": [
-        "A) metafora",
-        "B) sinekdoxa",
-        "C) vazifadoshlik",
-        "D) metonimiya"
-      ],
-      "javob": "D",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "dtm_4_13",
-      "savol": "Qaysi javobda yo'nalish ma'nosini ifodalagan sof ko'makchi(lar) to'g'ri ko'rsatilgan?\n1) tomon; 2) sari; 3) qarab; 4) qadar; 5) sayin; 6) bo'ylab",
-      "variantlar": [
-        "A) 2",
-        "B) 1, 2, 3, 6",
-        "C) 2, 4",
-        "D) 1, 2, 5"
-      ],
-      "javob": "A",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "dtm_6_16",
-      "savol": "Berilganlardan qaysilari sof ko'makchi hisoblanadi?\n1) singari; 2) bilan; 3) ammo; 4) uzra; 5) keyin; 6) xayriyat; 7) qadar",
-      "variantlar": [
-        "A) 1, 2, 4, 7",
-        "B) 2, 3, 5, 7",
-        "C) 1, 3, 6, 7",
-        "D) 2, 4, 5, 6"
-      ],
-      "javob": "A",
-      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
-    },
-    {
-      "id": "attestatsiya_8",
-      "savol": "\"Ravshan\" dostonida kallarning o'ziga xos jihatlari qaysi javobda to'g'ri ko'rsatilgan?",
-      "variantlar": [
-        "A) Aynoq - polvon, Jaynoq - masxaraboz, Tersak - sinchi, Ersak - mergan",
-        "B) Aynoq - mergan, Jaynoq - polvon, Tersak - masxaraboz, Ersak - sinchi",
-        "C) Aynoq - sinchi, Jaynoq - mergan, Tersak - polvon, Ersak - masxaraboz",
-        "D) Aynoq - masxaraboz, Jaynoq - sinchi, Tersak - mergan, Ersak - polvon"
-      ],
-      "javob": "A",
-      "manba": "Savollar @Onatilidanyordam_2.pdf[cite: 11]"
-    },
-    {
-      "id": "attestatsiya_180",
-      "savol": "\"Sab'ai sayyor\"da maqtovni kutgan Bahrom Diloromdan zid munosabatni ko'rgach, uni qanday jazoga buyuradi?",
-      "variantlar": [
-        "A) uzun sochlariga oyoq-qo'lini bog'lab, biyobonga tashlab ketishni",
-        "B) zindonga tashlashni",
-        "C) dordan osishni",
-        "D) o'zga yurtga quvg'in qilishni"
-      ],
-      "javob": "A",
-      "manba": "Savollar @Onatilidanyordam_2.pdf[cite: 11]"
-    }
-  ]
-}
-{
-  "manba": "Hodiyev Education - Muxtasar grammatika testlar to'plami",
-  "bolimlar": [
-    {
-      "bolim_nomi": "Til – ijtimoiy hodisa (Test 0.1)",
-      "testlar": [
-        {
-          "id": "til_01_1",
-          "savol": "Qaysi javobda dunyoda so'z jihatdan eng badavlat til nomi berilgan?",
-          "variantlar": {
-            "A": "arab tili",
-            "B": "ingliz tili",
-            "C": "ispan tili",
-            "D": "xitoy tili"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "til_01_2",
-          "savol": "Olimlarning hisob-kitoblariga ko'ra, bugungi kunda insoniyat nechta tildan muomala vositasi sifatida foydalanib kelmoqda?",
-          "variantlar": {
-            "A": "3000",
-            "B": "5000",
-            "C": "7000",
-            "D": "9000"
-          },
-          "javob": "D"
-        },
-        {
-          "id": "til_01_3",
-          "savol": "Quyida ko'rsatilgan davlatlarning qaysi birida fors tili aloqa-aralashuv quroli sanaladi?",
-          "variantlar": {
-            "A": "Tojikiston",
-            "B": "Qatar",
-            "C": "Eron",
-            "D": "Yaman"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "til_01_4",
-          "savol": "Ma'lumki, jamiyatdan uzilgan, insonlarning aloqa-aralashuviga xizmat qilmaydigan til o'lik til sanaladi. Qaysi javobda ana shunday til nomi berilgan?",
-          "variantlar": {
-            "A": "boshqird tili",
-            "B": "shved tili",
-            "C": "lotin tili",
-            "D": "mo'g'ul tili"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "til_01_5",
-          "savol": "Qaysi ilmiy mulohaza to'g'ri emas?",
-          "variantlar": {
-            "A": "Til jamiyatga, ya'ni odamlarning o'zaro munosabatga kirishuviga xizmat qiladi.",
-            "B": "Har qanday til asrlar davomida rivojlanib, boyib boradi.",
-            "C": "Bir-biriga yaqin, umumiy jihatlari ko'p bo'lgan tillar qarindosh tillar sanaladi.",
-            "D": "Dunyo tillar qarindoshligiga ko'ra til oilalariga bo'linadi."
-          },
-          "javob": "B"
-        },
-        {
-          "id": "til_01_6",
-          "savol": "Qaysi javoda turkiy tillar oilasiga mansub bo'lmagan tillar berilgan?",
-          "variantlar": {
-            "A": "qoraqalpoq, turkman, qozoq",
-            "B": "ozarbayjon, tatar, chuvash",
-            "C": "tojik, afg'on, arab",
-            "D": "gagauz, xakas, yoqut"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "til_01_7",
-          "savol": "Hozirgi Xitoy Xalq Respublikasi hududida yashayotgan turkkyzabon xalq nomi qaysi javobda qayd etilgan?",
-          "variantlar": {
-            "A": "boshqird",
-            "B": "uyg'ur",
-            "C": "qirg'iz",
-            "D": "tuva"
-          },
-          "javob": "B"
-        },
-        {
-          "id": "til_01_8",
-          "savol": "Qaysi javobda qadimgi oltoy tilidan kelib chiqmagan, tarixiy ildizlari turkiy tillar bilan tutashmaydigan til nomi qayd etilgan?",
-          "variantlar": {
-            "A": "yapon tili",
-            "B": "koreys tili",
-            "C": "tungus-manjur tili",
-            "D": "xitoy tili"
-          },
-          "javob": "D"
-        },
-        {
-          "id": "til_01_9",
-          "savol": "Turkiy tillar oilasining qarluq guruhiga mansub tillar berilgan javobni toping.",
-          "variantlar": {
-            "A": "o'zbek, uyg'ur",
-            "B": "turk, turkman",
-            "C": "qirg'iz, qozoq",
-            "D": "tojik, afg'on"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "til_01_10",
-          "savol": "Usmonli turk va ozar tili turkiy tillar oilasining qaysi guruhiga mansub?",
-          "variantlar": {
-            "A": "qorluq guruhi",
-            "B": "o'g'uz guruhi",
-            "C": "qipchoq guruhi",
-            "D": "chigil guruhi"
-          },
-          "javob": "B"
-        },
-        {
-          "id": "til_01_11",
-          "savol": "\"Ozbekiston Respublikasida davlat tiliga yoki boshqa tillarga mensimay yoki xusumat bilan qarash taqiqlanadi.\" \"Davlat tili haqida\"gi Qonunning nechanchi moddasida shunday deb bitilgan?",
-          "variantlar": {
-            "A": "1-modda",
-            "B": "2-modda",
-            "C": "18-modda",
-            "D": "24-modda"
-          },
-          "javob": "D"
-        },
-        {
-          "id": "til_01_12",
-          "savol": "\"Davlat tili haqida\"gi Qonun necha moddadan iborat?",
-          "variantlar": {
-            "A": "128 modda",
-            "B": "96 modda",
-            "C": "52 modda",
-            "D": "24 modda"
-          },
-          "javob": "D"
-        },
-        {
-          "id": "til_01_13",
-          "savol": "Qaysi javobda bir-biriga qarindosh bo'lgan tillar nomi berilgan?",
-          "variantlar": {
-            "A": "rus, fors, ingliz",
-            "B": "yapon, hind, golland",
-            "C": "xitoy, koreys, mo'g'ul",
-            "D": "afg'on, arab, turkman"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "til_01_14",
-          "savol": "Qaysi javobda xalqaro tillar nomi berilgan?",
-          "variantlar": {
-            "A": "ingliz, ispan, fransuz, rus, arab, xitoy",
-            "B": "ingliz, hind, xitoy, yapon, rus, ispan",
-            "C": "xitoy, hind, ingliz, nemis, fransuz, rus",
-            "D": "fransuz, nemis, ispan, italyan, ingliz, Portugal"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "til_01_15",
-          "savol": "Bugungi kunda turkiy tillar oilasi nechta tilni qamrab oladi?",
-          "variantlar": {
-            "A": "yigitmaga yaqin",
-            "B": "o'ttizga yaqin",
-            "C": "qirqqa yaqin",
-            "D": "yuzga yaqin"
-          },
-          "javob": "B"
-        }
-      ]
-    },
-    {
-      "bolim_nomi": "Morfologiyaga kirish (Test 0.2)",
-      "testlar": [
-        {
-          "id": "morf_02_1",
-          "savol": "So'zlarning atash ma'nolarini o'rganadigan tilshunoslik bo'limi qanday nomlanadi?",
-          "variantlar": {
-            "A": "morfologiya",
-            "B": "leksikologiya",
-            "C": "leksikografiya",
-            "D": "morfemika"
-          },
-          "javob": "B"
-        },
-        {
-          "id": "morf_02_2",
-          "savol": "So'zlarning borliqdagi ma'lum narsa-hodisa, belgi-xususiyat, harakat-holat kabilarni ifodalashi qaysi ma'nosi sanaladi?",
-          "variantlar": {
-            "A": "grammatik ma'nosi",
-            "B": "uslubiy ma'nosi",
-            "C": "atash ma'nosi",
-            "D": "ko'chma ma'nosi"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "morf_02_3",
-          "savol": "So'zlarni turkumlarga ajratishda, avvalo, qanday xususiyati hisobga olinadi?",
-          "variantlar": {
-            "A": "gapdagi sintaktik vazifasi",
-            "B": "umumiy grammatik ma'nosi",
-            "C": "yasalishi va yasalish uchun asos bo'lishi",
-            "D": "atash ma'nosining bor-yo'qligi"
-          },
-          "javob": "B"
-        },
-        {
-          "id": "morf_02_4",
-          "savol": "Grammatik shakllar deganda qanday qo'shimchalar tushuniladi?",
-          "variantlar": {
-            "A": "so'z yasovchi qo'shimchalar",
-            "B": "lug'aviy shakl yasovchi qo'shimchalar",
-            "C": "shakl yasovchi qo'shimchalar",
-            "D": "sintaktik shakl yasovchi qo'shimchalar"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "morf_02_5",
-          "savol": "Qaysi javobda yordamchi so'zlar (ko'makchi, bog'lovchi, yuklama)larga xos bo'lgan xususiyatlar to'g'ri ko'rsatilgan?\n1) atash ma'nosiga ega emas;\n2) ma'lum so'roqqa javob bo'lmaydi;\n3) gapda sintaktik vazifa bajarmaydi;\n4) grammatik ma'noga ega emas.",
-          "variantlar": {
-            "A": "1,2,3",
-            "B": "1,2,4",
-            "C": "1,3,4",
-            "D": "2,3,4"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "morf_02_6",
-          "savol": "Qaysi javobda atash ma'nosiga ega bo'lgan so'zlar berilgan?",
-          "variantlar": {
-            "A": "shu, o'sha, bu",
-            "B": "hamda, sari, axir",
-            "C": "chuchuk, beshinchi, ertalab",
-            "D": "Lochin, Zumrad, Rayhon"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "morf_02_7",
-          "savol": "Qaysi turkumga oid so'zlar harakat-holatning belgisini ifodalashga xizmat qiladi?",
-          "variantlar": {
-            "A": "ot",
-            "B": "sifat",
-            "C": "ravish",
-            "D": "fe'l"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "morf_02_8",
-          "savol": "Ovchi qo'liga dasht durbinini oldi va atrofni sinchkovlik bilan uzoq kuzatib turdi.\nUshbu gapda nechta so'z atash (leksik) ma'nosiga ega emas?",
-          "variantlar": {
-            "A": "1 ta",
-            "B": "2 ta",
-            "C": "3 ta",
-            "D": "4 ta"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "morf_02_9",
-          "savol": "Qanday so'zlar atash ma'nosiga ega bo'lmaydi?\n1) mustaqil fe'llar; 2) ko'makchi fe'llar; 3) to'liqsiz fe'llar; 4) olmoshlar; 5) atoqli otlar",
-          "variantlar": {
-            "A": "1,2,3,4",
-            "B": "2,3,4,5",
-            "C": "3,4,5",
-            "D": "2,3,4"
-          },
-          "javob": "B"
-        },
-        {
-          "id": "morf_02_10",
-          "savol": "So'zlarning grammatik ma'nolari va ularni ifodalovchi grammatik shakllarni o'rganuvchi tilshunoslik qanday nomlanadi?",
-          "variantlar": {
-            "A": "morfologiya",
-            "B": "leksikologiya",
-            "C": "sintaksis",
-            "D": "morfemika"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "morf_02_11",
-          "savol": "Qaysi javobda \"olmalarni\" so'zining lug'aviy ma'nolari berilgan?\n1) mevali daraxt; 2) daraxt mevasi; 3) ko'plik ifodalangan ot; 4) kelishik ifodalangan ot",
-          "variantlar": {
-            "A": "1,2",
-            "B": "3,4",
-            "C": "1,2,3,4",
-            "D": "1,3"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "morf_02_12",
-          "savol": "Qaysi javobda predmetning belgisini ifodalovchi so'zlar berilgan?",
-          "variantlar": {
-            "A": "gul, tuproq, bog'",
-            "B": "eski, yassi, chuqur",
-            "C": "sekin, doim, biroz",
-            "D": "birov, barcha, shunday"
-          },
-          "javob": "B"
-        },
-        {
-          "id": "morf_02_13",
-          "savol": "Qaysi grammatik ma'no maxsus grammatik shaklsiz ifodalanadi?",
-          "variantlar": {
-            "A": "o'tgan zamon",
-            "B": "majhul nisbat",
-            "C": "bo'lishlilik",
-            "D": "shart mayli"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "morf_02_14",
-          "savol": "Berilgan so'z tarkibidagi grammatik shakllar qanday grammatik ma'nolarni ifodalashga xizmat qilgan? o'qitmadik\n1) orttirma nisbat ma'nosi; 2) o'tgan zamon ma'nosi; 3) bo'lishsizlik ma'nosi; 4) I shaxs, ko'plik ma'nosi",
-          "variantlar": {
-            "A": "1,2,4",
-            "B": "1,3,4",
-            "C": "1,2,3,4",
-            "D": "2,3,4"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "morf_02_15",
-          "savol": "Grammatik ma'nosi umumiy bo'lgan so'zlarni toping.",
-          "variantlar": {
-            "A": "kitob, suv, yaproq",
-            "B": "qizil, oltovlon, bola",
-            "C": "o'qimoq, jo'rttaga, og'ir",
-            "D": "yozish, olqish, sarg'ish"
-          },
-          "javob": "A"
-        }
-      ]
-    },
-    {
-      "bolim_nomi": "Fe'l: Zamon va shaxs-son (Test 0.3)",
-      "testlar": [
-        {
-          "id": "fel_zamon_1",
-          "savol": "Qaysi javobda harakat-holatning gap aytilayotgan paytga nisbati farqlanadigan fe'llar berilgan?",
-          "variantlar": {
-            "A": "bajargan, bajarmoqda, bajarmoqchi",
-            "B": "bajaryapman, bajaryapsan, bajaryapti",
-            "C": "bajardi, bajartirdi, bajarildi",
-            "D": "bajardi, bajargin, bajarsa"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "fel_zamon_2",
-          "savol": "Qaysi javobda harakat-holatning bajaruvchisi (subyekti)ga ko'ra farqlanadigan fe'llar berilgan?",
-          "variantlar": {
-            "A": "bajargan, bajarmoqda, bajarmoqchi",
-            "B": "bajaryapman, bajaryapsan, bajaryapti",
-            "C": "bajardi, bajartirdi, bajarildi",
-            "D": "bajardi, bajargin, bajarsa"
-          },
-          "javob": "B"
-        },
-        {
-          "id": "fel_zamon_3",
-          "savol": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli so'zlovchining bevosita o'zi ko'rgan, guvohi bo'lgan harakat-holatni ifodalaydi?",
-          "variantlar": {
-            "A": "-di",
-            "B": "-ib(-b)",
-            "C": "-gan",
-            "D": "-gay"
-          },
-          "javob": "A"
-        },
-        {
-          "id": "fel_zamon_4",
-          "savol": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli harakat-holatning ilgariroq yoki uzoq o'tgan zamonda sodir bo'lganini ifodalaydi?",
-          "variantlar": {
-            "A": "-di",
-            "B": "-ib(-b)",
-            "C": "-gan",
-            "D": "-gay"
-          },
-          "javob": "C"
-        },
-        {
-          "id": "fel_zamon_5",
-          "savol": "Qaysi qo'shimcha bilan hosil qilingan o'tgan zamon shakli ilgari ro'y bergan harakat-holatning so'zlovchi tomonidan eshitib bilinganini ifodalaydi?",
-          "variantlar": {
-            "A": "-di",
-            "B": "-ib(-b)",
-            "C": "-gan",
-            "D": "-gay"
-          },
-          "javob": "B"
-        }
-      ]
     }
   ]
 }
