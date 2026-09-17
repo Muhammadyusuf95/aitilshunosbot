@@ -401,7 +401,6 @@ def get_next_quiz_number(quiz_type):
     save_data(COUNTERS_FILE, counters)
     return current
 
-# --- SQLITE BILAN INTEGRATSIYA QILINGAN STREAK HISOBLASH ---
 def update_user_streak(user):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -447,7 +446,6 @@ def update_user_streak(user):
     conn.close()
     return streak, points, streak_broken
 
-# --- MUKAMMAL MAVZULAR KATALOGI ---
 THEME_CATALOG = {
     "cat_fonetika": {
         "title": "🗣 Fonetika, orfoepiya va imlo qoidalari",
@@ -926,7 +924,7 @@ SYSTEM_INSTRUCTION = (
     "2. Amaldagi davlat boshqaruvi, davlat rahbari va amaldorlar shaxsi haqidagi ma'lumotlar taqiqlanadi.\n"
     "3. Tibbiy va huquqiy maslahatlar mutlaqo berilmaydi.\n"
     "4. Ekstremizm, axloqsizlik va buzg'unchilik 100% rad etiladi.\n\n"
-    "HIKMAT VA MOTIVATSIYA TALABI:\n"
+    "HIKMAT DAN MOTIVATSIYA TALABI:\n"
     "Fikrlar mutlaqo sun'iy ravishda o'ylab topilmasin! Faqat berilgan tarixiy davrning nodir adabiy manbalaridan, "
     "mutafakkir va allomalarining haqiqiy asarlaridan keltirilib, aniq kitob nomi va beti/bobi ilmiy asosda berilsin."
 )
@@ -940,7 +938,7 @@ def generate_ai_content(prompt_text):
         "Talablar: Telegram Markdown formatida, ko'rkam sarlavhalar va ilmiy uslubda bo'lsin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    models = ["gemini-2.5-flash"]
+    models = ["gemini-3.6-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -968,7 +966,7 @@ def generate_ai_content(prompt_text):
     raise Exception(f"AI Xatolik tafsiloti: {last_error[:300]}")
 
 def generate_quiz_batch(prompt_spec, count=30):
-    models = ["gemini-2.5-flash"]
+    models = ["gemini-3.6-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -1487,7 +1485,7 @@ def get_verified_didactic_content(content_type="hikmat"):
         )
 
     response = ai_client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.6-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -2070,7 +2068,7 @@ def auto_poster_loop():
                             "}"
                         )
                         raw = ai_client.models.generate_content(
-                            model="gemini-2.5-flash",
+                            model="gemini-3.6-flash",
                             contents=p_single,
                             config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, temperature=0.8)
                         ).text.strip()
