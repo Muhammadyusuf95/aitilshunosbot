@@ -1,0 +1,292 @@
+{
+  "source_title": "MILLIY TEST SINOVI (Eshmurodov aprobatsiya)",
+  "total_questions": 44,
+  "tests": [
+    {
+      "id": 1,
+      "type": "quiz",
+      "question": "Imloviy jihatdan to'g'ri yozilgan so'zlar qatorini aniqlang.",
+      "options": [
+        "bahri bayt, namoyonda, qoyida",
+        "qazoyi qadar, qobiliyat, muammo",
+        "takkabur, birzumda, taassurot",
+        "tafsiya, falokot, tadbiq"
+      ],
+      "correct_option_id": 1,
+      "explanation": "B javob to'g'ri. 'Qazoyi qadar', 'qobiliyat', 'muammo' so'zlari amaldagi rasmiy imlo qoidalariga to'liq mos keladi."
+    },
+    {
+      "id": 2,
+      "type": "quiz",
+      "question": "Gapda imloviy jihatdan noto'g'ri yozilgan so'z berilgan javobni aniqlang.",
+      "options": [
+        "Yolg'onchilik takabburlik, chaqimchilik izzat-obro`ni barbot qiladi.",
+        "Balandparvoz, quruq gapirgan odamning gapi bemaza qovunga o'xshaydi.",
+        "Oliyjanob kishilar uzrni qabul qiladilar",
+        "Dono insonning so`zi yerga suv kabi zarurdir, suv oqib tursa, yerda turli ne'matlar unadi"
+      ],
+      "correct_option_id": 0,
+      "explanation": "A javobda 'barbot' emas, 'barbod' shaklida 'd' harfi bilan yozilishi lozim."
+    },
+    {
+      "id": 3,
+      "type": "quiz",
+      "question": "So'zlarning ma'nosi to'g'ri izohlangan javobni aniqlang.",
+      "options": [
+        "Hostel - qo'noqxona",
+        "Startup - yangi biznes",
+        "Auksion - ruxsat",
+        "Hashtag - kalitso'z"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Hostel - arzon yotoqxona tipidagi qo'noqxona ma'nosini to'g'ri ifodalaydi."
+    },
+    {
+      "id": 4,
+      "type": "quiz",
+      "question": "O'zaro ma'nodoshlik hosil qila olmaydigan so'zlar qatorini aniqlang.",
+      "options": [
+        "vaqt, chog', mavrid",
+        "boplamoq, qiymoq, mondalamoq",
+        "xon, amr, shoh",
+        "ayib, kamchilik, nuqson"
+      ],
+      "correct_option_id": 2,
+      "explanation": "C qatorda 'amr' buyruq ma'nosida, 'xon' va 'shoh' esa hukmdorlik unvonlaridir, ular o'zaro to'liq sinonim bo'la olmaydi."
+    },
+    {
+      "id": 5,
+      "type": "quiz",
+      "question": "Qaysi gapda qo'shimcha qo'llash bilan bog'liq uslubiy xatolik mavjud emas?",
+      "options": [
+        "U to`qayzorda sassiq alaflarning, qamashlarning, guli раухоп qiluvchi to`ng`izlarning ko`pligidan ajablanmadi",
+        "To'g'ri yo`l mashaqqatli, ammo shu yo'l seni ezgu maqsadlaringga yetg`azadi.",
+        "Kumush qishdan zumrad bahordan qolishmaydi kuzni ziynati.",
+        "Oymomoga behad xushruylikni ato etgan ona tabiat, afsuski ularni farzand ne'matidan bebahra qoldirgandi."
+      ],
+      "correct_option_id": 1,
+      "explanation": "B javobda grammatik va uslubiy jihatdan qo'shimchalar xatosiz va o'rinli qo'llangan."
+    },
+    {
+      "id": 6,
+      "type": "quiz",
+      "question": "Quyidagi qaysi gapda uslubiy g'alizlik kuzatilmagan?",
+      "options": [
+        "Hangoma ko`p uchrar hayotga doir, Keksa bir qalamchi odam bor edi...",
+        "Ey bolam, yod yurtga borsang, 'Ne atalur eling? ' - derlar...",
+        "Haq yo`linda kim senga bir har o`ritmish ranj ila...",
+        "Quyosh chiqdi, gul yaprog`iga Tunda qo'ngan shabnam ariydi..."
+      ],
+      "correct_option_id": 1,
+      "explanation": "B javobdagi she'riy parchada uslubiy va sintaktik g'alizliklar uchramaydi."
+    },
+    {
+      "id": 7,
+      "type": "quiz",
+      "question": "Farosatsizlik, axloqsizlik orqasida faqat huzur-halovatga mukkasidan ketganlarning, yengil-yelpi fikrlovchilarning hayoti sariq chaqaga ham arzimaydi. Ushbu gap yuzasidan nechtasi to'g'ri?",
+      "options": [
+        "bittasi",
+        "ikkitasi",
+        "uchtasi",
+        "to'rttasi"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Gapdagi morfemik tahlil bo'yicha berilgan hukmlardan 2 tasi to'g'ri hisoblanadi."
+    },
+    {
+      "id": 8,
+      "type": "quiz",
+      "question": "Berilgan uchala she'riy parchada ham ishtirok etgan umumiy fe'l shakllarini aniqlang.",
+      "options": [
+        "1, 3, 6 (II shaxs birlik, o'timli fe'l, buyruq-istak mayli)",
+        "2, 3, 5 (orttirma nisbat, o'timli fe'l, sodda yasama fe'l)",
+        "1, 2, 4 (II shaxs birlik, orttirma nisbat, hozirgi zamon)",
+        "3, 4, 6 (o'timli fe'l, hozirgi zamon, buyruq-istak mayli)"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Uchala parchada ham buyruq maylidagi (ko'r, bo'l, o'p), II shaxs birlikdagi va o'timli fe'llar mushtarak qatnashgan."
+    },
+    {
+      "id": 9,
+      "type": "quiz",
+      "question": "Keltirilgan parchalardagi so'z turkumlari haqida berilgan TO'G'RI mulohazani toping.",
+      "options": [
+        "I qismda mustaqil so'z turkumidan biri bo'lgan olmoshning beshta ma'no turiga oid so'zlar qatnashgan.",
+        "Har uchala qismda ham ravish turkumiga mansub so'zlar ishtirok etgan.",
+        "Barcha qismdagi gaplarda sifatlarning xususiyatni bildiruvchi turiga oid so'zlar qatnashgan.",
+        "Uchala parchada ham lug'aviy ma'nosini yo'qotgan mustaqil so'zlar ishtirok etgan."
+      ],
+      "correct_option_id": 1,
+      "explanation": "Uchala parchada ham ravish turkumiga oid so'zlar (har qalay, oz, juda, to'la) qatnashgan."
+    },
+    {
+      "id": 10,
+      "type": "quiz",
+      "question": "'Mening beshigimga otilgan ul o'q sizning umringizni uzgan, ehtimol.' Ushbu gapdagi tobe bog'lanishlarga oid to'g'ri hukmni aniqlang.",
+      "options": [
+        "Ushbu gapda tobe qismi sifatlovchi aniqlovchi, hol vazifasini bajargan fe'lli so'z birikmalari qatnashgan.",
+        "Ushbu gapda aniqlovchi tobelangan hokim so'z kesimga nisbatan tobe qism vazifasini bajargan.",
+        "Ushbu gapda hokim qismi payt holi vazifasini bajargan otli so'z birikmalari qatnashgan.",
+        "Ushbu gapda faqat tobe qism vazifasini bajargan ot, olmosh so'z turkumidagi so'zlar aniqlovchi vazifasida kelgan."
+      ],
+      "correct_option_id": 1,
+      "explanation": "Aniqlovchi tobelangan hokim so'z ('o'q') ega vazifasida kelib, kesimga tobelangan."
+    },
+    {
+      "id": 11,
+      "type": "quiz",
+      "question": "Gapdagi so'zlarning mazmun va grammatik jihatdan bog'lanishi to'g'ri ko'rsatilgan javobni aniqlang.",
+      "options": [
+        "qadriyatlarni belgilab, natijaga intilish orqali inson o'z hayotini baxtli qiladi.",
+        "rivoji va qadrlashi o'rnini belgilab beradi, mas'uliyat bilan mazmunli qiladi.",
+        "mas'uliyat bilan yondashish va natijaga intilish, ijobiy munosabatlarni o'rnatishga yordam beradi.",
+        "mazmunli va baxtli qiladi, insonning jamiyatdagi o'rni."
+      ],
+      "correct_option_id": 3,
+      "explanation": "Mazkur javobda sintaktik aloqalar va so'z birikmasi munosabatlari qat'iy to'g'ri aks ettirilgan."
+    },
+    {
+      "id": 12,
+      "type": "quiz",
+      "question": "Qaysi gaplarda vergul bir xil punktuatsion qoida asosida qo'yilgan?",
+      "options": [
+        "4, 6 (Undalmalarni ajratish qoidasi)",
+        "2, 3",
+        "1, 5",
+        "3, 6"
+      ],
+      "correct_option_id": 0,
+      "explanation": "4 va 6-gaplarda vergul gapdagi undalmalarni ('Usta', 'janob dorug'a') ajratish uchun qo'llangan."
+    },
+    {
+      "id": 13,
+      "type": "quiz",
+      "question": "Abdulhamid Cho'lponning 'Men qochmadim' she'ri mazmuniga oid to'g'ri fikrni toping.",
+      "options": [
+        "Lirik qahramonning jamiyatdan ajralib, mustaqil yo'l tanlashi",
+        "Shaxsning o'zini oqlashga urinishi",
+        "Shaxsning o'z idealini izlash yo'lida noto'g'ri talqin qilinishi va unga qarshi kurashi",
+        "Jamiyatning yangilikka qarshi turishi"
+      ],
+      "correct_option_id": 2,
+      "explanation": "She'rda ijodkorning 'o'zlik' va 'ko'plik' tushunchalari hamda unga qo'yilgan asossiz ayblovlarga qarshi ma'naviy isyoni aks etgan."
+    },
+    {
+      "id": 14,
+      "type": "quiz",
+      "question": "Nazar Eshonqulning 'Shamol tutib bo'lmaydi' hikoyasidagi parcha orqali nima ifodalangan?",
+      "options": [
+        "Qishloqning shaharga nisbatan iqtisodiy tanazzulga yuz tutgani",
+        "Odamlarning o'z tarixiy xotirasini o'z qo'llari bilan yemirayotganini",
+        "Bayna momoning boyligi yo'qotilayotgani tanqid ostiga olinadi",
+        "Zamonaviy uylar qurilishning ustunligi tilga olinadi"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Buldozerlar eski uyni qulatayotganda tersotaliklar o'z xotirasi va o'tmishini yemirayotganlik ramzi aks etgan."
+    },
+    {
+      "id": 15,
+      "type": "quiz",
+      "question": "Asqad Muxtorning 'Chinor' romani mazmuni haqidagi XATO hukmni ko'rsating.",
+      "options": [
+        "Romanda kasbga sadoqatli, yosh bo'lishiga qaramay konda ishlaydigan yigitning ayanchli taqdiri qalamga olingan.",
+        "Qaltis vaziyatda qolgan insonga bir yostiqqa bosh qo'ygan yaqini yordam berishi aks etgan.",
+        "Birovning bolasiga tajavvuz qilib, go'dakni o'ldirmoqchi bo'lgan qabih inson siymosi bor.",
+        "Farobiy bilan bog'liq rivoyat orqali asli mo'jiza inson qalbi, ichki go'zalligi ekanligi ochib berilgan."
+      ],
+      "correct_option_id": 1,
+      "explanation": "Romanda qaltis vaziyatda xiyonat va yolg'izlanish motivlari fojiaviy tarzda ko'rsatilgan, bu hukm romanga mos kelmaydi."
+    },
+    {
+      "id": 16,
+      "type": "quiz",
+      "question": "Qizlarini uzatishda boylik va shahar orzusida sovchilarni qaytargan Sadriddin cho'loq obrazi qaysi asarda uchraydi?",
+      "options": [
+        "O'tkan kunlar",
+        "Kecha va kunduz",
+        "Dunyoning ishlari",
+        "Jimjitlik"
+      ],
+      "correct_option_id": 1,
+      "explanation": "Cho'lponning 'Kecha va kunduz' romanida Zebi (Zebiniso)ning otasi Razzoq so'fi bilan bir qatorda Sadriddin cho'loq timsoli uchraydi."
+    },
+    {
+      "id": 17,
+      "type": "quiz",
+      "question": "'O'jar' hikoyasi haqida to'g'ri fikrni toping.",
+      "options": [
+        "Zargarov va Qutbiddinov birinchi marta ulfatlik dasturxoni ustida dildan suhbat qurishgan edi.",
+        "Zargarovning maqola yozish haqidagi gaplari orqali uning o'ziga biroz bino qo'yganini, boshqalardan o'zini ustun bilishini anglash mumkin.",
+        "Suyar birovning kamchiligini ko'rsatishga, ustidan kulishga usta bola bo'lgan.",
+        "Qutbiddinovning adabiyotdan yiroq odam ekanligi Zargarovning g'ashini keltiradi."
+      ],
+      "correct_option_id": 1,
+      "explanation": "Zargarovning mulohazalarida manmanlik va o'zini boshqalardan ustun qo'yish illati yaqqol seziladi."
+    },
+    {
+      "id": 18,
+      "type": "quiz",
+      "question": "'Bug'doy, arpa, suli' matni bo'yicha qaysi gap to'g'ri shakllantirilgan?",
+      "options": [
+        "Suli urug'i dukkakli don ekinlaridan bo'shagan yerlarga ekiladi. Arpa esa ko'kat uchun ro'vaklash-gullash davrida o'riladi...",
+        "Sug'oriladigan mintaqalarda kuzgi sulini makkajo'xori, g'o'za, kartoshkadan bo'shagan yerlarga ekish tavsiya etiladi...",
+        "Bug'doy ko'proq daraxtlardan changlanadi...",
+        "Xalq xo'jaligida arpadan xilma-xil maqsadlarda foydalaniladi. Xususan, pivo va oziq-ovqat sanoati xomashyosidir."
+      ],
+      "correct_option_id": 3,
+      "explanation": "Matnda arpaning pivo, yem-xashak va oziq-ovqat sanoatida asosiy xomashyo ekanligi aniq bayon etilgan."
+    },
+    {
+      "id": 19,
+      "type": "quiz",
+      "question": "Aziz Nesinning 'Ustasi faranglar' hikoyasida 'quruvchilik zakovati sezilib turgan' yangi direktor qaysi ishi bilan tarixda qolgan?",
+      "options": [
+        "Muhtaram Ruhibey: maktabimizga birinchi bo'lib gimnastika maydonchasi qurdirib berdi.",
+        "Muhtaram Najotibey: maktabimizda birinchi bo'lib bog' yaratdi.",
+        "Muhtaram Ahmad Tener: maktabimizga birinchi bo'lib yaxmalak qurdirdi.",
+        "Saidbey: maktabimizda birinchi bo'lib hovuz qurdirdi."
+      ],
+      "correct_option_id": 1,
+      "explanation": "Oldingi beton maydon ustiga tuproq to'kdirib gul va daraxtlar ektirgan direktor Muhtaram Najotibey bo'lib, u birinchi bo'lib bog' yaratgan direktor sifatida Faxriy xonaga kiritilgan."
+    },
+    {
+      "id": 20,
+      "type": "quiz",
+      "question": "Aziz Nesinning 'Ustasi faranglar' hikoyasida [1] raqami bilan berilgan 'Qurilish bobida bunisi eski direktorni bir cho'qishda qochiradiganga o'xshaydi' gapi orqali qanday uslubiy ma'no ifodalangan?",
+      "options": [
+        "Kinoya, kesatiq",
+        "Qahr, g'azab",
+        "Manmanlik, bepisandlik",
+        "Alam, iztirob"
+      ],
+      "correct_option_id": 0,
+      "explanation": "Hikoyadagi bu ibora yangi kelgan rahbarning maqsadsiz isrofgarchiligiga nisbatan o'tkir kinoya va kesatiqni ifodalaydi."
+    }
+  ],
+  "open_tasks": [
+    {
+      "id": 36,
+      "type": "open",
+      "task": "Berilgan mazmunlarni ifodalaydigan shakldosh so'zni toping: 1) Muvaffaq bo'lmoq, qo'lga kiritmoq; 2) Nojo'ya, yarashmaydigan.",
+      "answer": "Yarashmoq (yoki erishmoq / ep ko'rmoq)"
+    },
+    {
+      "id": 37,
+      "type": "open",
+      "task": "'...amalga oshirilgan ishlar: ya'ni hamma daraxtlarning...' gapida qaysi tinish belgisi xato qo'llangan?",
+      "answer": "Ikki nuqta (:) xato qo'llangan, uning o'rniga vergul (,) qo'yilishi lozim."
+    },
+    {
+      "id": 42,
+      "type": "open",
+      "task": "Navoiy baytidagi 'tomoshag'akim' va 'ul sho'x' so'zlaridagi badiiy san'atni aniqlang.",
+      "answer": "a) Tajnis / takrir san'ati; b) Istiora san'ati."
+    },
+    {
+      "id": 44,
+      "type": "open",
+      "task": "'Yo rab, ul shahdu shakar, yo labdurur...' to'rtligi qaysi janrda va qaysi san'at asosida yozilgan?",
+      "answer": "a) Janri: Tuyuq; b) She'riy san'at: Tajnis (tajnisi tamm)."
+    }
+  ]
+}
