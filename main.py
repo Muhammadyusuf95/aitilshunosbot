@@ -200,7 +200,7 @@ WEBAPP_HTML = """
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v10.8 (Instant Solo Quiz Edition) Faol!"
+    return "AI Tilshunos & Metodist v10.9 (National Certificate Edition) Faol!"
 
 @app.route('/leaderboard')
 def webapp_leaderboard():
@@ -294,6 +294,153 @@ IMZO = (
     "  ✨ **AI Asistent:** @aitilshunosbot\n"
     "╰───────────────────────╯"
 )
+
+# --- MILLIY SERTIFIKAT TAYYOR MAVZULARI ---
+CERT_ESSAY_TOPICS = [
+    "Aksariyat maktab bitiruvchilari oliy ta'limni talab etmaydigan zamonaviy kasblarni egallashga qiziqish bildirishsa, ayrimlar zamonaviy kasblar insonga butun umrlik faoliyat bo'lib qolishiga ishonishmaydi.",
+    "Ba'zilar bolaga mukammal bilim berish uchun uni xususiy maktabda o'qitish kerak deb hisoblashsa, ayrimlar davlat maktabida ham mukammal bilim olish mumkin deb bilishadi.",
+    "Ayrimlar turli shoular va yutuqli oʻyinlar odamlarning bir-biriga bo'lgan ishonchini soʻndiradi degan fikrda, ba'zilar esa bunday ko'ngilochar oʻyinlarning afzalliklari haqida gapirishadi.",
+    "Ayrimlar chet tilini o'rganish madaniylikning bir belgisi deb bilsalar, ba'zilar o'zga tilini bilish moddiy hayotni ta'minlaydi deydilar.",
+    "Hozirgi kunda ayrim insonlar reklamalarga ma'lumot ulashishning eng samarali usuli deb qarasa, ayrimlar bu borada cheklovlar qo'yish kerak deb bilishadi.",
+    "Ayrimlar ko'p farzandlilik davlat va jamiyat taraqqiyoti uchun foyda keltiradi deb bilsa, ayrimlar oilada farzand tarbiyasiga e'tibor yetarli bo'lmaydi deb hisoblashadi.",
+    "Ko'p qavatli uylar qurilishining avj olishi shahar arxitekturasi va dizayniga yangicha tus beradi, biroq koʻp aholi bunday uylar o'rniga xonadon yoki manzarali yer maydoni qurilishini ma'qul topadi.",
+    "Ba'zilar kredit yillar davomida ushalmagan orzularni amalga oshirishning qulay yo'li deb hisoblashadi, ayrimlari esa kredit ortiqcha xarajati va moliyaviy holatni qiyinlashtiradi degan fikrda.",
+    "Bugungi kunda sodir bo'layotgan jinoyatlar OAV, internet tarmoqlari orqali ommaga taqdim etilmoqda. Baʼzilarning fikricha, jinoyatlarning bunday oshkora ko'rsatilishi jinoyatga yo'l ochib berishi mumkin. Baʼzilar esa oshkor ko'rsatish tarafdori.",
+    "Ayrimlar oilaviy muammolar aks etgan videolavhalarning ijtimoiy tarmoqlarda tarqalishi jamiyat ma'naviyatiga va ruhiyatiga salbiy ta'sir koʻrsatadi deb bilishsa, ayrimlar aksincha fikrda.",
+    "Ayrimlar yaxshi yashash uchun bitta kasbning mohir ustasi bo'lish kerak deb bilishsa, ba'zilar bir necha kasbning egasi bo'lish foydaliroq deb hisoblashadi.",
+    "Sun'iy intellektning insoniyat hayotiga ijobiy va salbiy ta'sirlari.",
+    "Plastik qadoqdagi suv yoki vodoprovod suvi iste'moli: afzallik va kamchiliklar.",
+    "O'qitishda milliy usullarni yanada rivojlantirish muhimmi yoki chet el tajribasini qo'llashmi?",
+    "Anʼanaviy to'ylar xorijiy to'ylar kabi ixcham va zamonaviy tarzda o'tkazilishiga munosabat.",
+    "Zamonaviy kitobxonlar audio kitoblarning afzalligini ta'kidlashmoqda, ammo ba'zilar bu fikrga qarshi.",
+    "Psixologlar tarbiyada erkinlik muhimligini taʼkidlashmoqda, ammo ba'zilar erkinlik salbiy oqibatlarga olib keladi degan fikrda.",
+    "Ba'zilar inson faoliyati tufayli yer shari zararlanib borayotganini ta'kidlashmoqda, ayrimlar esa uni yashash uchun yaxshiroq joyga aylantiradi deb o'ylaydi.",
+    "Ba'zilar ta'lim jarayonida mehnat faoliyati bilan shug'ullansa tajriba oshadi deyishsa, ayrimlar faqat bilim olish muhimligini ta'kidlashadi."
+]
+
+# --- NAMUNAVIY ESSELAR BAZASI ---
+SAMPLE_ESSAYS = [
+    {
+        "id": 1,
+        "title": "Zamonaviy kasblar va Oliy ta'lim",
+        "topic": "Aksariyat maktab bitiruvchilari oliy ta'limni talab etmaydigan zamonaviy kasblarni egallashga qiziqish bildirishsa, ayrimlar zamonaviy kasblar insonga butun umrlik faoliyat bo'lib qolishiga ishonishmaydi.",
+        "text": "Dunyo rivojlangani sari zamonaviy kasblar ham takomillashib bormoqda. Katta hayot ostonasiga qadam qoʻyayotgan ko'plab o'quvchilar hozirgi kunda diplom talab qilmaydigan kasblarni oʻzlashtirishga xohish bildirishmoqda. Ammo baʼzilar bunday kasblarning kelajagi mavhum, inson uchun butun umrlik faoliyat bo'la olmaydi deb hisoblashmoqda. Quyidagi esseda har ikkala qarashni ko'rib chiqamiz.\n\nBirinchi qarash tarafdorlarining fikriga ko'ra, innovatsion kasblar qisqa muddatda o'rganiladi va yaxshi daromad keltiradi. Yangi avlod kasblariga IT, dizayn, marketing, treyding, servis sohalari kiradi. Ularning afzalliklari, birinchidan, oliy ta'limni talab etmasligi, ikkinchidan, qisqa muddatli kurslar orqali oʻrganish mumkinligidadir. Atrofimizga nazar tashlaydigan bo'lsak, ko'plab yoshlarning zamonaviy kasblar orqasidan mo'may daromad topayotganini ko'rishimiz mumkin. Bu sohalar ularga moliyaviy jihatdan mustaqil bo'lish va oz vaqtda tajriba orttirish imkonini bergan.\n\nIkkinchi qarash tarafdorlari zamonaviy kasblarni tanlashda xavf-xatarlarni oldindan ko'ra oladilar. Avvalo, bu sohalar telefon, kompyuter kabi texnikalar bilan bog'liq bo'lib, ulardan chiqayotgan nurlar inson sog'ligi uchun zararlidir. Bundan tashqari texnologiyalar o'zgarib, baʼzi kasblar avtomatlashtirilishi yoki sunʼiy intellekt tomonidan bajarilishi mumkin. Hatto inson mimikalarini oʻzlashtirayotgan robotlar rivojlanib borayotgan davrda zamonaviy kasblar taraqqiyoti mavhum masala bo'lib qolmoqda.\n\nHar ikkala tomonning fikrlaridan kelib chiqadigan bo'lsak, zamonaviy kasblar tez rivojlanmoqda. Shu bilan birga ularning kelajagi noma'lum hamdir. Oliy ta'lim talab qiladigan mutaxassisliklar barqarorlik va uzoq muddatli rivojlanish imkonini beradi. Qay birini tanlash esa insonning oʻziga bog'liq.\n\nXulosa qilib aytganda, zamonaviy kasblarni tanlash har kimning ixtiyoriy tanlovi. Oliy ta'limni talab qilmaydigan kasblar qisqa muddatli maqsadlar uchun foydali bo'lishi mumkin, lekin bu kasblar insonning hayoti davomida bir umrlik faoliyat bo'la olmaydi."
+    },
+    {
+        "id": 2,
+        "title": "Xususiy va davlat maktablari ta'limi",
+        "topic": "Ba'zilar bolaga mukammal bilim berish uchun uni xususiy maktabda o'qitish kerak deb hisoblashsa, ayrimlar davlat maktabida ham mukammal bilim olish mumkin deb bilishadi.",
+        "text": "Ayrimlar farzandlarini zamonaviy jihozlar, malakali o'qituvchilar va individual yondashuv bilan ajralib turadigan xususiy maktablarda o'qitishni afzal deb bilsa, ba'zilar davlat maktablaridagi anʼanaviy ta'lim bilan mukammal bilim olish mumkin deb hisoblashadi. Har ikki tomon ham oʻz fikrlarining asosli dalillariga ega.\n\nFarzandlarini xususiy maktablarda o'qitish tarafdori bo'lgan ota-onalar bu muassasalar koʻproq resurslar va imkoniyatlarga egaligini ta'kidlaydilar. Xususiy maktablar bir qator qulayliklarga ega. Birinchidan, ulardagi sinflarda o'quvchi sonining ozligi o'qituvchi har bir o'quvchiga alohida vaqt ajrata olishini taʼminlaydi. Natijada o'quvchilar mavzularni qiynalmay o'zlashtiradilar. Ikkinchidan, zamonaviy texnologiyalar bilan jihozlangan xonalarda ta'lim olgan o'quvchining bilim darajasi ham yuqori bo'ladi. Shu bilan birga xususiy ta'lim muassasalarida o'qish pulli bo'lgani uchun o'quvchidan ham ota-onadan ham masʼuliyatni talab qiladi. Qo'qon shahridagi 'Lider school' xususiy maktabi o'quvchilari turli sertifikatlarni qo'lga kiritib, muddatidan oldin talaba boʻlish imkoniyatiga egaligini fikrimiz isboti sifatida keltirishimiz mumkin.\n\nDavlat maktablarida o'qishni qo'llab-quvvatlaydiganlar esa sifatli ta'lim olish uchun o'qituvchi malakasi va o'quvchi iqtidorini yetarli deb hisoblaydilar. Bunday maktablar bepul boʻlgani uchun jamiyatning salmoqli qatlamini ta'lim jarayoniga qamrab oladi. Davlat maktablarida qo'shimcha to'garaklar, sport mashg'ulotlari va madaniy tadbirlar ko'proq o'tkaziladi. Bu holat o'quvchilarning har tomonlama rivojlanishiga sabab bo'ladi. O'zbekistonda 11 yillik majburiy bepul ta'lim joriy etilgan, shuning uchun mamlakatimizda savodsizlik darajasi atigi 0.02 foizni tashkil etadi.\n\n'Har kim o'z qarichi bilan oʻlchar' deganlaridek, farzandlarini qanday ta'lim muassasasida o'qitish ota-onaning oʻziga bog'liq. Moliyaviy sharoiti to'g'ri kelsa, menimcha, bola xususiy maktabda o'qigani ma'qul. Chunki pulli muassasalarda berilgan bilimga yarasha talab ham kuchli bo'ladi.\n\nXulosa qilib aytganda, mukammal ta'lim olish uchun maktabning turi emas, balki ta'lim jarayonini to'g'ri tashkil etish muhim. Xususiy maktablar esa bu borada qo'shimcha imkoniyatlar taklif qila oladi."
+    },
+    {
+        "id": 3,
+        "title": "Yutuqli o'yinlar va shoular (1-tahlil)",
+        "topic": "Ayrimlar yutuqli òyinlar va turli shoular insonlarning bir-biriga bòlgan ishonchini sòndiradi deb bilishadi, ba'zilar esa afzalliklari borligini e'tirof etishadi.",
+        "text": "Insonlar mehnat faoliyati bilan shuģullanar ekan, albatta, hordiq chiqarishga ehtiyoj sezadilar. Ba'zilar bugungi kunda ommalashishga ulgurgan yutuqli òyinlar hamda kòngilochar shoular insonlarning madaniy hordiq chiqarishlari uchun bir usul deb bilishsa, ayrimlar bu kabi sovrinli òyinlar, turli shoularni atrofdagilarga nisbatan ishonch tuyģusining yòqolishiga sabablardan biri deb kòrsatadi.\n\nBirinchi qarash tarafdorlarining fikriga kòra, vaqti-vaqti bilan shoular, yutuqli òyinlarda qatnashish insonlarning hordiq chiqarishlari uchun imkoniyatdir. Jismoniy va aqliy mehnat bilan shuģullanib, charchoqni his qilgan har qanday inson, tabiiyki, dam olishga ehtiyoj sezadi. Zangori ekran orqali namoyish etilayotgan kòngilochar dasturlar, konsertlar, shoular kòpchilikning kayfiyatiga ijobiy ta'sir kòrsatadi. Masalan, yurtdoshlarimiz orasida 'Boriga baraka', 'Omad shou' kabi yutuqli òyinlarda ishtirok etib, ularning kòpchiligi katta-katta sovrinlarning egalariga aylangan. Psixologlarning fikricha, tez-tez konsertlarga tashrif buyuruvchi, shoularga qatnashuvchi insonlar orasida asab kasalliklari va ruhiy zòriqishlar kam uchraydi.\n\nQarshi fikr tarafdorlari esa sovrinli kòrsatuvlar va shoular kundan kunga ko'payib borayotgani salbiy oqibatlarga sabab bòlishi mumkinligini e'tirof etadilar. Yutuqli òyinda ishtirok etish uchun berilgan shartlarni bajarib, yillar davomida òyinda qatnashish xabarini kutayotganlar kòpchilikni tashkil qiladi. Bu holat esa òyin tashkilotchilariga nisbatan ishonchning yòqolishiga sabab bòladi. Natijada to'xtovsiz firmaning mahsulotlarini sotib olishga to'g'ri keladi, bu esa o'z navbatida behuda xarajatdir. Shou va konsertlar tashkil etib, katta mablag'larni sarflagandan ko'ra, chekka hududlar infratuzilmasini yaxshilash, zamonaviy maktablar qurish xalq uchun manfaatliroq bo'lar edi.\n\nMening nazarimda, sovrinli òyin tashkilotchilari faoliyatini nazoratga olish, adolat mezonlarini ishlab chiqish kerak. Turli shoularni tashkil etish masalasi esa davlat byudjetidan emas, balki xususiy homiylar hisobidan bo'lishi maqsadga muvofiq.\n\nXulosa òrnida shuni aytmoqchimanki, inson har doim ham kòngil yozishga ehtiyoj sezadi. Madaniy hordiq chiqarishning qay yòlini tanlash odamning òz qòlida. Faqatgina bu borada adolat va ma'naviyat mezonlaridan uzoqlashmaslik muhimdir."
+    },
+    {
+        "id": 4,
+        "title": "Yutuqli shoular va jamiyat ishonchi (2-tahlil)",
+        "topic": "Ayrimlar turli shoular va yutuqli o’yinlar odamlarning bir-biriga bo’lgan ishonchini so’ndiradi degan fikrda, ba’zilar esa bunday ko’ngilochar o’yinlarning afzalliklari haqida gapirishadi.",
+        "text": "Turli tijoriy maqsadlarda tashkil qilinuvchi ko’ngilochar dasturlar reklama va xizmat ko’rsatish tarmog’ining asosiy bo’g’ini sifatida yangi mahsulot yoki brendni aholi orasida tanishtirish va keng targ’ib qilishda alohida ahamiyat kasb etadi. Biroq bunday shoular insonlararo munosabatlarga salbiy ta’sir qilishini ta’kidlovchi kishilar ham talaygina.\n\nDastlab ommaviy axborot vositalarining takomili sifatida vujudga kelgan yutuqli o’yinlar keyinchalik yirik kompaniyalarning samarali targ’ibot vositasiga aylandi. Kishiga yuqori kayfiyat ulashuvchi zamonaviy musiqa, ko’tarinki ruhdagi shiorlar sharoitida o’tkaziluvchi bu kabi ijtimoiy dasturlarga aholi gavjum joylarda tez-tez guvoh bo’lamiz. Zero, 'Trendymen' nashrining yozishicha, 'Alibaba' asoschisi Jek Ma bozor iqtisodiyoti sharoitida mahsulot ishlab chiqarishdan ko’ra uni sota bilish muhimligini ta’kidlagan. Shuningdek, kichik mablag’ evaziga katta mukofotga ega bo’lish kim uchundir orzu ro’yobiga aylanishi va oilaning iqtisodiy holatini yaxshilashi mumkin.\n\n'Mehnatdan kelsa boylik, turmush bo’lar chiroyli' naqliga rioya qilib, hayotda o’z mehnati bilan yashashni maqsad qilgan kishilar esa yengil yo’llar bilan topilgan boylikka qarshi. Ular inson qisqa umrini behuda havaslar yo’lida sarflamay, bilim va ko’nikmalar egallashi lozimligini ta’kidlaydilar. Birov yillab halol mehnat bilan pul jamg'arsa-yu, boshqa birov bir lahzada tasodifiy o'yin orqali yutuqqa erishsa, bu holat jamiyatdagi tenglik va ishonch tuyg'usiga putur yetkazadi.\n\nNazarimda, turmush sifatini yaxshilash uchun yutuqli o’yinlarga mukkasidan ketish ham, ularni butunlay qoralash ham to’g’ri emas. Davlat mazkur dasturlarning qonuniyligi va haqqoniyligini nazorat qila olish mexanizmini yaratishi zarur.\n\nSo’ngso’z o’rnida insonning boylik orttirishi uning ilmi va iste’dodiga bog’liq ekanligini ta’kidlash o’rinli. Peshona teri evaziga kelgan har narsada esa baraka va samara doimo mavjud bo'ladi."
+    },
+    {
+        "id": 5,
+        "title": "Chet tilini o'rganish: Madaniyatmi yoki Moddiyat?",
+        "topic": "Ayrimlar chet tilini o'rganish madaniylikning bir belgisi deb bilsalar, ba'zilar o'zga tilini bilish moddiy hayotni ta'minlaydi deydilar.",
+        "text": "Zamonaviy dunyoda chet tillarini bilish ko‘pchilik uchun katta ahamiyat kasb etadi. Ayrimlar chet tilini o‘rganishni madaniylik va o‘zini rivojlantirishning muhim belgisi deb bilsalar, boshqalar unga ko‘proq moddiy manfaatlar uchun kerakli ko‘nikma sifatida qarashadi. Har ikki yondashuvning o‘ziga xos sabablari bor.\n\nMadaniyatli inson – bu nafaqat ona tilida so‘zlashuvchi, balki boshqa tillarni ham o‘rganish orqali turli madaniyatlar va xalqlarni tushuna oladigan shaxsdir. Chet tilini bilish inson dunyoqarashini kengaytiradi, unga boshqa xalqlarning tarixi va madaniy merosi haqida chuqur ma’lumot olish imkonini beradi. Masalan, ingliz yoki fransuz tilini bilish adabiyot va san'at namunalarini asl nusxada o'qish, tushunish imkonini yaratadi. Bu esa bag'rikenglik va madaniy yuksalishga xizmat qiladi.\n\nBiroq chet tilini o‘rganishga amaliy nuqtayi nazardan qaraydiganlar ham bor. Ularning fikriga ko‘ra, chet tilini bilish moddiy hayotda muvaffaqiyatga erishishning asosiy omilidir. Xalqaro biznes, axborot texnologiyalari, turizm sohalarida chet tilini bilish insonning raqobatbardoshligini oshiradi. Ko‘p tilli mutaxassislar odatda yuqori maoshli lavozimlarda faoliyat yuritadilar. Xalqaro kompaniyalarda ishlash imkoniyatlari ham aynan til bilish darajasiga tayanadi.\n\nMenimcha, chet tilini o‘rganish har ikkala jihatdan ham g'oyat qadrlidir: u insonni ma'naviy tomondan yuksaltirsa, ikkinchi tomondan munosib moddiy turmush kechirishining vositasi bo'lib xizmat qiladi.\n\nXulosa qilib aytganda, til o‘rganish orqali inson nafaqat jahon madaniyati bilan oshno bo‘ladi, balki o‘z moddiy farovonligini mustahkamlash uchun poydevor yaratadi."
+    },
+    {
+        "id": 6,
+        "title": "Reklamaning afzalliklari va cheklovlari",
+        "topic": "Hozirgi kunda ayrim insonlar reklamalarga ma'lumot ulashishning eng samarali usuli deb qarasa, ayrimlar bu borada cheklovlar qo'yish kerak deb bilishadi.",
+        "text": "Bugungi axborotlashgan jamiyatda reklama hayotimizning ajralmas qismiga aylanib ulgurdi. Televizor, ijtimoiy tarmoqlar va ko'cha bannerlarida tinimsiz reklamalarga duch kelamiz. Ba'zilar bunga yangiliklardan xabardor qiluvchi foydali vosita deb qarasa, boshqalar ma'naviy va me'yoriy chegaralarni belgilash zarurligini ta'kidlaydilar.\n\nReklamaning eng katta afzalligi shundaki, u ishlab chiqaruvchi bilan iste'molchi o'rtasida mustahkam ko'prik vazifasini bajaradi. Yangi yaratilgan mahsulot, foydali xizmat yoki qulay imkoniyatlar haqida omma aynan reklama orqali xabardor bo'ladi. Tadbirkorlar uchun reklama bozor raqobatida o'z o'rnini topishning eng muhim qurolidir. Mahsulot qanchalik sifatli bo'lmasin, agar u keng ommaga tanishtirilmasa, unga bo'lgan talab pastligicha qolaveradi.\n\nBiroq me'yordan oshgan yoki milliy mentalitetga mos kelmaydigan reklamalar jamiyatda noqulayliklarni keltirib chiqarishi mumkin. Oila davrasida televizor ko'rayotganda ayrim shaxsiy gigiyena vositalari yoki nomaqbul sahnalarning berilishi xalqimizning andisha va ibo tushunchalariga ziddir. Bundan tashqari, sifatsiz yoki yolg'on ma'lumotlarga asoslangan reklamalar fuqarolarning aldanishiga sabab bo'ladi.\n\nO'ylashimcha, reklama foydali va zarur soha, ammo unda qat'iy davlat nazorati, etika va me'yor qoidalari o'rnatilishi lozim.\n\nXulosa qilib aytganda, reklama axborot ulashish vositasi sifatida o'z vazifasini to'g'ri bajarishi, ammo ma'naviyatimiz va iste'molchilar xavfsizligiga ziyon yetkazmasligi darkor."
+    },
+    {
+        "id": 7,
+        "title": "Ko'p farzandlilik: Taraqqiyotmi yoki mas'uliyat?",
+        "topic": "Ayrimlar koʻp farzandlilik davlat va jamiyat taraqqiyoti uchun foyda keltiradi deb bilsa, ayrimlar oilada farzand tarbiyasiga e'tibor yetarli bo'lmaydi deb hisoblashadi.",
+        "text": "Ba'zilar oilada farzandlarning ko'p bo'lishi jamiyat uchun foyda keltiradi, bu orqali davlat taraqqiy etadi deb hisoblaydilar. Ayrimlar esa farzandlar soni koʻp boʻlganda ularning har biriga yetarli e'tibor va sifatli ta'lim berish mushkul bo'lib qolishini ta'kidlaydilar.\n\nBirinchi qarash tarafdorlari ko'p farzandlilik jamiyat uchun katta demografik va iqtisodiy kuch ekanini ilgari suradilar. Aholi sonining o'sishi kelajakda mehnat resurslarining ko'payishini ta'minlaydi. Qolaversa, ko'p bolali oilalarda o'sgan farzandlarda yoshlikdanoq mehr-oqibat, baham ko'rish, jamoada yashash kabi ijtimoiy ko'nikmalar shakllanadi. 'O'nta bo'lsa o'rni boshqa' deb bejiz aytilmagan. Bugungi kunda aholisi zich va yosh bo'lgan davlatlar jahon iqtisodiyotida yetakchi o'rinlarni egallab kelmoqda.\n\nBiroq boshqa tomon vakillari farzandlar soni ortgani sari ularning ta'limi, salomatligi va tarbiyasiga yetarli vaqt ajratish qiyinlashishini ta'kidlashadi. Ota-ona moddiy ehtiyojlarni qoplash uchun kun bo'yi mehnat qilib, farzandlar ma'naviy olami bilan shug'ullanishga vaqt topa olmay qolishi mumkin. Nazoratsiz qolgan bolalar esa osonlikcha noto'g'ri yo'llarga kirib qolishi xavfi mavjud.\n\nMenimcha, ko'p farzandli bo'lish buyuk ne'mat, ammo u yuksak ota-onalik mas'uliyatini talab qiladi. Muhimi son emas, balki tarbiyaning sifati va har bir bolaning jamiyatga komil inson bo'lib yetishishidir.\n\nXulosa qilib aytganda, oilada nechta farzand bo'lishidan qat'i nazar, ularga to'g'ri tarbiya, zamonaviy ilm va chuqur mehr berish bosh maqsad bo'lishi lozim."
+    },
+    {
+        "id": 8,
+        "title": "Ko'p qavatli uylar va shaxsiy hovlilar",
+        "topic": "Ko'p qavatli uylar qurilishining avj olishi shahar arxitekturasi va dizayniga yangicha tus beradi, biroq koʻp aholi bunday uylar o'rniga xonadon yoki manzarali yer maydoni qurilishini ma'qul topadi.",
+        "text": "Bugungi kunda shaharlarda ko'p qavatli binolar qurilishi shiddat bilan davom etmoqda. Bu kabi turar-joylar yer maydonidan unumli foydalanish imkonini bersa-da, ko'plab insonlar o'z hovlisiga, yeriga ega bo'lishni ko'proq afzal ko'radilar.\n\nKo'p qavatli zamonaviy uylar cheklangan yer maydonida minglab aholini joylashtirish imkonini yaratadi. Ular zamonaviy infratuzilma — do'konlar, bolalar maydonchalari, yerosti avtoturargohlari bilan birgalikda barpo etiladi. Bu esa shahar ko'rkiga zamonaviy tus beradi va aholining kundalik turmushini osonlashtiradi. Masalan, poytaxtimizdagi yangi osmono'par majmualar shahar qiyofasini tubdan ijobiy tomonga o'zgartirdi.\n\nBiroq an'anaviy hovli-joylar ko'pchilik uchun erkinlik va xotirjamlik maskanidir. Hovlida yashovchi inson shahar shovqinidan xoli bo'ladi, o'z tomorqasida manzarali daraxtlar ekib, tabiat bilan uyg'un yashaydi. O'zbek xalqining mehmondo'stligi, qo'ni-qo'shnichilik madaniyati aynan hovli sharoitida to'liq namoyon bo'ladi. 'O'z uying — o'lan to'shaging' naqli ham aynan mana shu erkinlikni ifodalaydi.\n\nNazarimda, zamonaviy shaharsozlikda har ikki yo'nalish o'rtasida muvozanat saqlanishi kerak. Shahar markazlarida ko'p qavatli uylar qurilishi tabiiy zarurat bo'lsa, chekka hududlarda hovli-joylar va yashil maydonlar barpo etilishi lozim.\n\nXulosa qilib aytganda, tanlov har bir insonning imkoniyati va yashash tarziga bog'liq bo'lib, ikkala turdagi turar-joy ham o'zining muhim afzalliklariga ega."
+    },
+    {
+        "id": 9,
+        "title": "Kredit: Imkoniyatlar eshigimi yoki qarz yuki?",
+        "topic": "Ba'zilar kredit yillar davomida ushalmagan orzularni amalga oshirishning qulay yoʻli deb hisoblashadi, ayrimlar esa kredit ortiqcha xarajat va moliyaviy holatni qiyinlashtiradi degan fikrda.",
+        "text": "Bugungi kunda bank xizmatlari ichida kredit olish orqali turli ehtiyojlarni qondirish juda keng ommalashdi. Bir guruh kishilar kreditni uzoq kutilgan rejalarni ro'yobga chiqarish vositasi deb bilsa, boshqalar uni uzoq muddatli moliyaviy yuk deb hisoblaydi.\n\nKreditning asosiy afzalligi — katta miqdordagi mablag'ni birdaniga qo'lga kiritish imkoniyatidadir. Masalan, ipoteka krediti bo'lmaganda ko'plab yosh oilalar o'z uylariga ega bo'lish uchun o'nlab yillar kutishiga to'g'ri kelardi. Tadbirkorlar uchun esa kredit o'z biznesini kengaytirish, yangi ish o'rinlari yaratish uchun zarur omildir. Shuningdek, u odamni moliyaviy tartibga, har oy reja asosida yashashga o'rgatadi.\n\nAmmo kreditning salbiy tomonlari ham yetarlicha. Foiz stavkalari hisobiga olingan mablag'dan ancha ortiq pul qaytariladi. Kutilmagan moliyaviy inqirozlar yoki daromad manbaining yo'qolishi insonni chuqur stress va qarz botqog'iga yetaklashi mumkin. 'Qarzi borning dardi bor' deganlaridek, doimiy qarzdorlik hissi inson ruhiyatiga og'ir botadi.\n\nNazarimda, kredit olishdan avval inson o'zining moliyaviy imkoniyatlarini yetti o'lchab bir kesishi darkor. Kreditni behuda dabdaba yoki qimmatbaho buyumlar uchun emas, faqat daromad keltiruvchi loyihalar yoki zaruriy boshpana uchun olish oqlanadi.\n\nXulosa qilib aytganda, kredit aqlli foydalanilsa qulay imkoniyat, hisob-kitobsiz olinsa og'ir yukka aylanadi."
+    },
+    {
+        "id": 10,
+        "title": "OAVda jinoyatlarning yoritilishi",
+        "topic": "Bugungi kunda sodir bo'layotgan jinoyatlar OAV, internet tarmoqlari orqali ommaga taqdim etilmoqda. Oshkora ko'rsatilishi salbiymi yoki ogohlantiruvchi vositami?",
+        "text": "Ijtimoiy tarmoqlar va ommaviy axborot vositalarida huquqbuzarliklar va jinoyatlar haqidagi xabarlar ko'plab berilmoqda. Ayrimlar bunday xabarlar odamlarni vahimaga solishi va jinoyatni o'rgatishi mumkin desa, boshqalar buni ogohlikka chorlovchi vosita deb baholashadi.\n\nJinoyatlarning ochiq ko'rsatilishiga qarshi bo'lganlar bu holat yoshlar ruhiyatiga salbiy ta'sir ko'rsatishini ta'kidlashadi. Jinoyat usullarini ko'rgan ayrim shaxslar undan nusxa ko'chirishi yoki jinoyatga nisbatan befarqlik tuyg'usi paydo bo'lishi mumkin. Doimiy salbiy xabarlar jamiyatda umumiy xavfsizlikka nisbatan ishonchsizlik va hadiksirash muhitini vujudga keltiradi.\n\nBiroq mazkur xabarlarning foydali jihatlari ham mavjud. Ular aholini firibgarlik va xavf-xatarlardan ogohlantiradi, sergaklikni oshiradi. Eng muhimi, har qanday qilmish jazosiz qolmasligini ko'rsatish orqali boshqalarni jinoyat yo'lidan qaytaradi. Masalan, kiberjinoyatlar fosh etilishi ko'plab fuqarolarni o'z plastik kartalarini asrashga o'rgatmoqda.\n\nMening fikrimcha, jinoyatlarni yoritishda qonuniy me'yorlar va jurnalistik etika saqlanishi kerak. Jinoyat jarayoni emas, balki uning oqibati va muqarrar jazosi ko'rsatilsa, maqsadga muvofiq bo'ladi.\n\nXulosa qilib aytganda, ogohlik davr talabidir, ammo bu jarayon jamiyatda qo'rquv emas, hushyorlik uyg'otishi lozim."
+    },
+    {
+        "id": 11,
+        "title": "Oilaviy muammolarning ijtimoiy tarmoqlarda tarqalishi",
+        "topic": "Ayrimlar oilaviy muammolar aks etgan videolavhalarning ijtimoiy tarmoqlarda tarqalishi jamiyat ma'naviyatiga va ruhiyatiga salbiy ta'sir koʻrsatadi deb bilishsa, ayrimlar aksincha fikrda.",
+        "text": "Bugungi kunda ijtimoiy tarmoqlarda oilaviy mojarolar aks etgan videolar tez-tez uchrab turadi. Bu holat jamiyatda qizg'in bahslarga sabab bo'lmoqda. Ayrimlar bu videolarni shaxsiy daxlsizlikning buzilishi va ma'naviy inqiroz deb baholasa, boshqalar muammolarni bartaraf etish usuli sifatida ko'radi.\n\nOilaviy muammolarni omma oldiga olib chiqish xalqimizning azaliy qadriyatlariga ziddir. Oila — muqaddas go'sha, uning ichki sirlari ko'chaga chiqmasligi kerak. Bunday lavhalarning tarqalishi ayniqsa o'sha oiladagi voyaga yetmagan bolalar ruhiyatiga tuzatib bo'lmas zarar yetkazadi. Bundan tashqari, ommaning asossiz muhokamalari oilaning butunlay parokanda bo'lishiga olib kelishi mumkin.\n\nBoshqa tomondan esa, ayrim videolavhalar orqali oiladagi zo'ravonlik, tazyiq yoki nohaqlik holatlari ommaga oshkor bo'lib, huquq-tartibot organlari tomonidan tezkor chora ko'rilishiga sabab bo'ladi. Bu himoyaga muhtoj ayollar yoki bolalarning qonuniy huquqlarini himoya qilishda samarali vositaga aylanadi.\n\nFikrimcha, oilaviy nizolarni ijtimoiy tarmoqlarga layk yoki obunachi yig'ish maqsadida olib chiqish qoralanishi kerak. Huquqbuzarlik yuz berganda esa uni tarmoqqa emas, tegishli qonuniy idoralarga taqdim etish lozim.\n\nXulosa qilib aytganda, jamiyat ma'naviyatini asrash uchun oilaning daxlsizligini saqlash va muammolarni aql hamda qonun doirasida hal etish muhimdir."
+    },
+    {
+        "id": 12,
+        "title": "Bir kasb ustasi yoki ko'p qirrali mutaxassis?",
+        "topic": "Ayrimlar yaxshi yashash uchun bitta kasbning mohir ustasi bo'lish kerak deb bilishsa, ba'zilar bir necha kasbning egasi bo'lish foydaliroq deb hisoblashadi.",
+        "text": "Muvaffaqiyatli hayot kechirish uchun qanday kasbiy yo'lni tanlash kerakligi doimo dolzarb masalalardan biri bo'lib kelgan. Bir guruh kishilar bitta sohani chuqur o'rganishni ma'qul ko'rsa, boshqalar zamon talabiga ko'ra ko'p sohalarni egallash zarurligini ta'kidlaydi.\n\nBitta sohaning yetuk mutaxassisi bo'lish insonga o'z yo'nalishida tengsiz obro' va barqarorlik olib keladi. Chuqur bilim va uzoq yillik amaliyot insonni professional cho'qqiga yetaklaydi. Masalan, mohir jarroh yoki tajribali muhandis doimo eng yuqori qadrlanadigan mutaxassis hisoblanadi. Vaqt va kuchni bitta yo'nalishga qaratish eng yuksak natijalarni kafolatlaydi.\n\nAmmo bugungi tezkor zamonda ko'p sohadan xabardor bo'lish ham katta ustunlik beradi. Texnologiyalar tez almashayotgan davrda bir sohadagi inqiroz paytida boshqa sohadan daromad topish imkoniyati paydo bo'ladi. Masalan, ham dasturlashni, ham marketingni bilgan inson o'z loyihalarini osonlikcha muvaffaqiyatga erishtira oladi.\n\nNazarimda, inson avval bitta kasbning haqiqiy ustasi bo'lishi, so'ngra unga yondosh sohalarni o'rganib, o'z bilim doirasini kengaytirishi eng to'g'ri strategiyadir.\n\nXulosa qilib aytganda, har ikki yo'nalishning ham o'z afzalliklari bor, asosiysi — tanlangan yo'lda doimiy izlanish va o'sishda davom etishdir."
+    },
+    {
+        "id": 13,
+        "title": "Sun'iy intellektning ijobiy va salbiy tomonlari",
+        "topic": "XXI asr texnologiyasi bo'lmish sun'iy intellektning insoniyat hayotiga ta'siri: yutuqlar va xavflar.",
+        "text": "XXI asrga kelib texnika, texnologiya rivojida ulkan natijalarga erishildi. Shulardan biri sun'iy intellekt hisoblanadi. Insoniyat turmush tarziga sun'iy intellekt ijobiy ta'sir koʻrsatmoqdami yoki salbiy? Quyidagi esseda shu haqida fikr yuritamiz.\n\nSun'iy intellekt avvalo ish unumdorligini mislsiz darajada oshirmoqda. Xalqaro hisobotlarga ko'ra, sun'iy intellekt yordamida ma'lumotlarni tahlil qilish va murakkab operatsiyalarni bajarish jarayoni bir necha barobar tezlashdi. Tibbiyotda kasalliklarni erta aniqlash, ta'limda individual yondashuv yaratish kabi xayrli ishlarda sun'iy intellekt bebaho yordamchiga aylanmoqda.\n\nBiroq uning salbiy jihatlari ham jiddiy xavotirlarga sabab bo'lmoqda. Eng asosiy muammo — avtomatlashtirish oqibatida ko'plab an'anaviy kasblarning yo'qolib ketishi va ishsizlik xavfidir. Shuningdek, insonlarda intellektual dangasalik va texnologiyalarga haddan ziyod tobelik paydo bo'lishi mumkin.\n\nFikrimcha, sun'iy intellekt inson o'rnini to'liq egallay olmaydi, agar biz uni to'g'ri boshqarsak, u insoniyatning eng yaxshi yordamchisiga aylanadi. Mehnat bozorida esa inson ijodkorligi va his-tuyg'ularini talab qiladigan sohalar o'z qadrini yo'qotmaydi.\n\nXulosa qilib aytganda, sun'iy intellekt rivojidan qo'rqmaslik, aksincha, undan o'z maqsadlarimiz yo'lida oqilona foydalanishni o'rganishimiz kerak."
+    },
+    {
+        "id": 14,
+        "title": "Plastik qadoqdagi suv yoki vodoprovod suvi (1-qarash)",
+        "topic": "Plastik qadoqdagi suv yoki vodoprovod suvi: qulaylik va ekologiya to'qnashuvi.",
+        "text": "Suv insoniyatning yashashi va har tomonlama rivojlanishi uchun zarur hayot manbayidir. Bugungi kunda iste'molchilar oldida ikki xil tanlov bor: qadoqlangan toza suv yoki an'anaviy vodoprovod suvi. Har ikki variantning o'ziga yarasha sabablari mavjud.\n\nPlastik idishdagi suvlar chuqur filtrlash jarayonidan o'tib, iste'molga qulay holatda yetkaziladi. Ularni istalgan joyda yonimizda olib yurish mumkin va sifati kafolatlangan bo'ladi. Biroq bu qulaylikning eng katta zarari — ekologiyadir. Dunyo bo'ylab millionlab tonna plastik chiqindilar tabiatni ifloslantirmoqda va ularning chirishi uchun yuzlab yillar talab etiladi.\n\nVodoprovod suvi esa doimiy mavjudligi va arzonligi bilan ajralib turadi. U qo'shimcha plastik idishlarni talab qilmaydi, ekologiyaga ziyon keltirmaydi. Ammo ayrim hududlarda quvurlarning eskirganligi sababli suv sifati ichish uchun to'liq yaroqli bo'lmasligi mumkin.\n\nFikrimcha, kundalik ehtiyojlar uchun filtrlar o'rnatilgan vodoprovod suvidan foydalanish, zarurat bo'lgandagina qayta ishlanadigan qadoqlardagi suvni xarid qilish eng maqbul yo'ldir.\n\nXulosa qilib aytganda, har ikki suv manbayidan oqilona foydalanish va eng asosiysi, har tomchi toza suvni tejash bugunning kechiktirib bo'lmas talabidir."
+    },
+    {
+        "id": 15,
+        "title": "Plastik qadoqdagi suv yoki vodoprovod suvi (2-qarash)",
+        "topic": "Plastik qadoqdagi suv yoki vodoprovod suvi: inson salomatligi va xavfsizlik.",
+        "text": "Hozirgi kunda toza ichimlik suvi iste'moli masalasi salomatlikning eng muhim omillaridan biri hisoblanadi. Ba'zilar plastik qadoqdagi suvni eng xavfsiz yo'l deb bilsa, boshqalar vodoprovod yoki tabiiy quduq suvini afzal bilishadi.\n\nQadoqlangan suv tarafdorlari uning gigiyenik tozaligini yuqori baholaydilar. Zamonaviy korxonalarda suv maxsus minerallar bilan boyitiladi va tekshiruvdan o'tkaziladi. Ayniqsa sayohatlarda yoki yot joylarda qadoqlangan suv yuqumli oshqozon-ichak kasalliklaridan himoyalanishning yagona kafolatidir.\n\nBiroq vodoprovod suvi iqtisodiy jihatdan hamyonbop va qulay manbadir. Doimiy ravishda qadoqlangan suv sotib olish oilaviy byudjetga jiddiy yuk bo'ladi. Shuningdek, xonadonlarga zamonaviy maishiy filtrlar o'rnatish orqali vodoprovod suvini ham mukammal tozalash va xavfsiz iste'mol qilish mumkin.\n\nO'ylashimcha, inson o'z sharoitidan kelib chiqib qaror qabul qilishi kerak. Asosiy maqsad — tanaga zarar keltirmaydigan toza suvni iste'mol qilishdir.\n\nXulosa qilib aytganda, qaysi manba tanlanishidan qat'i nazar, toza ichimlik suvi har bir inson salomatligining garovidir."
+    },
+    {
+        "id": 16,
+        "title": "Ta'limda milliy an'analar va chet el tajribasi",
+        "topic": "O‘qitishda milliy unsurlarni yanada rivojlantirish muhimmi yoki chet el tajribasini qo‘llashmi?",
+        "text": "Ta'lim samaradorligini oshirish bugungi kunda davlat siyosatining eng muhim yo'nalishlaridan biriga aylangan. Kelajak avlodni tarbiyalashda milliy qadriyatlarga tayanish kerakmi yoki jahon tajribasidan andoza olish zarurmi? Bu savolga ko'plab pedagoglar turlicha javob beradilar.\n\nMilliy an'analarga asoslangan ta'lim o'quvchida o'zlikni anglash, ajdodlar merosiga hurmat va vatanparvarlik tuyg'ularini shakllantiradi. Jadid ma'rifatparvarlari, xususan, Abdulla Avloniy va Mahmudxo'ja Behbudiy ta'limni milliy ruh bilan uyg'unlashtirish orqali buyuk natijalarga erishish mumkinligini isbotlab bergan edilar.\n\nBoshqa tomondan esa, zamonaviy dunyoda xorij tajribasini o'rganmasdan turib raqobatbardosh bo'lish mushkul. Finlyandiya yoki Singapur kabi davlatlarning ilg'or pedagogik metodlari bolalarni mustaqil fikrlashga, amaliy ko'nikmalarni egallashga o'rgatadi. Ushbu metodlarni amaliyotga tatbiq etish o'quvchilarning xalqaro standartlarga moslashishiga yordam beradi.\n\nMening fikrimcha, bu ikki yo'nalish bir-biriga zid emas, aksincha, bir-birini to'ldiruvchidir. Milliy tarbiya asosida xalqaro ta'lim texnologiyalarini qo'llash eng mukammal natijani beradi.\n\nXulosa qilib aytganda, tomiri milliy qadriyatlarda, shoxlari esa zamonaviy jahon ilmida bo'lgan ta'lim tizimigina yorqin kelajakni ta'minlay oladi."
+    },
+    {
+        "id": 17,
+        "title": "To'ylar: An'anaviylik va Zamonaviylik",
+        "topic": "Anʼanaviy to'ylar xorijiy to'ylar kabi ixcham va zamonaviy tarzda o'tkazilishiga munosabat.",
+        "text": "Toʻy — har bir inson hayotidagi eng quvonchli va esda qolarli voqelikdir. Bizning xalqimizda to'ylar asrlar davomida shakllangan o'ziga xos urf-odatlar bilan o'tkaziladi. Ammo bugungi kunda xorijiy mamlakatlardagidek ixcham va zamonaviy to'ylar tarafdorlari ham ko'paymoqda.\n\nAn'anaviy o'zbek to'ylari mehmondo'stlik, mehr-oqibat va qon-qarindoshlik rishtalarini mustahkamlaydi. 'Kelin salom', 'nahor oshi' kabi marosimlar o'zligimizni asraydi va milliy madaniyatimizning rang-barangligini ko'rsatadi.\n\nAmmo to'ylarning haddan ziyod dabdabali bo'lishi va isrofgarchilikka yo'l qo'yilishi ko'plab oilalarning moliyaviy qiyinchilikka uchrashiga sabab bo'lmoqda. Yevropa yoki Amerika mamlakatlaridagi kabi faqat yaqinlar davrasida, ixcham va samimiy to'y qilish ortiqcha sarf-xarajatlarning oldini oladi va yoshlarning kelajak hayotiga yaxshiroq poydevor yaratadi.\n\nFikrimcha, an'analardan voz kechmasdan, lekin dabdababozlik va ko'z-ko'z qilishdan butunlay xalos bo'lishimiz kerak. 'Behuda chiranish belni chiqaradi' deganidek, to'yni imkoniyat doirasida o'tkazish eng to'g'ri qarordir.\n\nXulosa qilib aytganda, to'yning asosiy mazmuni uning dabdabasida emas, balki ikki yoshning baxti va ezgu tilaklardadir."
+    },
+    {
+        "id": 18,
+        "title": "Audio kitoblar va Bosma nashrlar",
+        "topic": "Zamonaviy kitobxonlar audio kitoblarning afzalligini ta'kidlashmoqda, ammo ba'zilar bu fikrga qarshi.",
+        "text": "Texnologiya rivoji mutolaa madaniyatiga ham yangiliklar kiritdi. Bugungi kunda an'anaviy kitoblar bilan bir qatorda audio kitoblar ham keng ommalashmoqda. Bu borada kitobxonlar o'rtasida turli qarashlar mavjud.\n\nAudio kitoblarning eng katta qulayligi — vaqtdan unumli foydalanish imkoniyatidir. Yo'lda ketayotganda, sport bilan shug'ullanayotganda yoki uy yumushlarini bajarayotganda kitob tinglash mumkin. Professional aktyorlar tomonidan o'qilgan asarlar tinglovchiga o'zgacha hissiy zavq bag'ishlaydi.\n\nBiroq qog'oz kitoblarning ham o'ziga xos o'rni bor. Bosma kitobni o'qish jarayonida inson butun diqqatini jamlaydi, matnni ko'z bilan ko'rib, chuqur mulohaza yuritadi. Mutaxassislarning fikricha, vizual o'qish orqali olingan bilim xotirada uzoqroq va mustahkamroq saqlanadi.\n\nMenimcha, audio kitoblar va bosma kitoblar bir-birining o'rnini bosmaydi, balki to'ldiradi. Har bir kishi o'zining vaqti va sharoitidan kelib chiqib, qulay shaklni tanlashi mumkin.\n\nXulosa qilib aytganda, eng muhimi qanday shaklda bo'lmasin, kitob o'qish va ma'naviy dunyoni boyitishdan to'xtamaslikdir."
+    },
+    {
+        "id": 19,
+        "title": "Tarbiyada erkinlik: Chegara va me'yor",
+        "topic": "Psixologlar tarbiyada erkinlik muhimligini taʼkidlashmoqda, ammo ba'zilar erkinlik salbiy oqibatlarga olib keladi degan fikrda.",
+        "text": "Farzand tarbiyasi insoniyatning barcha davrlaridagi eng mas'uliyatli vazifasi bo'lib kelgan. Zamonaviy psixologiyada bolaga ko'proq erkinlik berish g'oyasi ilgari surilayotgan bo'lsa-da, an'anaviy tarbiya tarafdorlari haddan ziyod erkinlikning salbiy oqibatlaridan ogohlantiradilar.\n\nErkin muhitda o'sgan bola mustaqil fikrlay oladigan, ijodkor va o'z fikrini erkin ifoda eta oladigan shaxs bo'lib shakllanadi. Masaru Ibukaning 'Uchdan keyin kech' asarida ham mehr va do'stona muhitda ulg'aygan bolalarning jamiyatda muvaffaqiyatliroq bo'lishi ta'kidlanadi.\n\nAmmo me'yorsiz erkinlik bolaning o'zboshimcha, kattalarni hurmat qilmaydigan va mas'uliyatsiz bo'lib qolishiga olib kelishi mumkin. Farzand hali oq-qorani to'liq ajrata olmagan paytda ota-onaning oqilona nazorati va ko'rsatmalari nihoyatda zarurdir.\n\nFikrimcha, tarbiyada oltin o'rtalikni topish lozim: bolaga o'z qobiliyatlarini namoyon qilish uchun erkinlik, ammo jamiyatda to'g'ri yashashi uchun odob va me'yor chegaralarini singdirish shart.\n\nXulosa qilib aytganda, mehr, erkinlik va intizom uyg'unlashgan tarbiyagina komil insonni voyaga yetkazadi."
+    },
+    {
+        "id": 20,
+        "title": "Inson faoliyati va Sayyoramiz taqdiri",
+        "topic": "Ba'zilar inson faoliyati tufayli yer shari zararlanib borayotganini ta'kidlashmoqda, ayrimlar esa uni yashash uchun yaxshiroq joyga aylantiradi deb o'ylaydi.",
+        "text": "Texnika va texnologiya rivojlangan XXI asrda inson faoliyatining tabiatga ta'siri global miqyosda eng ko'p muhokama qilinayotgan mavzudir. Bir tomondan tsivilizatsiya hayotimizni osonlashtirayotgan bo'lsa, ikkinchi tomondan ona tabiatga jiddiy ziyon yetkazmoqda.\n\nSanoat korxonalari, transport vositalaridan chiqayotgan chiqindilar va o'rmonlarning kesilishi iqlim o'zgarishiga, havoning ifloslanishiga va biologik xilma-xillikning kamayishiga sabab bo'lmoqda. Inson o'z qulayligi uchun tabiat resurslarini ayovsiz sarflamoqda.\n\nBiroq inson aqli va innovatsiyalari tabiatni asrashga ham xizmat qilmoqda. Yashil energetika, quyosh va shamol stansiyalari, chiqindilarni qayta ishlash texnologiyalari orqali zararni kamaytirish mumkin. Yurtimizda amalga oshirilayotgan 'Yashil makon' kabi umummilliy loyihalar ham inson tabiatni yashartira olishining yorqin isbotidir.\n\nMenimcha, inson o'z faoliyatida tabiat bilan hamohang yashashni o'rganishi kerak. Taraqqiyot tabiat hisobiga emas, uni asrash evaziga bo'lishi lozim.\n\nXulosa qilib aytganda, Yer shari — barchamizning yagona umumiy uyimiz, uni asrab-avaylash har birimizning insoniy burchimizdir."
+    }
+]
 
 def get_next_quiz_number(quiz_type):
     counters = load_data(COUNTERS_FILE)
@@ -502,16 +649,16 @@ def send_section_card(chat_id, group_name):
         img = BANNER_IMAGES["abituriyent"]
         caption = (
             "╭──── 🎒 **ABITURIYENT VA SERTIFIKAT MARKAZI** ────╮\n\n"
-            "▫️ Milliy sertifikat 50 ballik esse tahlili va mezonlari\n"
+            "▫️ **Milliy sertifikat esselari:** Tekshiruv, 19+ mavzular banki, namunalar\n"
             "▫️ O'TIL izohli lug'ati, rasmiy imlo va orfoepiya qoidalari\n"
             "▫️ **BMB 30 talik Test:** Davlat imtihoni standarti (30 soniya)\n"
-            "▫️ **Mavzuli BMB Test:** Mukammal katalog yoki erkin mavzu tanlovi\n\n"
+            "▫️ **Mavzuli BMB Test:** 5-11-sinf darsliklari katalogi va erkin mavzu\n\n"
             "👇 *Kerakli tayyorgarlik bo'limini tanlang:* \n"
             "╰─────────────────────────────────────────────╯"
         )
         markup = tele_types.InlineKeyboardMarkup(row_width=1)
         markup.add(
-            tele_types.InlineKeyboardButton(text="📝 Esse tekshiruvi (50 ballik)", callback_data="btn_esse"),
+            tele_types.InlineKeyboardButton(text="🎯 Milliy sertifikat esselari", callback_data="hub_milliy_sertifikat"),
             tele_types.InlineKeyboardButton(text="📖 So'z izohi (O'TIL) & Imlo", callback_data="btn_izoh"),
             tele_types.InlineKeyboardButton(text="🧠 BMB Umumiy 30 talik Test (№)", callback_data="btn_bmb_gen"),
             tele_types.InlineKeyboardButton(text="📚 Mavzulashtirilgan BMB Test (30 ta)", callback_data="btn_bmb_themed_hub"),
@@ -538,6 +685,102 @@ def send_section_card(chat_id, group_name):
             tele_types.InlineKeyboardButton(text="📄 Konferensiya Tezisi Loyihasi", callback_data="btn_tezis")
         )
         bot.send_photo(chat_id, img, caption=caption, parse_mode="Markdown", reply_markup=markup)
+
+# --- YANGILANGAN: MILLIY SERTIFIKAT MARKAZI MENYUSI ---
+def send_cert_essay_hub(chat_id):
+    caption = (
+        "╭── 🎯 **MILLIY SERTIFIKAT ESSELARI MARKAZI** ──╮\n\n"
+        "Ona tili va adabiyot fanidan Milliy sertifikat 50 ballik esse talablari "
+        "va baholash mezonlari asosidagi maxsus bo'lim:\n\n"
+        "▫️ **Esse tekshiruvi (50 ballik):** Yozgan matningizni mezonlar bo'yicha ekspert tahlil qildiring;\n"
+        "▫️ **Esse mavzulari:** 19 ta rasmiy mavzular banki va yangi AI mavzular tavsiyasi;\n"
+        "▫️ **Namunaviy esselar:** 20 ta to'liq tayyorlangan namunalar kutubxonasi va AI generatsiyasi.\n\n"
+        "👇 *Kerakli xizmatni tanlang:* \n"
+        "╰──────────────────────────────────────────────╯"
+    )
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        tele_types.InlineKeyboardButton(text="✍️ Esse tekshiruvi (50 ballik mezon)", callback_data="btn_esse"),
+        tele_types.InlineKeyboardButton(text="💡 Esse mavzulari (Bank & AI)", callback_data="cert_topics_hub"),
+        tele_types.InlineKeyboardButton(text="📚 Namunaviy esselar (20 ta namuna & AI)", callback_data="cert_samples_hub_0"),
+        tele_types.InlineKeyboardButton(text="🔙 Abituriyent bo'limiga qaytish", callback_data="back_to_abituriyent")
+    )
+    bot.send_message(chat_id, caption, parse_mode="Markdown", reply_markup=markup)
+
+# --- ESSE MAVZULARI MARKAZI ---
+def send_cert_topics_hub(chat_id):
+    caption = (
+        "╭── 💡 **MILLIY SERTIFIKAT ESSE MAVZULARI** ──╮\n\n"
+        "Quyida Milliy sertifikat imtihonlarida tushadigan asosiy yo'nalishlar "
+        "bo'yicha tayyor mavzular banki keltirilgan. Shuningdek, yangi original mavzu "
+        "olish imkoniyati mavjud:\n\n"
+        "👇 *Tanlang:* \n"
+        "╰────────────────────────────────────────────╯"
+    )
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        tele_types.InlineKeyboardButton(text="📋 19 ta tayyor mavzular banki", callback_data="view_all_cert_topics"),
+        tele_types.InlineKeyboardButton(text="✨ Yangi ishonchli mavzular taklifi (AI)", callback_data="generate_new_topics"),
+        tele_types.InlineKeyboardButton(text="🔙 Milliy sertifikat markaziga qaytish", callback_data="hub_milliy_sertifikat")
+    )
+    bot.send_message(chat_id, caption, parse_mode="Markdown", reply_markup=markup)
+
+# --- TAYYOR 19 TA MAVZUNI CHIQARISH ---
+def show_all_cert_topics(chat_id):
+    text = "╭── 📋 **19 TA RASMIY ESSE MAVZULARI BANKI** ──╮\n\n"
+    for idx, top in enumerate(CERT_ESSAY_TOPICS, 1):
+        text += f"**{idx}.** {top}\n\n"
+    text += "╰──────────────────────────────────────────╯"
+    
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        tele_types.InlineKeyboardButton(text="✨ AI orqali yangi mavzu topish", callback_data="generate_new_topics"),
+        tele_types.InlineKeyboardButton(text="🔙 Mavzular bo'limiga qaytish", callback_data="cert_topics_hub")
+    )
+    bot.send_message(chat_id, text, parse_mode="Markdown", reply_markup=markup)
+
+# --- NAMUNAVIY ESSELAR RO'YXATI (PAGINATSIYA BILAN) ---
+def send_cert_samples_page(chat_id, message_id=None, page=0):
+    per_page = 5
+    total = len(SAMPLE_ESSAYS)
+    total_pages = (total + per_page - 1) // per_page
+    start = page * per_page
+    end = min(start + per_page, total)
+
+    text = (
+        f"╭── 📚 **NAMUNAVIY ESSELAR KUTUBXONASI** ──╮\n\n"
+        f"Ushbu bo'limda Milliy sertifikat baholash mezonlariga to'liq mos keluvchi "
+        f"tayyor namunalar joylashtirilgan.\n"
+        f"📄 *Sahifa: {page + 1}/{total_pages} (Jami 20 ta namuna)*\n\n"
+        "O'qimoqchi bo'lgan essengizni tanlang yoki sun'iy intellektdan "
+        "yangi mavzuda namunaviy esse yozib berishini so'rang:\n"
+        "╰──────────────────────────────────────────╯"
+    )
+
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    for essay in SAMPLE_ESSAYS[start:end]:
+        markup.add(tele_types.InlineKeyboardButton(text=f"📖 {essay['id']}. {essay['title']}", callback_data=f"read_essay_{essay['id']}"))
+
+    nav_row = []
+    if page > 0:
+        nav_row.append(tele_types.InlineKeyboardButton(text="⬅️ Oldingi", callback_data=f"cert_samples_hub_{page - 1}"))
+    if page + 1 < total_pages:
+        nav_row.append(tele_types.InlineKeyboardButton(text="Keyingi ➡️", callback_data=f"cert_samples_hub_{page + 1}"))
+    if nav_row:
+        markup.row(*nav_row)
+
+    markup.add(
+        tele_types.InlineKeyboardButton(text="✍️ Yangi mavzuda AI Namunaviy Esse tuzish", callback_data="ai_write_sample_essay"),
+        tele_types.InlineKeyboardButton(text="🔙 Milliy sertifikat markaziga qaytish", callback_data="hub_milliy_sertifikat")
+    )
+
+    if message_id:
+        try:
+            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=text, parse_mode="Markdown", reply_markup=markup)
+        except Exception:
+            bot.send_message(chat_id, text, parse_mode="Markdown", reply_markup=markup)
+    else:
+        bot.send_message(chat_id, text, parse_mode="Markdown", reply_markup=markup)
 
 # --- SHAXSIY KABINETNI KO'RSATISH ---
 def show_user_profile(chat_id, user):
@@ -622,7 +865,7 @@ def dynamic_ai_delivery(chat_id, prompt_text, user_id, category_tag):
         bot.edit_message_text(
             chat_id=chat_id,
             message_id=status_msg.message_id,
-            text="🔍 *DTS va OAK mezonlari bo'yicha qoliplashmoqda...*",
+            text="🔍 *DTS, OAK va Milliy sertifikat mezonlari bo'yicha qoliplashmoqda...*",
             parse_mode="Markdown"
         )
     except Exception:
@@ -732,7 +975,10 @@ def send_subscription_prompt(chat_id):
 # --- GEMINI SISTEMA KO'RSATMASI ---
 SYSTEM_INSTRUCTION = (
     "Siz O'zbekiston Respublikasi OAK eksperti, filolog-matnshunos olim va BMB (DTM) "
-    "hamda umumta'lim maktablari bo'yicha oliy toifali bosh metodistsiz.\n\n"
+    "hamda umumta'lim maktablari bo'yicha oliy toifali bosh metodistsiz. "
+    "Shuningdek, Ona tili va adabiyot fani bo'yicha Milliy sertifikat esselarini baholash (50 ballik mezon: "
+    "mavzuning ochilishi, reja va mantiqiylik, asoslash va dalillar, nutqiy ravonlik, orfografiya va punktuatsiya) "
+    "bo'yicha bosh tekshiruvchisiz.\n\n"
     "QAT'IY TALAB (MAQOLA VA TEZIS BO'YICHA):\n"
     "Foydalanuvchiga HECH QACHON TAYYOR MATN YOZMANG! Faqat mustaqil yozishi uchun: "
     "puxta ilmiy reja, ilmiy apparat, metodologiya va adabiyotlar yo'nalishini bering.\n\n"
@@ -755,7 +1001,7 @@ def generate_ai_content(prompt_text):
         "Talablar: Telegram Markdown formatida, ko'rkam sarlavhalar va ilmiy uslubda bo'lsin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    models = ["gemini-3.6-flash"]
+    models = ["gemini-2.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -784,7 +1030,7 @@ def generate_ai_content(prompt_text):
 
 # --- QUIZ TEST BATCH GENERATORI ---
 def generate_quiz_batch(prompt_spec, count=30):
-    models = ["gemini-3.6-flash"]
+    models = ["gemini-2.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -1024,7 +1270,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         )
         bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown", reply_markup=markup)
 
-# --- 3 KISHI «TAYYORMAN» TIZIMI (FAQAT GURUH VA KANAL BELLASHUVLARI UCHUN) ---
+# --- 3 KISHI «TAYYORMAN» TIZIMI (GURUHLAR UCHUN) ---
 def setup_match_lobby(chat_id, questions, duration_per_q, title):
     match_id = f"m_{int(time.time())}_{random.randint(100, 999)}"
     READY_MATCHES[match_id] = {
@@ -1172,7 +1418,6 @@ def callback_quiz_routing(call):
         except Exception:
             pass
 
-        # INDIVIDUAL HOLATDA HECH QANDAY KUTISHLARSIZ DARHOL BOSHLANADI
         threading.Thread(
             target=run_interactive_quiz_loop,
             args=(call.message.chat.id, q_data["questions"], q_data["duration"], q_data["title"]),
@@ -1193,7 +1438,7 @@ def callback_quiz_routing(call):
         )
         bot.send_message(call.message.chat.id, info_text, parse_mode="Markdown")
 
-# --- GURUHDAN /quiz_start BUYRUG'I BERILGANDA (3 KISHILIK SHART BILAN) ---
+# --- GURUHDAN /quiz_start BUYRUG'I ---
 @bot.message_handler(commands=['quiz_start'])
 def cmd_quiz_start_group(message):
     chat_type = message.chat.type
@@ -1213,7 +1458,7 @@ def cmd_quiz_start_group(message):
     else:
         bot.reply_to(message, "Ushbu buyruq faqat Telegram guruhlarida ishlaydi. Botda individual ishlash uchun menyudan foydalaning.")
 
-# --- ADMIN KANALGA YUBORISH / BEKOR QILISH HANDLERI ---
+# --- ADMIN KANALGA YUBORISH HANDLERI ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith(("send_chan_", "cancel_")))
 def callback_admin_approval(call):
     if int(call.from_user.id) != int(ADMIN_ID):
@@ -1251,14 +1496,14 @@ def callback_admin_approval(call):
         except Exception:
             pass
 
-# --- ADMIN: KUN HIKMATI VA MOTIVATSIYA GENERATSIYASI ---
+# --- ADMIN: KUN HIKMATI VA MOTIVATSIYA ---
 def get_verified_didactic_content(content_type="hikmat"):
     chosen_epoch = random.choice(HISTORICAL_EPOCHS)
     seed = random.randint(1000, 99999)
 
     if content_type == "hikmat":
         prompt = (
-            f"Siz o'zbek adabiyoti tarixi va manbashunoslik bo'yicha yuksak eksiz.\n"
+            f"Siz o'zbek adabiyoti tarixi va manbashunoslik bo'yicha yuksak mutaxassissiz.\n"
             f"Aynan quyidagi adabiy-tarixiy davrga mansub durdona asarlardan 1 ta didaktik hikmatni keltiring:\n"
             f"🏛 **Davr:** {chosen_epoch['epoch']}\n"
             f"📜 **Tavsiya etiladigan manbalar:** {chosen_epoch['sources']}\n"
@@ -1290,7 +1535,7 @@ def get_verified_didactic_content(content_type="hikmat"):
         )
 
     response = ai_client.models.generate_content(
-        model="gemini-3.6-flash",
+        model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -1324,14 +1569,104 @@ def callback_publish_quote(call):
     except Exception as e:
         bot.answer_callback_query(call.id, f"Xatolik: {e}", show_alert=True)
 
-# --- INLINE KNOPKALARNING HANDLERLARI ---
-@bot.callback_query_handler(func=lambda call: call.data.startswith(("btn_", "theme_", "seltheme_")))
+# --- INLINE KNOPKALARNING BARCHA ASOSIY VA MILLIY SERTIFIKAT HANDLERLARI ---
+@bot.callback_query_handler(func=lambda call: call.data.startswith((
+    "btn_", "theme_", "seltheme_", "hub_milliy_sertifikat", "cert_topics_hub", 
+    "view_all_cert_topics", "generate_new_topics", "cert_samples_hub_", 
+    "read_essay_", "ai_write_sample_essay", "back_to_abituriyent"
+)))
 def callback_button_actions(call):
     cid = call.message.chat.id
     uid = call.from_user.id
     data = call.data
 
-    if data == "btn_bmb_themed_hub":
+    if data == "back_to_abituriyent":
+        try:
+            bot.delete_message(cid, call.message.message_id)
+        except Exception:
+            pass
+        send_section_card(cid, "abituriyent")
+
+    elif data == "hub_milliy_sertifikat":
+        send_cert_essay_hub(cid)
+
+    elif data == "cert_topics_hub":
+        send_cert_topics_hub(cid)
+
+    elif data == "view_all_cert_topics":
+        show_all_cert_topics(cid)
+
+    elif data == "generate_new_topics":
+        p = (
+            "O'zbekiston Respublikasi Ona tili va adabiyot fanidan Milliy sertifikat "
+            "imtihonlari standarti asosida abituriyentlar uchun dolzarb, falsafiy, muammoli "
+            "va 100% ishonchli manbalarga tayanadigan 5 ta ORIGINAL ESSE MAVZUSINI tuzib bering. "
+            "Har bir mavzuning ikkala qarama-qarshi nuqtayi nazari aniq ifodalansin."
+        )
+        dynamic_ai_delivery(cid, p, uid, "yangi_esse_mavzulari")
+
+    elif data.startswith("cert_samples_hub_"):
+        page = int(data.replace("cert_samples_hub_", ""))
+        send_cert_samples_page(cid, message_id=call.message.message_id, page=page)
+
+    elif data.startswith("read_essay_"):
+        e_id = int(data.replace("read_essay_", ""))
+        found = next((item for item in SAMPLE_ESSAYS if item["id"] == e_id), None)
+        if found:
+            text = (
+                f"╭── 📝 **NAMUNAVIY ESSE #{found['id']}** ──╮\n\n"
+                f"📌 **Mavzu:** *{found['topic']}*\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                f"{found['text']}\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                f"🏆 **Baholash:** 50/50 ballik Milliy sertifikat standarti\n"
+                f"╰──────────────────────────────────╯"
+            )
+            markup = tele_types.InlineKeyboardMarkup(row_width=1)
+            markup.add(
+                tele_types.InlineKeyboardButton(text="🔙 Namunalar ro'yxatiga qaytish", callback_data="cert_samples_hub_0"),
+                tele_types.InlineKeyboardButton(text="🎯 Milliy sertifikat markaziga qaytish", callback_data="hub_milliy_sertifikat")
+            )
+            bot.send_message(cid, text, parse_mode="Markdown", reply_markup=markup)
+        else:
+            bot.answer_callback_query(call.id, "Esse topilmadi!", show_alert=True)
+
+    elif data == "ai_write_sample_essay":
+        msg = bot.send_message(
+            cid, 
+            "✍️ **Qaysi mavzuda 50 ballik namunaviy esse yozib beraylik?**\n\n"
+            "Mavzuni to'liq yozib yuboring (Masalan: *'Ta'limda kitob o'qish muhimmi yoki amaliyotmi?'*):", 
+            parse_mode="Markdown"
+        )
+        def process_sample_writing(m):
+            t_input = m.text.strip()
+            p = (
+                f"Ona tili va adabiyoti fanidan Milliy sertifikatning 50 ballik qat'iy mezonlari "
+                f"(Kirish, asosiy qismda har ikki qarash tahlili, asosli dalil va iqtiboslar, "
+                f"shaxsiy munosabat hamda ravon xulosa) asosida quyidagi mavzuda 100% ISHONCHLI, "
+                f"MUKAMMAL VA AKADEMIK NAMUNAVIY ESSE yozing:\n\n"
+                f"Mavzu: '{t_input}'"
+            )
+            dynamic_ai_delivery(cid, p, uid, "namunaviy_esse")
+        bot.register_next_step_handler(msg, process_sample_writing)
+
+    elif data == "btn_esse":
+        msg = bot.send_message(
+            cid, 
+            "📝 **Milliy sertifikat esse tekshiruvi (50 ballik):**\n\n"
+            "Esse mavzusi va o'zingiz yozgan matnni to'liq yuboring. AI ekspertimiz uni quyidagi 5 ta mezon "
+            "bo'yicha batafsil tekshirib, ball qo'yadi va xatolaringizni ko'rsatadi:\n"
+            "1. Mavzuning ochilishi va mantiqiylik (10 ball)\n"
+            "2. Fikrlarni dalillash va misollar (10 ball)\n"
+            "3. Esse tuzilishi va kompozitsiyasi (10 ball)\n"
+            "4. Nutqiy ravonlik va boy so'z boyligi (10 ball)\n"
+            "5. Imlo, punktuatsiya va grammatika (10 ball)", 
+            parse_mode="Markdown"
+        )
+        p = "Ushbu esse matnini Milliy sertifikatning rasmiy 50 ballik mezoni bo'yicha qat'iy tekshiring, har bir mezon bo'yicha ball ajratib, kuchli va zaif jihatlarini ko'rsating: '{input}'"
+        bot.register_next_step_handler(msg, lambda m: dynamic_ai_delivery(cid, p.format(input=m.text), uid, "esse"))
+
+    elif data == "btn_bmb_themed_hub":
         send_themed_test_hub(cid)
 
     elif data == "theme_open_catalog":
@@ -1408,11 +1743,6 @@ def callback_button_actions(call):
         except Exception as e:
             bot.send_message(cid, f"❌ Xatolik: {e}")
 
-    elif data == "btn_esse":
-        msg = bot.send_message(cid, "📝 Esse mavzusi va matnini to'liq yuboring:")
-        p = "Ushbu esse matnini BMB 50 ballik mezoni bo'yicha tekshiring: '{input}'"
-        bot.register_next_step_handler(msg, lambda m: dynamic_ai_delivery(cid, p.format(input=m.text), uid, "esse"))
-
     elif data == "btn_izoh":
         msg = bot.send_message(cid, "📖 Izohini yoki imlosini bilmoqchi bo'lgan so'zingizni yozing:")
         p = "O'zbek tilining izohli lug'ati va imlo qoidalari asosida '{input}' so'zini to'liq sharhlang."
@@ -1451,7 +1781,8 @@ def callback_retry(call):
         "aruz": "Ushbu baytni aruz tizimi bo'yicha tahlil qiling: '{input}'",
         "konspekt": "Umumta'lim maktabi uchun '{input}' mavzusida to'liq 45 daqiqalik dars ishlanmasi tuzing.",
         "metod": "'{input}' mavzusi uchun zamonaviy interfaol metod ishlab chiqing.",
-        "esse": "Ushbu esse matnini BMB 50 ballik mezoni bo'yicha tekshiring: '{input}'",
+        "esse": "Ushbu esse matnini Milliy sertifikat 50 ballik mezoni bo'yicha tekshiring: '{input}'",
+        "namunaviy_esse": "Milliy sertifikat mezonlari asosida '{input}' mavzusida namunaviy esse yozing.",
         "maqola": "OAK talablari asosida '{input}' mavzusida maqola yozish uchun REJA va METODIK KO'RSATMA bering."
     }
     p = prompt_map.get(tag, "'{input}' bo'yicha ilmiy tahlil bering.")
@@ -1464,12 +1795,13 @@ def default_inline_query(inline_query):
         r = tele_types.InlineQueryResultArticle(
             id='1',
             title="AI Tilshunos & Metodist Platformasi",
-            description="BMB testlari, OAK maqolalari va dars konspektlari tizimi",
+            description="BMB testlari, Milliy sertifikat esselari va metodik baza",
             input_message_content=tele_types.InputTextMessageContent(
                 message_text=(
                     "🏛 **AI TILSHUNOS & METODIST PORTALI**\n\n"
                     "Ona tili, adabiyot va pedagogika sohasidagi sun'iy intellekt yordamchisi.\n\n"
                     "▫️ BMB 30 talik testlar va jonli reyting;\n"
+                    "▫️ Milliy sertifikat esselari (tekshiruv, mavzular va 20 ta namuna);\n"
                     "▫️ Attestatsiya Y1, Y2, Y3 testlari;\n"
                     "▫️ OAK maqola va dars konspektlari konstruktori.\n\n"
                     f"👉 Botdan foydalanish: @aitilshunosbot\n"
@@ -1482,7 +1814,7 @@ def default_inline_query(inline_query):
     except Exception as e:
         print(f"Inline query xatosi: {e}")
 
-# --- ADMIN USER MANAGER ---
+# --- ADMIN FOYDALANUVCHILAR BOSHQARUVI ---
 def get_users_page_markup(page=0, per_page=8):
     users = load_data(USERS_FILE)
     items = list(users.items())
@@ -1786,7 +2118,7 @@ def auto_poster_loop():
                             "}"
                         )
                         raw = ai_client.models.generate_content(
-                            model="gemini-3.6-flash",
+                            model="gemini-2.5-flash",
                             contents=p_single,
                             config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, temperature=0.8)
                         ).text.strip()
@@ -1834,12 +2166,12 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        f"🏛 **AI TILSHUNOS & METODIST (v10.8)** portaliga xush kelibsiz!\n"
+        f"🏛 **AI TILSHUNOS & METODIST (v10.9 - National Certificate Edition)** portaliga xush kelibsiz!\n"
         f"{streak_msg}\n"
         "Quyidagi asosiy yo'nalishlardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va Attestatsiya testlari\n"
-        "🎒 **Abituriyentlar uchun:** Esse, O'TIL, imlo, BMB va Mavzuli testlar\n"
+        "🎒 **Abituriyentlar uchun:** Milliy sertifikat esselari, O'TIL, BMB va Mavzuli testlar\n"
         "🔬 **Ilmiy izlanuvchilar uchun:** OAK maqola va tezis loyihalash\n\n"
         "👇 *Yo'nalishingizni tanlang:* \n"
         "╰─────────────────────────────────────╯"
@@ -1985,5 +2317,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.8 (Instant Solo Quiz) faol ishga tushdi...")
+print("AI Tilshunos v10.9 (National Certificate Edition) faol ishga tushdi...")
 bot.infinity_polling()
