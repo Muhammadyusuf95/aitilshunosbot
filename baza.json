@@ -1,292 +1,344 @@
 {
-  "source_title": "MILLIY TEST SINOVI (Eshmurodov aprobatsiya)",
-  "total_questions": 44,
-  "tests": [
-    {
-      "id": 1,
-      "type": "quiz",
-      "question": "Imloviy jihatdan to'g'ri yozilgan so'zlar qatorini aniqlang.",
-      "options": [
-        "bahri bayt, namoyonda, qoyida",
-        "qazoyi qadar, qobiliyat, muammo",
-        "takkabur, birzumda, taassurot",
-        "tafsiya, falokot, tadbiq"
-      ],
-      "correct_option_id": 1,
-      "explanation": "B javob to'g'ri. 'Qazoyi qadar', 'qobiliyat', 'muammo' so'zlari amaldagi rasmiy imlo qoidalariga to'liq mos keladi."
-    },
-    {
-      "id": 2,
-      "type": "quiz",
-      "question": "Gapda imloviy jihatdan noto'g'ri yozilgan so'z berilgan javobni aniqlang.",
-      "options": [
-        "Yolg'onchilik takabburlik, chaqimchilik izzat-obro`ni barbot qiladi.",
-        "Balandparvoz, quruq gapirgan odamning gapi bemaza qovunga o'xshaydi.",
-        "Oliyjanob kishilar uzrni qabul qiladilar",
-        "Dono insonning so`zi yerga suv kabi zarurdir, suv oqib tursa, yerda turli ne'matlar unadi"
-      ],
-      "correct_option_id": 0,
-      "explanation": "A javobda 'barbot' emas, 'barbod' shaklida 'd' harfi bilan yozilishi lozim."
-    },
-    {
-      "id": 3,
-      "type": "quiz",
-      "question": "So'zlarning ma'nosi to'g'ri izohlangan javobni aniqlang.",
-      "options": [
-        "Hostel - qo'noqxona",
-        "Startup - yangi biznes",
-        "Auksion - ruxsat",
-        "Hashtag - kalitso'z"
-      ],
-      "correct_option_id": 0,
-      "explanation": "Hostel - arzon yotoqxona tipidagi qo'noqxona ma'nosini to'g'ri ifodalaydi."
-    },
-    {
-      "id": 4,
-      "type": "quiz",
-      "question": "O'zaro ma'nodoshlik hosil qila olmaydigan so'zlar qatorini aniqlang.",
-      "options": [
-        "vaqt, chog', mavrid",
-        "boplamoq, qiymoq, mondalamoq",
-        "xon, amr, shoh",
-        "ayib, kamchilik, nuqson"
-      ],
-      "correct_option_id": 2,
-      "explanation": "C qatorda 'amr' buyruq ma'nosida, 'xon' va 'shoh' esa hukmdorlik unvonlaridir, ular o'zaro to'liq sinonim bo'la olmaydi."
-    },
-    {
-      "id": 5,
-      "type": "quiz",
-      "question": "Qaysi gapda qo'shimcha qo'llash bilan bog'liq uslubiy xatolik mavjud emas?",
-      "options": [
-        "U to`qayzorda sassiq alaflarning, qamashlarning, guli раухоп qiluvchi to`ng`izlarning ko`pligidan ajablanmadi",
-        "To'g'ri yo`l mashaqqatli, ammo shu yo'l seni ezgu maqsadlaringga yetg`azadi.",
-        "Kumush qishdan zumrad bahordan qolishmaydi kuzni ziynati.",
-        "Oymomoga behad xushruylikni ato etgan ona tabiat, afsuski ularni farzand ne'matidan bebahra qoldirgandi."
-      ],
-      "correct_option_id": 1,
-      "explanation": "B javobda grammatik va uslubiy jihatdan qo'shimchalar xatosiz va o'rinli qo'llangan."
-    },
-    {
-      "id": 6,
-      "type": "quiz",
-      "question": "Quyidagi qaysi gapda uslubiy g'alizlik kuzatilmagan?",
-      "options": [
-        "Hangoma ko`p uchrar hayotga doir, Keksa bir qalamchi odam bor edi...",
-        "Ey bolam, yod yurtga borsang, 'Ne atalur eling? ' - derlar...",
-        "Haq yo`linda kim senga bir har o`ritmish ranj ila...",
-        "Quyosh chiqdi, gul yaprog`iga Tunda qo'ngan shabnam ariydi..."
-      ],
-      "correct_option_id": 1,
-      "explanation": "B javobdagi she'riy parchada uslubiy va sintaktik g'alizliklar uchramaydi."
-    },
-    {
-      "id": 7,
-      "type": "quiz",
-      "question": "Farosatsizlik, axloqsizlik orqasida faqat huzur-halovatga mukkasidan ketganlarning, yengil-yelpi fikrlovchilarning hayoti sariq chaqaga ham arzimaydi. Ushbu gap yuzasidan nechtasi to'g'ri?",
-      "options": [
-        "bittasi",
-        "ikkitasi",
-        "uchtasi",
-        "to'rttasi"
-      ],
-      "correct_option_id": 1,
-      "explanation": "Gapdagi morfemik tahlil bo'yicha berilgan hukmlardan 2 tasi to'g'ri hisoblanadi."
-    },
-    {
-      "id": 8,
-      "type": "quiz",
-      "question": "Berilgan uchala she'riy parchada ham ishtirok etgan umumiy fe'l shakllarini aniqlang.",
-      "options": [
-        "1, 3, 6 (II shaxs birlik, o'timli fe'l, buyruq-istak mayli)",
-        "2, 3, 5 (orttirma nisbat, o'timli fe'l, sodda yasama fe'l)",
-        "1, 2, 4 (II shaxs birlik, orttirma nisbat, hozirgi zamon)",
-        "3, 4, 6 (o'timli fe'l, hozirgi zamon, buyruq-istak mayli)"
-      ],
-      "correct_option_id": 0,
-      "explanation": "Uchala parchada ham buyruq maylidagi (ko'r, bo'l, o'p), II shaxs birlikdagi va o'timli fe'llar mushtarak qatnashgan."
-    },
-    {
-      "id": 9,
-      "type": "quiz",
-      "question": "Keltirilgan parchalardagi so'z turkumlari haqida berilgan TO'G'RI mulohazani toping.",
-      "options": [
-        "I qismda mustaqil so'z turkumidan biri bo'lgan olmoshning beshta ma'no turiga oid so'zlar qatnashgan.",
-        "Har uchala qismda ham ravish turkumiga mansub so'zlar ishtirok etgan.",
-        "Barcha qismdagi gaplarda sifatlarning xususiyatni bildiruvchi turiga oid so'zlar qatnashgan.",
-        "Uchala parchada ham lug'aviy ma'nosini yo'qotgan mustaqil so'zlar ishtirok etgan."
-      ],
-      "correct_option_id": 1,
-      "explanation": "Uchala parchada ham ravish turkumiga oid so'zlar (har qalay, oz, juda, to'la) qatnashgan."
-    },
-    {
-      "id": 10,
-      "type": "quiz",
-      "question": "'Mening beshigimga otilgan ul o'q sizning umringizni uzgan, ehtimol.' Ushbu gapdagi tobe bog'lanishlarga oid to'g'ri hukmni aniqlang.",
-      "options": [
-        "Ushbu gapda tobe qismi sifatlovchi aniqlovchi, hol vazifasini bajargan fe'lli so'z birikmalari qatnashgan.",
-        "Ushbu gapda aniqlovchi tobelangan hokim so'z kesimga nisbatan tobe qism vazifasini bajargan.",
-        "Ushbu gapda hokim qismi payt holi vazifasini bajargan otli so'z birikmalari qatnashgan.",
-        "Ushbu gapda faqat tobe qism vazifasini bajargan ot, olmosh so'z turkumidagi so'zlar aniqlovchi vazifasida kelgan."
-      ],
-      "correct_option_id": 1,
-      "explanation": "Aniqlovchi tobelangan hokim so'z ('o'q') ega vazifasida kelib, kesimga tobelangan."
-    },
-    {
-      "id": 11,
-      "type": "quiz",
-      "question": "Gapdagi so'zlarning mazmun va grammatik jihatdan bog'lanishi to'g'ri ko'rsatilgan javobni aniqlang.",
-      "options": [
-        "qadriyatlarni belgilab, natijaga intilish orqali inson o'z hayotini baxtli qiladi.",
-        "rivoji va qadrlashi o'rnini belgilab beradi, mas'uliyat bilan mazmunli qiladi.",
-        "mas'uliyat bilan yondashish va natijaga intilish, ijobiy munosabatlarni o'rnatishga yordam beradi.",
-        "mazmunli va baxtli qiladi, insonning jamiyatdagi o'rni."
-      ],
-      "correct_option_id": 3,
-      "explanation": "Mazkur javobda sintaktik aloqalar va so'z birikmasi munosabatlari qat'iy to'g'ri aks ettirilgan."
-    },
-    {
-      "id": 12,
-      "type": "quiz",
-      "question": "Qaysi gaplarda vergul bir xil punktuatsion qoida asosida qo'yilgan?",
-      "options": [
-        "4, 6 (Undalmalarni ajratish qoidasi)",
-        "2, 3",
-        "1, 5",
-        "3, 6"
-      ],
-      "correct_option_id": 0,
-      "explanation": "4 va 6-gaplarda vergul gapdagi undalmalarni ('Usta', 'janob dorug'a') ajratish uchun qo'llangan."
-    },
-    {
-      "id": 13,
-      "type": "quiz",
-      "question": "Abdulhamid Cho'lponning 'Men qochmadim' she'ri mazmuniga oid to'g'ri fikrni toping.",
-      "options": [
-        "Lirik qahramonning jamiyatdan ajralib, mustaqil yo'l tanlashi",
-        "Shaxsning o'zini oqlashga urinishi",
-        "Shaxsning o'z idealini izlash yo'lida noto'g'ri talqin qilinishi va unga qarshi kurashi",
-        "Jamiyatning yangilikka qarshi turishi"
-      ],
-      "correct_option_id": 2,
-      "explanation": "She'rda ijodkorning 'o'zlik' va 'ko'plik' tushunchalari hamda unga qo'yilgan asossiz ayblovlarga qarshi ma'naviy isyoni aks etgan."
-    },
-    {
-      "id": 14,
-      "type": "quiz",
-      "question": "Nazar Eshonqulning 'Shamol tutib bo'lmaydi' hikoyasidagi parcha orqali nima ifodalangan?",
-      "options": [
-        "Qishloqning shaharga nisbatan iqtisodiy tanazzulga yuz tutgani",
-        "Odamlarning o'z tarixiy xotirasini o'z qo'llari bilan yemirayotganini",
-        "Bayna momoning boyligi yo'qotilayotgani tanqid ostiga olinadi",
-        "Zamonaviy uylar qurilishning ustunligi tilga olinadi"
-      ],
-      "correct_option_id": 1,
-      "explanation": "Buldozerlar eski uyni qulatayotganda tersotaliklar o'z xotirasi va o'tmishini yemirayotganlik ramzi aks etgan."
-    },
-    {
-      "id": 15,
-      "type": "quiz",
-      "question": "Asqad Muxtorning 'Chinor' romani mazmuni haqidagi XATO hukmni ko'rsating.",
-      "options": [
-        "Romanda kasbga sadoqatli, yosh bo'lishiga qaramay konda ishlaydigan yigitning ayanchli taqdiri qalamga olingan.",
-        "Qaltis vaziyatda qolgan insonga bir yostiqqa bosh qo'ygan yaqini yordam berishi aks etgan.",
-        "Birovning bolasiga tajavvuz qilib, go'dakni o'ldirmoqchi bo'lgan qabih inson siymosi bor.",
-        "Farobiy bilan bog'liq rivoyat orqali asli mo'jiza inson qalbi, ichki go'zalligi ekanligi ochib berilgan."
-      ],
-      "correct_option_id": 1,
-      "explanation": "Romanda qaltis vaziyatda xiyonat va yolg'izlanish motivlari fojiaviy tarzda ko'rsatilgan, bu hukm romanga mos kelmaydi."
-    },
-    {
-      "id": 16,
-      "type": "quiz",
-      "question": "Qizlarini uzatishda boylik va shahar orzusida sovchilarni qaytargan Sadriddin cho'loq obrazi qaysi asarda uchraydi?",
-      "options": [
-        "O'tkan kunlar",
-        "Kecha va kunduz",
-        "Dunyoning ishlari",
-        "Jimjitlik"
-      ],
-      "correct_option_id": 1,
-      "explanation": "Cho'lponning 'Kecha va kunduz' romanida Zebi (Zebiniso)ning otasi Razzoq so'fi bilan bir qatorda Sadriddin cho'loq timsoli uchraydi."
-    },
-    {
-      "id": 17,
-      "type": "quiz",
-      "question": "'O'jar' hikoyasi haqida to'g'ri fikrni toping.",
-      "options": [
-        "Zargarov va Qutbiddinov birinchi marta ulfatlik dasturxoni ustida dildan suhbat qurishgan edi.",
-        "Zargarovning maqola yozish haqidagi gaplari orqali uning o'ziga biroz bino qo'yganini, boshqalardan o'zini ustun bilishini anglash mumkin.",
-        "Suyar birovning kamchiligini ko'rsatishga, ustidan kulishga usta bola bo'lgan.",
-        "Qutbiddinovning adabiyotdan yiroq odam ekanligi Zargarovning g'ashini keltiradi."
-      ],
-      "correct_option_id": 1,
-      "explanation": "Zargarovning mulohazalarida manmanlik va o'zini boshqalardan ustun qo'yish illati yaqqol seziladi."
-    },
-    {
-      "id": 18,
-      "type": "quiz",
-      "question": "'Bug'doy, arpa, suli' matni bo'yicha qaysi gap to'g'ri shakllantirilgan?",
-      "options": [
-        "Suli urug'i dukkakli don ekinlaridan bo'shagan yerlarga ekiladi. Arpa esa ko'kat uchun ro'vaklash-gullash davrida o'riladi...",
-        "Sug'oriladigan mintaqalarda kuzgi sulini makkajo'xori, g'o'za, kartoshkadan bo'shagan yerlarga ekish tavsiya etiladi...",
-        "Bug'doy ko'proq daraxtlardan changlanadi...",
-        "Xalq xo'jaligida arpadan xilma-xil maqsadlarda foydalaniladi. Xususan, pivo va oziq-ovqat sanoati xomashyosidir."
-      ],
-      "correct_option_id": 3,
-      "explanation": "Matnda arpaning pivo, yem-xashak va oziq-ovqat sanoatida asosiy xomashyo ekanligi aniq bayon etilgan."
-    },
-    {
-      "id": 19,
-      "type": "quiz",
-      "question": "Aziz Nesinning 'Ustasi faranglar' hikoyasida 'quruvchilik zakovati sezilib turgan' yangi direktor qaysi ishi bilan tarixda qolgan?",
-      "options": [
-        "Muhtaram Ruhibey: maktabimizga birinchi bo'lib gimnastika maydonchasi qurdirib berdi.",
-        "Muhtaram Najotibey: maktabimizda birinchi bo'lib bog' yaratdi.",
-        "Muhtaram Ahmad Tener: maktabimizga birinchi bo'lib yaxmalak qurdirdi.",
-        "Saidbey: maktabimizda birinchi bo'lib hovuz qurdirdi."
-      ],
-      "correct_option_id": 1,
-      "explanation": "Oldingi beton maydon ustiga tuproq to'kdirib gul va daraxtlar ektirgan direktor Muhtaram Najotibey bo'lib, u birinchi bo'lib bog' yaratgan direktor sifatida Faxriy xonaga kiritilgan."
-    },
-    {
-      "id": 20,
-      "type": "quiz",
-      "question": "Aziz Nesinning 'Ustasi faranglar' hikoyasida [1] raqami bilan berilgan 'Qurilish bobida bunisi eski direktorni bir cho'qishda qochiradiganga o'xshaydi' gapi orqali qanday uslubiy ma'no ifodalangan?",
-      "options": [
-        "Kinoya, kesatiq",
-        "Qahr, g'azab",
-        "Manmanlik, bepisandlik",
-        "Alam, iztirob"
-      ],
-      "correct_option_id": 0,
-      "explanation": "Hikoyadagi bu ibora yangi kelgan rahbarning maqsadsiz isrofgarchiligiga nisbatan o'tkir kinoya va kesatiqni ifodalaydi."
-    }
+  "manbalar": [
+    "So'z yasalishi (Fazliddin O'taganov)",
+    "Tezkor Grammatika (Muhammadyusuf Ikromov)",
+    "Sifat yasalishi",
+    "Ona tili DTM va Attestatsiya to'plamlari"
   ],
-  "open_tasks": [
+  "morfologiya_va_yasalish": {
+    "ot_yasalishi": [
+      {"qoshamcha": "-a", "asos_turkum": "Taqlid", "misollar": ["qahqaha", "do'mbira"]},
+      {"qoshamcha": "-ak", "asos_turkum": "Taqlid", "misollar": ["pirpirak", "guldurak", "varrak", "qarsak", "xurrak"]},
+      {"qoshamcha": "-archilik", "asos_turkum": "Sifat", "misollar": ["ocharchilik"]},
+      {"qoshamcha": "-at", "asos_turkum": "Fe'l", "misollar": ["o'lat"]},
+      {"qoshamcha": "-at", "asos_turkum": "Sifat", "misollar": ["ko'kat"]},
+      {"qoshamcha": "-bin", "asos_turkum": "Ot", "misollar": ["folbin"]},
+      {"qoshamcha": "-bon", "asos_turkum": "Ot", "misollar": ["darvozabon", "tarozibon", "bog'bon"]},
+      {"qoshamcha": "-boz", "asos_turkum": "Ot", "misollar": ["dorboz", "masxaraboz", "qimorboz"]},
+      {"qoshamcha": "-voy", "asos_turkum": "Ot", "misollar": ["nonvoy"]},
+      {"qoshamcha": "-vchi / -uvchi", "asos_turkum": "Fe'l", "misollar": ["uchuvchi", "o'quvchi", "aniqlovchi", "yozuvchi"]},
+      {"qoshamcha": "-gar / -kar", "asos_turkum": "Ot", "misollar": ["zargar", "da'vogar", "miskar"]},
+      {"qoshamcha": "-garchilik", "asos_turkum": "Ot", "misollar": ["odamgarchilik", "yog'ingarchilik"]},
+      {"qoshamcha": "-garchilik", "asos_turkum": "Sifat", "misollar": ["namgarchilik", "sharmandagarchilik"]},
+      {"qoshamcha": "-gi / -ki / -qi / -g'i / -g'u", "asos_turkum": "Fe'l", "misollar": ["sevgi", "supurgi", "kulgulik", "turtki", "sanchqi", "tuyg'u", "tomizg'i"]},
+      {"qoshamcha": "-gir", "asos_turkum": "Ot", "misollar": ["jahongir", "fazogir"]},
+      {"qoshamcha": "-gich / -kich / -qich / -g'ich", "asos_turkum": "Fe'l", "misollar": ["kulgich", "ko'rsatkich", "tutqich", "chizg'ich", "keskich"]},
+      {"qoshamcha": "-gin / -qin / -g'in / -gun / -qun", "asos_turkum": "Fe'l", "misollar": ["tizgin", "to'lqin", "quvg'in", "surgun"]},
+      {"qoshamcha": "-goh", "asos_turkum": "Ot", "misollar": ["ziyoratgoh", "bazmgoh"]},
+      {"qoshamcha": "-doq / -dak", "asos_turkum": "Fe'l", "misollar": ["qo'ndoq", "kekirdak", "yugurdak"]},
+      {"qoshamcha": "-diq", "asos_turkum": "Ot", "misollar": ["o'rindiq"]},
+      {"qoshamcha": "-diq", "asos_turkum": "Fe'l", "misollar": ["qoldiq", "hordiq"]},
+      {"qoshamcha": "-don", "asos_turkum": "Ot", "misollar": ["kuldon", "qalamdon", "suxandon"]},
+      {"qoshamcha": "-dor", "asos_turkum": "Ot", "misollar": ["muhrdor", "chorvador", "hukmdor"]},
+      {"qoshamcha": "-dosh", "asos_turkum": "Ot", "misollar": ["sinfdosh", "sirdosh"]},
+      {"qoshamcha": "-do'z", "asos_turkum": "Ot", "misollar": ["kashtado'z", "do'ppido'z"]},
+      {"qoshamcha": "-zor", "asos_turkum": "Ot", "misollar": ["gulzor", "bug'doyzor"]},
+      {"qoshamcha": "-ik", "asos_turkum": "Fe'l", "misollar": ["ko'rik", "kekirik", "bitik"]},
+      {"qoshamcha": "-ildoq", "asos_turkum": "Taqlid", "misollar": ["hiqildoq"]},
+      {"qoshamcha": "-imlik", "asos_turkum": "Fe'l", "misollar": ["o'simlik", "ichimlik"]},
+      {"qoshamcha": "-in", "asos_turkum": "Fe'l", "misollar": ["yig'in", "ekin"]},
+      {"qoshamcha": "-(i)ndi / -undi", "asos_turkum": "Fe'l", "misollar": ["chiqindi", "chirindi", "kuyundi"]},
+      {"qoshamcha": "-iston", "asos_turkum": "Ot", "misollar": ["guliston", "O'zbekiston", "qabriston"]},
+      {"qoshamcha": "-it", "asos_turkum": "Fe'l", "misollar": ["chiqit"]},
+      {"qoshamcha": "-iq / -uq", "asos_turkum": "Fe'l", "misollar": ["kesatiq", "buyruq", "tortiq"]},
+      {"qoshamcha": "-k", "asos_turkum": "Fe'l", "misollar": ["ko'rk", "kurak", "elak"]},
+      {"qoshamcha": "-kash", "asos_turkum": "Ot", "misollar": ["qalamkash", "aravakash"]},
+      {"qoshamcha": "-kilik / -gilik", "asos_turkum": "Fe'l", "misollar": ["ichkilik", "ko'rgilik"]},
+      {"qoshamcha": "-kor", "asos_turkum": "Ot", "misollar": ["sholikor", "san'atkor", "paxtakor"]},
+      {"qoshamcha": "-kov", "asos_turkum": "Ot", "misollar": ["go'rkov"]},
+      {"qoshamcha": "-lik / -liq", "asos_turkum": "Ot", "misollar": ["bolalik", "boshliq", "otliq"]},
+      {"qoshamcha": "-lik", "asos_turkum": "Sifat", "misollar": ["yaxshilik", "ezgulik", "donolik"]},
+      {"qoshamcha": "-lik", "asos_turkum": "Son", "misollar": ["birlik", "to'rtlik"]},
+      {"qoshamcha": "-lik", "asos_turkum": "Olmosh", "misollar": ["o'zlik", "menlik"]},
+      {"qoshamcha": "-lik", "asos_turkum": "Ravish", "misollar": ["tezlik", "birgalik"]},
+      {"qoshamcha": "-lik / -liq", "asos_turkum": "Modal", "misollar": ["borliq", "yo'qlik"]},
+      {"qoshamcha": "-loq", "asos_turkum": "Ot", "misollar": ["o'tloq", "toshloq"]}
+    ],
+    "sifat_yasalishi": [
+      {"qoshamcha": "-a", "asos_turkum": "Fe'l", "misollar": ["to'la", "ko'tara (savdo)"]},
+      {"qoshamcha": "-avon", "asos_turkum": "Sifat", "misollar": ["zo'ravon"]},
+      {"qoshamcha": "-aki", "asos_turkum": "Ot", "misollar": ["og'zaki", "yuzaki"]},
+      {"qoshamcha": "-aki", "asos_turkum": "Taqlid", "misollar": ["shartaki"]},
+      {"qoshamcha": "-ag'on", "asos_turkum": "Fe'l", "misollar": ["bilag'on", "chopag'on"]},
+      {"qoshamcha": "ba- / bo-", "asos_turkum": "Ot", "misollar": ["baodob", "boobro'", "badavlat"]},
+      {"qoshamcha": "bad-", "asos_turkum": "Ot", "misollar": ["badbaxt", "badnafs", "badfe'l"]},
+      {"qoshamcha": "bar-", "asos_turkum": "Ot", "misollar": ["barqaror", "bardavom"]},
+      {"qoshamcha": "be-", "asos_turkum": "Ot", "misollar": ["bedavo", "beor", "beg'ubor", "behayo"]},
+      {"qoshamcha": "-bin", "asos_turkum": "Sifat", "misollar": ["kaltabin", "nekbin"]},
+      {"qoshamcha": "-boz", "asos_turkum": "Ot", "misollar": ["safsataboz", "xotinboz", "va'daboz"]},
+      {"qoshamcha": "-bon", "asos_turkum": "Ot", "misollar": ["mehribon"]},
+      {"qoshamcha": "-vash", "asos_turkum": "Ot", "misollar": ["devonavash", "parivash"]},
+      {"qoshamcha": "-vor", "asos_turkum": "Sifat", "misollar": ["ulug'vor"]},
+      {"qoshamcha": "-vor", "asos_turkum": "Ot", "misollar": ["umidvor"]},
+      {"qoshamcha": "-vuch / -ovuch", "asos_turkum": "Fe'l", "misollar": ["iskovuch", "hurkovuch"]},
+      {"qoshamcha": "-gay / -kay", "asos_turkum": "Ot", "misollar": ["kungay"]},
+      {"qoshamcha": "-kay", "asos_turkum": "Sifat", "misollar": ["terskay"]},
+      {"qoshamcha": "-gar", "asos_turkum": "Ot", "misollar": ["ig'vogar", "hiylagar"]},
+      {"qoshamcha": "-gi / -ki / -qi", "asos_turkum": "Ot", "misollar": ["kuzgi", "sirtqi", "ichki", "tashqi"]},
+      {"qoshamcha": "-gi", "asos_turkum": "Ravish", "misollar": ["avvalgi", "ertalabgi"]},
+      {"qoshamcha": "-gir / -kir / -qir / -g'ir / -qur", "asos_turkum": "Fe'l", "misollar": ["sezgir", "keskir", "topqir", "olg'ir", "uchqur"]},
+      {"qoshamcha": "-gin / -gun", "asos_turkum": "Ot", "misollar": ["g'amgin", "gulgun"]},
+      {"qoshamcha": "-go'y", "asos_turkum": "Ot", "misollar": ["xushomadgo'y", "rostgo'y"]},
+      {"qoshamcha": "-diq", "asos_turkum": "Fe'l", "misollar": ["tashlandiq"]},
+      {"qoshamcha": "-don", "asos_turkum": "Ot", "misollar": ["qadrdon", "gapdon"]},
+      {"qoshamcha": "-dor", "asos_turkum": "Ot", "misollar": ["aybdor", "daxldor", "hosildor"]},
+      {"qoshamcha": "-dosh", "asos_turkum": "Ot", "misollar": ["ohangdosh", "sirdosh"]},
+      {"qoshamcha": "-zada", "asos_turkum": "Ot", "misollar": ["alamzada", "yurakzada"]},
+      {"qoshamcha": "-i", "asos_turkum": "Ot", "misollar": ["qozoqi", "qishloqi", "bozori", "jannati"]},
+      {"qoshamcha": "-iv", "asos_turkum": "Ot", "misollar": ["obyektiv", "subyektiv"]},
+      {"qoshamcha": "-iy / -viy", "asos_turkum": "Ot", "misollar": ["ilmiy", "shaxsiy", "moliyaviy", "diniy", "devoriy"]},
+      {"qoshamcha": "-iy", "asos_turkum": "Modal", "misollar": ["zaruriy"]},
+      {"qoshamcha": "-ik", "asos_turkum": "Ot", "misollar": ["geologik", "realistik"]},
+      {"qoshamcha": "-ik", "asos_turkum": "Fe'l", "misollar": ["egik", "bukik", "teshik"]},
+      {"qoshamcha": "-ildoq", "asos_turkum": "Taqlid", "misollar": ["akildoq", "chiyildoq", "liqqildoq"]},
+      {"qoshamcha": "-imli", "asos_turkum": "Fe'l", "misollar": ["yoqimli", "sevimli", "to'yimli"]},
+      {"qoshamcha": "-in", "asos_turkum": "Fe'l", "misollar": ["to'lin", "to'kin"]},
+      {"qoshamcha": "-in", "asos_turkum": "Ot", "misollar": ["erkin", "rangin", "g'ishtin"]},
+      {"qoshamcha": "-inki", "asos_turkum": "Fe'l", "misollar": ["ko'tarinki"]},
+      {"qoshamcha": "-inch", "asos_turkum": "Fe'l", "misollar": ["shoshilinch", "tiqilinch"]},
+      {"qoshamcha": "-k / -q / -uq / -g' / -iq", "asos_turkum": "Fe'l", "misollar": ["chirik", "buzuq", "ochiq", "quruq", "issiq", "yorug'"]},
+      {"qoshamcha": "-kash", "asos_turkum": "Ot", "misollar": ["zahmatkash", "jafokash"]},
+      {"qoshamcha": "-qin / -g'in / -kun / -g'un", "asos_turkum": "Fe'l", "misollar": ["tushkun", "jo'shqin", "so'lg'in", "turg'un", "sotqin"]},
+      {"qoshamcha": "-kor", "asos_turkum": "Ot", "misollar": ["zulmkor", "isyonkor", "fidokor"]},
+      {"qoshamcha": "-l", "asos_turkum": "Fe'l", "misollar": ["tugal"]},
+      {"qoshamcha": "-li", "asos_turkum": "Ot", "misollar": ["kuchli", "odobli", "aqlli"]},
+      {"qoshamcha": "-li", "asos_turkum": "Modal", "misollar": ["kerakli"]},
+      {"qoshamcha": "-lik", "asos_turkum": "Ot", "misollar": ["yozlik", "ko'rpalik", "bayramlik", "qishlik"]},
+      {"qoshamcha": "-lom", "asos_turkum": "Sifat", "misollar": ["sog'lom"]},
+      {"qoshamcha": "-m", "asos_turkum": "Fe'l", "misollar": ["qaram"]},
+      {"qoshamcha": "-ma", "asos_turkum": "Fe'l", "misollar": ["qaynatma", "ko'chma", "qo'shma", "terma", "tug'ma"]},
+      {"qoshamcha": "-mand", "asos_turkum": "Ot", "misollar": ["ayolmand", "davlatmand", "dardmand"]},
+      {"qoshamcha": "-mon", "asos_turkum": "Fe'l", "misollar": ["toparmon-tutarmon", "ustabuzarmon"]},
+      {"qoshamcha": "-msiq / -imsiq", "asos_turkum": "Fe'l", "misollar": ["qarimsiq", "achimsiq"]},
+      {"qoshamcha": "-namo", "asos_turkum": "Ot", "misollar": ["darveshnamo", "olimnamo"]},
+      {"qoshamcha": "-namo", "asos_turkum": "Sifat", "misollar": ["tentaknamo"]},
+      {"qoshamcha": "no-", "asos_turkum": "Ot", "misollar": ["noinsof", "noumid"]},
+      {"qoshamcha": "no-", "asos_turkum": "Sifat", "misollar": ["noto'g'ri", "nomard", "noma'lum"]},
+      {"qoshamcha": "-nok", "asos_turkum": "Ot", "misollar": ["alamnok", "g'amnok"]},
+      {"qoshamcha": "-ndi", "asos_turkum": "Fe'l", "misollar": ["asrandi"]},
+      {"qoshamcha": "-on / -an", "asos_turkum": "Ot", "misollar": ["za'faron"]},
+      {"qoshamcha": "-os", "asos_turkum": "Taqlid", "misollar": ["gulduros"]},
+      {"qoshamcha": "-omuz", "asos_turkum": "Ot", "misollar": ["kinoyaomuz", "hayratomuz"]},
+      {"qoshamcha": "-ong'ich / -ng'ich", "asos_turkum": "Fe'l", "misollar": ["tepong'ich", "tishlong'ich"]},
+      {"qoshamcha": "-oq", "asos_turkum": "Fe'l", "misollar": ["qo'rqoq", "baqiroq"]},
+      {"qoshamcha": "-parast", "asos_turkum": "Ot", "misollar": ["mansabparast", "xayolparast"]},
+      {"qoshamcha": "-parvar", "asos_turkum": "Ot", "misollar": ["adolatparvar", "xalqparvar"]},
+      {"qoshamcha": "-rli / -arli", "asos_turkum": "Fe'l", "misollar": ["arzirli", "zerikarli"]},
+      {"qoshamcha": "-saro", "asos_turkum": "Ot", "misollar": ["motamsaro"]},
+      {"qoshamcha": "ser-", "asos_turkum": "Ot", "misollar": ["serhosil", "sershovqin", "sergap"]},
+      {"qoshamcha": "-siz", "asos_turkum": "Ot", "misollar": ["sanoqsiz", "tuzsiz", "o'rinsiz"]},
+      {"qoshamcha": "-simon", "asos_turkum": "Ot", "misollar": ["sharsimon", "naysimon", "oysimon"]},
+      {"qoshamcha": "-xo'r", "asos_turkum": "Sifat", "misollar": ["tekinxo'r"]},
+      {"qoshamcha": "-xo'r", "asos_turkum": "Ot", "misollar": ["poraxo'r"]},
+      {"qoshamcha": "-ch", "asos_turkum": "Fe'l", "misollar": ["tinch", "jirkanch"]},
+      {"qoshamcha": "-cha", "asos_turkum": "Ot", "misollar": ["farg'onacha"]},
+      {"qoshamcha": "-chak / -choq / -chiq", "asos_turkum": "Fe'l", "misollar": ["kuyunchak", "tortinchoq", "qizg'anchiq"]},
+      {"qoshamcha": "-chan", "asos_turkum": "Ot", "misollar": ["talabchan", "harakatchan"]},
+      {"qoshamcha": "-chan", "asos_turkum": "Harakat nomi", "misollar": ["yashovchan", "o'suvchan"]},
+      {"qoshamcha": "-chi", "asos_turkum": "Fe'l", "misollar": ["ayirmachi"]},
+      {"qoshamcha": "-chi", "asos_turkum": "Sifat", "misollar": ["a'lochi", "bekorchi"]},
+      {"qoshamcha": "-chil", "asos_turkum": "Ot", "misollar": ["dardchil", "izchil"]},
+      {"qoshamcha": "-chil", "asos_turkum": "Ravish", "misollar": ["kamchil"]},
+      {"qoshamcha": "-shta", "asos_turkum": "Fe'l", "misollar": ["sinashta"]},
+      {"qoshamcha": "-shumul", "asos_turkum": "Ot", "misollar": ["olamshumul"]},
+      {"qoshamcha": "-qa", "asos_turkum": "Fe'l", "misollar": ["qisqa"]},
+      {"qoshamcha": "-qa", "asos_turkum": "Ot", "misollar": ["loyqa"]},
+      {"qoshamcha": "-qi", "asos_turkum": "Fe'l", "misollar": ["vaysaqi", "sayroqi"]},
+      {"qoshamcha": "-qoq", "asos_turkum": "Fe'l", "misollar": ["urishqoq", "qochqoq"]}
+    ],
+    "ravish_yasalishi": [
+      {"qoshamcha": "-an", "asos_turkum": "Ot", "misollar": ["tasodifan", "fikran", "xayolan", "vijdonan"]},
+      {"qoshamcha": "-an", "asos_turkum": "Sifat", "misollar": ["qat'iyan"]},
+      {"qoshamcha": "-an", "asos_turkum": "Modal", "misollar": ["majburan"]},
+      {"qoshamcha": "bar-", "asos_turkum": "Ot", "misollar": ["barvaqt"]},
+      {"qoshamcha": "be-", "asos_turkum": "Ot", "misollar": ["beijozat", "bevosita", "betinim", "bemalol", "beomon"]},
+      {"qoshamcha": "-iga / -siga", "asos_turkum": "Ot", "misollar": ["surunkasiga", "nomiga", "asronchasiga"]},
+      {"qoshamcha": "-iga", "asos_turkum": "Sifat", "misollar": ["ko'ndalangiga", "chinakamiga"]},
+      {"qoshamcha": "-siga", "asos_turkum": "Olmosh", "misollar": ["yalpisiga", "shunaqasiga"]},
+      {"qoshamcha": "-lab", "asos_turkum": "Ot", "misollar": ["oylab", "donalab", "bo'g'inlab"]},
+      {"qoshamcha": "-lab", "asos_turkum": "Sifat", "misollar": ["yaxshilab"]},
+      {"qoshamcha": "-lab", "asos_turkum": "Son", "misollar": ["bittalab"]},
+      {"qoshamcha": "-lay / -layin", "asos_turkum": "Sifat", "misollar": ["tiriklayin", "yoshlayin"]},
+      {"qoshamcha": "-lay", "asos_turkum": "Olmosh", "misollar": ["butunlay"]},
+      {"qoshamcha": "-larcha", "asos_turkum": "Ot", "misollar": ["qahramonlarcha", "otalarcha", "do'stlarcha"]},
+      {"qoshamcha": "-larcha", "asos_turkum": "Sifat", "misollar": ["vahshiylarcha", "telbalarcha", "mardlarcha"]},
+      {"qoshamcha": "-ligicha", "asos_turkum": "Sifat", "misollar": ["yangiligicha", "xomligicha", "butunligicha"]},
+      {"qoshamcha": "-namo", "asos_turkum": "Ot", "misollar": ["hazilnamo"]},
+      {"qoshamcha": "-namo", "asos_turkum": "Sifat", "misollar": ["oliftanamo"]},
+      {"qoshamcha": "-namo", "asos_turkum": "Sifatdosh", "misollar": ["uyalgannamo"]},
+      {"qoshamcha": "-n / -in", "asos_turkum": "Ot", "misollar": ["yozin-qishin"]},
+      {"qoshamcha": "-in", "asos_turkum": "Sifat", "misollar": ["ochin-to'qin"]},
+      {"qoshamcha": "-n / -in", "asos_turkum": "Ravish", "misollar": ["ertan-kechin", "ostin-ustun"]},
+      {"qoshamcha": "-ona", "asos_turkum": "Ot", "misollar": ["do'stona"]},
+      {"qoshamcha": "-ona", "asos_turkum": "Sifat", "misollar": ["mardona", "oqilona", "fidokorona"]},
+      {"qoshamcha": "-cha", "asos_turkum": "Ot", "misollar": ["o'zbekcha", "yigitcha"]},
+      {"qoshamcha": "-cha", "asos_turkum": "Olmosh", "misollar": ["o'zicha"]},
+      {"qoshamcha": "-siz", "asos_turkum": "Ot", "misollar": ["to'xtovsiz"]}
+    ],
+    "fel_yasalishi": [
+      {"qoshamcha": "-a", "asos_turkum": "Ot", "misollar": ["sana", "tuna", "yasha", "o'yna"]},
+      {"qoshamcha": "-a", "asos_turkum": "Sifat", "misollar": ["bo'sha", "qiyna"]},
+      {"qoshamcha": "-a", "asos_turkum": "Taqlid", "misollar": ["shildira", "guldura"]},
+      {"qoshamcha": "-an", "asos_turkum": "Ot", "misollar": ["kuchan"]},
+      {"qoshamcha": "-i", "asos_turkum": "Ot", "misollar": ["ranji", "changi", "avji"]},
+      {"qoshamcha": "-i", "asos_turkum": "Sifat", "misollar": ["tinchi", "boyi"]},
+      {"qoshamcha": "-illa", "asos_turkum": "Taqlid", "misollar": ["chirqilla", "guvulla", "zirilla", "shovulla", "taqilla"]},
+      {"qoshamcha": "-ik", "asos_turkum": "Ot", "misollar": ["ko'zik"]},
+      {"qoshamcha": "-ik", "asos_turkum": "Son", "misollar": ["birik"]},
+      {"qoshamcha": "-ik", "asos_turkum": "Ravish", "misollar": ["kechik"]},
+      {"qoshamcha": "-ir", "asos_turkum": "Ot", "misollar": ["gapir", "ko'pir"]},
+      {"qoshamcha": "-ira", "asos_turkum": "Taqlid", "misollar": ["miltira", "yaltira", "zirqira", "yarqira", "qaltira"]},
+      {"qoshamcha": "-y / -ay", "asos_turkum": "Ot", "misollar": ["kuchay"]},
+      {"qoshamcha": "-ay", "asos_turkum": "Sifat", "misollar": ["ulg'ay", "pasay", "susay", "qoray", "yoshar"]},
+      {"qoshamcha": "-ay", "asos_turkum": "Ravish", "misollar": ["kamay", "ozay", "ko'pay"]},
+      {"qoshamcha": "-ka", "asos_turkum": "Ot", "misollar": ["iska"]},
+      {"qoshamcha": "-la", "asos_turkum": "Ot", "misollar": ["egovla", "moyla", "bolala", "gulla", "yog'la", "ishla"]},
+      {"qoshamcha": "-la", "asos_turkum": "Sifat", "misollar": ["maydala", "tozala", "yaxshila", "tikla", "tekisla"]},
+      {"qoshamcha": "-la", "asos_turkum": "Olmosh", "misollar": ["sizla", "senla"]},
+      {"qoshamcha": "-la", "asos_turkum": "Ravish", "misollar": ["tezla", "sekinla"]},
+      {"qoshamcha": "-la", "asos_turkum": "Undov", "misollar": ["dodla", "chuhla", "ohla"]},
+      {"qoshamcha": "-la", "asos_turkum": "Taqlid", "misollar": ["gumburla", "shivirla", "shitirla"]},
+      {"qoshamcha": "-la", "asos_turkum": "Modal", "misollar": ["yo'qla"]},
+      {"qoshamcha": "-lan", "asos_turkum": "Ot", "misollar": ["faxrlan", "gavdalan", "lazzatlan", "zavqlan", "jonlan"]},
+      {"qoshamcha": "-lan", "asos_turkum": "Sifat", "misollar": ["shodlan", "achchiqlan", "sergaklan"]},
+      {"qoshamcha": "-lan", "asos_turkum": "Son", "misollar": ["ikkilan"]},
+      {"qoshamcha": "-lash", "asos_turkum": "Ot", "misollar": ["do'stlash", "suhbatlash", "ahdlash", "bahslash", "dardlash"]},
+      {"qoshamcha": "-lash", "asos_turkum": "Sifat", "misollar": ["yiriklash", "osonlash", "asabiylash", "oydinlash"]},
+      {"qoshamcha": "-lash", "asos_turkum": "Son", "misollar": ["birlash"]},
+      {"qoshamcha": "-lash", "asos_turkum": "Ravish", "misollar": ["birgalash"]},
+      {"qoshamcha": "-lat", "asos_turkum": "Sifat", "misollar": ["qoyillat"]},
+      {"qoshamcha": "-ol", "asos_turkum": "Modal", "misollar": ["yo'qol"]},
+      {"qoshamcha": "-r / -ar", "asos_turkum": "Sifat", "misollar": ["oqar", "ko'kar", "qisqar", "eskir"]},
+      {"qoshamcha": "-ra", "asos_turkum": "Taqlid", "misollar": ["ho'ngra", "mara", "ingra"]},
+      {"qoshamcha": "-si", "asos_turkum": "Olmosh", "misollar": ["mensi"]},
+      {"qoshamcha": "-si", "asos_turkum": "Sifat", "misollar": ["garangsi"]},
+      {"qoshamcha": "-sin", "asos_turkum": "Sifat", "misollar": ["qiziqsin", "yotsin"]},
+      {"qoshamcha": "-sit", "asos_turkum": "Sifat", "misollar": ["kamsit"]},
+      {"qoshamcha": "-sira", "asos_turkum": "Ot", "misollar": ["uyqusira", "suvsira"]},
+      {"qoshamcha": "-sira", "asos_turkum": "Sifat", "misollar": ["begonasira", "yotsira"]},
+      {"qoshamcha": "-sira", "asos_turkum": "Olmosh", "misollar": ["sensira"]}
+    ]
+  },
+  "testlar_banki": [
     {
-      "id": 36,
-      "type": "open",
-      "task": "Berilgan mazmunlarni ifodalaydigan shakldosh so'zni toping: 1) Muvaffaq bo'lmoq, qo'lga kiritmoq; 2) Nojo'ya, yarashmaydigan.",
-      "answer": "Yarashmoq (yoki erishmoq / ep ko'rmoq)"
+      "id": "dtm_1_1",
+      "savol": "Qaysi gapda fe'lning o'tgan zamon shakli kelasi zamon ma'nosida qo'llangan?",
+      "variantlar": [
+        "A) Bir vaqt qarasam, yig'layapman, hech o'zimni bosolmayman.",
+        "B) Agar mening gapimni tushungan bo'lsang, yur men bilan, ketdik.",
+        "C) Ular allaqachon bir qarorga kelgan edilar.",
+        "D) Men bu mehmonni kuzatib borayotirman."
+      ],
+      "javob": "B",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
     },
     {
-      "id": 37,
-      "type": "open",
-      "task": "'...amalga oshirilgan ishlar: ya'ni hamma daraxtlarning...' gapida qaysi tinish belgisi xato qo'llangan?",
-      "answer": "Ikki nuqta (:) xato qo'llangan, uning o'rniga vergul (,) qo'yilishi lozim."
+      "id": "dtm_1_6",
+      "savol": "Qaysi javobda ot turkumiga oid o'zaro ma'nodosh so'zlar juftligi berilgan?",
+      "variantlar": [
+        "A) husn - go'zal",
+        "B) tantiqlik - saxiylik",
+        "C) tabassum - yig'i",
+        "D) sovg'a - tuhfa"
+      ],
+      "javob": "D",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
     },
     {
-      "id": 42,
-      "type": "open",
-      "task": "Navoiy baytidagi 'tomoshag'akim' va 'ul sho'x' so'zlaridagi badiiy san'atni aniqlang.",
-      "answer": "a) Tajnis / takrir san'ati; b) Istiora san'ati."
+      "id": "dtm_1_23",
+      "savol": "Quyida berilganlardan qaysilari modal so'z hisoblanadi?\n1) xullas; 2) faqat; 3) darhaqiqat; 4) xayriyat; 5) chunki; 6) biroq.",
+      "variantlar": [
+        "A) 2, 3, 6",
+        "B) 1, 3, 4",
+        "C) 3, 4, 5, 6",
+        "D) 1, 2, 4, 5"
+      ],
+      "javob": "B",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
     },
     {
-      "id": 44,
-      "type": "open",
-      "task": "'Yo rab, ul shahdu shakar, yo labdurur...' to'rtligi qaysi janrda va qaysi san'at asosida yozilgan?",
-      "answer": "a) Janri: Tuyuq; b) She'riy san'at: Tajnis (tajnisi tamm)."
+      "id": "dtm_2_5",
+      "savol": "\"Ozuqa zaxiralarimizning hammasi ertaga bitadi.\" Ushbu gapda bitmoq so'zi qaysi ma'noda qo'llangan?",
+      "variantlar": [
+        "A) tugamoq, tamom bo'lmoq",
+        "B) yozuv orqali ifodalamoq",
+        "C) et unib, birikib tuzalmoq",
+        "D) o'sib-unmoq"
+      ],
+      "javob": "A",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
+    },
+    {
+      "id": "dtm_2_14",
+      "savol": "Qaysi javobda o'zlik nisbatidagi fe'llar berilgan?",
+      "variantlar": [
+        "A) jimirlamoq, silkinmoq",
+        "B) ko'rinmoq, kiyinmoq",
+        "C) taralmoq, yiqitmoq",
+        "D) o'ylanmoq, sarg'aymoq"
+      ],
+      "javob": "B",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
+    },
+    {
+      "id": "dtm_3_10",
+      "savol": "\"Urush ko'plarning yostig'ini quritdi.\" Berilgan gapda ma'no ko'chishning qaysi turi mavjud?",
+      "variantlar": [
+        "A) metafora",
+        "B) sinekdoxa",
+        "C) vazifadoshlik",
+        "D) metonimiya"
+      ],
+      "javob": "D",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
+    },
+    {
+      "id": "dtm_4_13",
+      "savol": "Qaysi javobda yo'nalish ma'nosini ifodalagan sof ko'makchi(lar) to'g'ri ko'rsatilgan?\n1) tomon; 2) sari; 3) qarab; 4) qadar; 5) sayin; 6) bo'ylab",
+      "variantlar": [
+        "A) 2",
+        "B) 1, 2, 3, 6",
+        "C) 2, 4",
+        "D) 1, 2, 5"
+      ],
+      "javob": "A",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
+    },
+    {
+      "id": "dtm_6_16",
+      "savol": "Berilganlardan qaysilari sof ko'makchi hisoblanadi?\n1) singari; 2) bilan; 3) ammo; 4) uzra; 5) keyin; 6) xayriyat; 7) qadar",
+      "variantlar": [
+        "A) 1, 2, 4, 7",
+        "B) 2, 3, 5, 7",
+        "C) 1, 3, 6, 7",
+        "D) 2, 4, 5, 6"
+      ],
+      "javob": "A",
+      "manba": "Asosiy @Onatilidanyordam_2.pdf[cite: 7]"
+    },
+    {
+      "id": "attestatsiya_8",
+      "savol": "\"Ravshan\" dostonida kallarning o'ziga xos jihatlari qaysi javobda to'g'ri ko'rsatilgan?",
+      "variantlar": [
+        "A) Aynoq - polvon, Jaynoq - masxaraboz, Tersak - sinchi, Ersak - mergan",
+        "B) Aynoq - mergan, Jaynoq - polvon, Tersak - masxaraboz, Ersak - sinchi",
+        "C) Aynoq - sinchi, Jaynoq - mergan, Tersak - polvon, Ersak - masxaraboz",
+        "D) Aynoq - masxaraboz, Jaynoq - sinchi, Tersak - mergan, Ersak - polvon"
+      ],
+      "javob": "A",
+      "manba": "Savollar @Onatilidanyordam_2.pdf[cite: 11]"
+    },
+    {
+      "id": "attestatsiya_180",
+      "savol": "\"Sab'ai sayyor\"da maqtovni kutgan Bahrom Diloromdan zid munosabatni ko'rgach, uni qanday jazoga buyuradi?",
+      "variantlar": [
+        "A) uzun sochlariga oyoq-qo'lini bog'lab, biyobonga tashlab ketishni",
+        "B) zindonga tashlashni",
+        "C) dordan osishni",
+        "D) o'zga yurtga quvg'in qilishni"
+      ],
+      "javob": "A",
+      "manba": "Savollar @Onatilidanyordam_2.pdf[cite: 11]"
     }
   ]
 }
