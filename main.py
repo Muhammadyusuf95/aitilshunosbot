@@ -1002,6 +1002,7 @@ def handle_poll_answer(poll_answer):
 
     chat_id = poll_info["chat_id"]
     correct_opt = poll_info["correct_option_id"]
+    q_start_time = poll_info.get("sent_time", time.time())
     
     if not poll_answer.option_ids:
         return
@@ -1013,18 +1014,28 @@ def handle_poll_answer(poll_answer):
     if user.last_name:
         u_name += f" {user.last_name}"
 
+    # Savolga javob berish uchun sarflangan vaqt (soniya)
+    time_spent_on_q = max(0.1, time.time() - q_start_time)
+
     if chat_id in ACTIVE_QUIZ_TRACKER:
         scores = ACTIVE_QUIZ_TRACKER[chat_id]["scores"]
         if u_id not in scores:
-            scores[u_id] = {"name": u_name, "correct": 0, "total_answered": 0}
+            scores[u_id] = {
+                "name": u_name,
+                "correct": 0,
+                "total_answered": 0,
+                "total_time": 0.0
+            }
         
         scores[u_id]["total_answered"] += 1
+        scores[u_id]["total_time"] += time_spent_on_q
+        
         if chosen_opt == correct_opt:
             scores[u_id]["correct"] += 1
 
 def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
     total_q = len(questions)
-    is_anon = False  # Barcha ishtirokchilarning tanlovi hamma uchun ko'rinadi
+    is_anon = False  # Barcha ishtirokchilar kim nima belgilaganini jonli ko'rishi uchun
 
     start_time = time.time()
     ACTIVE_QUIZ_TRACKER[target_chat_id] = {
@@ -1037,7 +1048,8 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         f"🏁 **DIQQAT, {title.upper()} BOSHLANDI!**\n\n"
         f"▫️ Jami savollar: `{total_q} ta`\n"
         f"▫️ Har bir savolga vaqt: `⏳ {duration_per_q} soniya`\n"
-        f"▫️ Rejim: **Ochiq test (Har bir ishtirokchining tanlovi ko'rinadi)**\n"
+        f"▫️ Rejim: **Ochiq so'rovnoma (Kim qaysi javobni tanlagani ko'rinadi)**\n"
+        f"▫️ Reyting mezoni: **To'g'ri javoblar soni va sarflangan umumiy vaqt**\n"
         f"▫️ Rasmiy kanal: [{CHANNEL_USERNAME}]({CHANNEL_URL})\n\n"
         "Har bir to'g'ri javob qayd etiladi va yakunda **REYTING JADVALI** e'lon qilinadi!",
         parse_mode="Markdown",
@@ -1061,6 +1073,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         explanation = f"{q_data.get('explanation', '')}\n👉 @onatilidanyordam"[:195]
 
         try:
+            poll_sent_at = time.time()
             poll_msg = bot.send_poll(
                 chat_id=target_chat_id,
                 question=question_text,
@@ -1073,10 +1086,12 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             )
             POLL_CORRECT_MAP[poll_msg.poll.id] = {
                 "chat_id": target_chat_id,
-                "correct_option_id": correct_id
+                "correct_option_id": correct_id,
+                "sent_time": poll_sent_at
             }
         except Exception as err:
             try:
+                poll_sent_at = time.time()
                 poll_msg = bot.send_poll(
                     chat_id=target_chat_id,
                     question=question_text,
@@ -1089,7 +1104,8 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                 )
                 POLL_CORRECT_MAP[poll_msg.poll.id] = {
                     "chat_id": target_chat_id,
-                    "correct_option_id": correct_id
+                    "correct_option_id": correct_id,
+                    "sent_time": poll_sent_at
                 }
             except Exception:
                 pass
@@ -1110,7 +1126,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             results[str(uid)] = {
                 "name": info["name"],
                 "correct": info["correct"],
-                "duration": duration_total,
+                "duration": round(info["total_time"], 1),
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M")
             }
             cursor.execute("""
@@ -1121,20 +1137,39 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         conn.close()
         save_data(RESULTS_FILE, results)
 
-        sorted_participants = sorted(scores.items(), key=lambda x: x[1]["correct"], reverse=True)
+        # SARALASH MEZONI:
+        # 1. To'g'ri javoblar ko'pligi (kamayish tartibida: -x[1]["correct"])
+        # 2. Sarflangan umumiy vaqt kamligi (o'sish tartibida: x[1]["total_time"])
+        sorted_participants = sorted(
+            scores.items(),
+            key=lambda x: (-x[1]["correct"], x[1]["total_time"])
+        )
+
         leaderboard_text = ""
         for rank, (uid, info) in enumerate(sorted_participants, 1):
-            medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"`#{rank}`"
+            if rank == 1:
+                medal = "🥇"
+            elif rank == 2:
+                medal = "🥈"
+            elif rank == 3:
+                medal = "🥉"
+            else:
+                medal = f"**{rank}.**"
+                
             perc = round((info["correct"] / total_q) * 100, 1)
-            leaderboard_text += f"{medal} **{info['name']}** — `{info['correct']}/{total_q}` to'g'ri (`{perc}%`)\n"
+            spent_time = round(info["total_time"], 1)
+            leaderboard_text += (
+                f"{medal} **{info['name']}** — `{info['correct']}/{total_q}` to'g'ri "
+                f"(`{perc}%`) • ⏱ `{spent_time}s`\n"
+            )
 
         finish_msg = (
             f"╔════════════════════════════════╗\n"
-            f"  🏆 **{title.upper()} REYTINGI**\n"
+            f"  🏆 **{title.upper()} JONLI REYTINGI**\n"
             f"╚════════════════════════════════╝\n\n"
-            f"👥 Jami ishtirokchilar: `{len(sorted_participants)} nafar`\n"
-            f"📊 Savollar soni: `{total_q} ta`\n\n"
-            "🏅 **ISHTIROKCHILARNING JONLI NATIJALARI:**\n"
+            f"👥 Ishtirokchilar: `{len(sorted_participants)} nafar`\n"
+            f"📊 Jami savollar: `{total_q} ta`\n\n"
+            "🏅 **G'OLIBLAR VA NATIJALAR (Ball & Vaqt bo'yicha):**\n"
             f"{leaderboard_text}\n"
             "────────────────────────────────\n"
             f"✨ Rasmiy filologik kanalimiz: [{CHANNEL_USERNAME}]({CHANNEL_URL})"
