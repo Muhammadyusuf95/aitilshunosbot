@@ -13,7 +13,12 @@ from telebot import types as tele_types
 from google import genai
 from google.genai import types
 
-# --- RENDER WEB SERVICE VA TELEGRAM WEBAPP SERVERI ---
+# Alohida fayldagi 20 ta namunaviy esseni yuklab olamiz
+try:
+    from sample_essays import SAMPLE_ESSAYS
+except ImportError:
+    SAMPLE_ESSAYS = []
+
 app = Flask(__name__)
 RESULTS_FILE = "test_results.json"
 USERS_FILE = "users.json"
@@ -21,7 +26,6 @@ COUNTERS_FILE = "quiz_counters.json"
 BAZA_FILE = "baza.json"
 DB_FILE = "users.db"
 
-# --- SQLITE DOIMIY MA'LUMOTLAR BAZASI ---
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -118,92 +122,34 @@ WEBAPP_HTML = """
       background-color: var(--bg);
       color: var(--text);
     }
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    .header { text-align: center; margin-bottom: 20px; }
     .badge {
-      display: inline-block;
-      padding: 4px 12px;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--primary);
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
+      display: inline-block; padding: 4px 12px; background: rgba(56, 189, 248, 0.15);
+      color: var(--primary); border-radius: 999px; font-size: 12px; font-weight: 600; margin-bottom: 8px;
     }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 6px 0;
-    }
-    .sub {
-      color: var(--text-dim);
-      font-size: 13px;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
+    h1 { font-size: 20px; margin: 0 0 6px 0; }
+    .sub { color: var(--text-dim); font-size: 13px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
     .stat-card {
-      background: var(--card);
-      padding: 12px 6px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      text-align: center;
+      background: var(--card); padding: 12px 6px; border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05); text-align: center;
     }
-    .stat-val {
-      font-size: 16px;
-      font-weight: bold;
-      color: var(--primary);
-    }
-    .stat-lbl {
-      font-size: 10px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
+    .stat-val { font-size: 16px; font-weight: bold; color: var(--primary); }
+    .stat-lbl { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
     .leaderboard {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 12px;
+      background: var(--card); border-radius: 16px; padding: 12px;
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .row {
-      display: flex;
-      align-items: center;
-      padding: 10px 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-    .row:last-child {
-      border-bottom: none;
-    }
-    .rank {
-      width: 28px;
-      font-weight: 700;
-      font-size: 14px;
-    }
+    .row { display: flex; align-items: center; padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+    .row:last-child { border-bottom: none; }
+    .rank { width: 28px; font-weight: 700; font-size: 14px; }
     .rank-1 { color: #fbbf24; }
     .rank-2 { color: #94a3b8; }
     .rank-3 { color: #d97706; }
-    .info {
-      flex: 1;
-      padding: 0 8px;
-    }
-    .name {
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .details {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-    .score {
-      font-weight: 700;
-      color: var(--primary);
-      font-size: 13px;
-      text-align: right;
-    }
+    .info { flex: 1; padding: 0 8px; }
+    .name { font-size: 14px; font-weight: 600; }
+    .details { font-size: 11px; color: var(--text-dim); }
+    .score { font-weight: 700; color: var(--primary); font-size: 13px; text-align: right; }
   </style>
 </head>
 <body>
@@ -212,22 +158,11 @@ WEBAPP_HTML = """
     <h1>🏆 Jonli Reyting & Darajalar</h1>
     <div class="sub">@onatilidanyordam hamjamiyati</div>
   </div>
-
   <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-val">{{ total_users }}</div>
-      <div class="stat-lbl">A'zolar</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">{{ total_tested }}</div>
-      <div class="stat-lbl">Test topshirganlar</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">{{ active_streaks }}</div>
-      <div class="stat-lbl">🔥 Faol seriyalar</div>
-    </div>
+    <div class="stat-card"><div class="stat-val">{{ total_users }}</div><div class="stat-lbl">A'zolar</div></div>
+    <div class="stat-card"><div class="stat-val">{{ total_tested }}</div><div class="stat-lbl">Test topshirganlar</div></div>
+    <div class="stat-card"><div class="stat-val">{{ active_streaks }}</div><div class="stat-lbl">🔥 Faol seriyalar</div></div>
   </div>
-
   <div class="leaderboard">
     {% for user in top_users %}
     <div class="row">
@@ -236,18 +171,12 @@ WEBAPP_HTML = """
         <div class="name">{{ user.name }}</div>
         <div class="details">🔥 {{ user.streak }} kun seriya • {{ user.points }} ball</div>
       </div>
-      <div class="score">
-        {{ user.correct }}/30 to'g'ri<br>
-        <span style="font-size:10px; color:var(--text-dim); font-weight:normal;">⏳ {{ user.duration_str }}</span>
-      </div>
+      <div class="score">{{ user.correct }}/30 to'g'ri<br><span style="font-size:10px; color:var(--text-dim); font-weight:normal;">⏳ {{ user.duration_str }}</span></div>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 20px; color: var(--text-dim); font-size: 13px;">
-      Hozircha natijalar mavjud emas. Birinchi bo'lib test topshiring!
-    </div>
+    <div style="text-align: center; padding: 20px; color: var(--text-dim); font-size: 13px;">Hozircha natijalar mavjud emas. Birinchi bo'lib test topshiring!</div>
     {% endfor %}
   </div>
-
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
@@ -260,7 +189,7 @@ WEBAPP_HTML = """
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v11.0 (Open Group Quiz Edition) Faol!"
+    return "AI Tilshunos & Metodist v11.3 (Modular Edition) Faol!"
 
 @app.route('/leaderboard')
 def webapp_leaderboard():
@@ -311,7 +240,6 @@ def run_web():
 
 threading.Thread(target=run_web, daemon=True).start()
 
-# --- SERVERNI UYG'OQ SAQLASH ---
 RENDER_APP_URL = "https://aitilshunosbot.onrender.com"
 
 def keep_alive():
@@ -324,11 +252,11 @@ def keep_alive():
 
 threading.Thread(target=keep_alive, daemon=True).start()
 
-# --- ASOSIY SOZLAMALAR ---
 TELEGRAM_TOKEN = "8753873278:AAHtYTR7bduo4cFEbfTz0f9g_cUKBsWk04I"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 CHANNEL_USERNAME = "@onatilidanyordam"
+CHANNEL_URL = "https://t.me/onatilidanyordam"
 ADMIN_ID = 5423849679
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
@@ -339,6 +267,7 @@ POLL_CORRECT_MAP = {}
 READY_MATCHES = {}
 ADMIN_POST_STORAGE = {}
 PENDING_QUIZZES = {}
+USER_CUSTOM_BUILDERS = {}
 
 BANNER_IMAGES = {
     "talaba": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=900&auto=format&fit=crop&q=80",
@@ -349,7 +278,7 @@ BANNER_IMAGES = {
 
 IMZO = (
     "\n\n╭───────────────────────╮\n"
-    f"  🏛 **Rasmiy kanal:** {CHANNEL_USERNAME}\n"
+    f"  🏛 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})\n"
     "  ✨ **AI Asistent:** @aitilshunosbot\n"
     "╰───────────────────────╯"
 )
@@ -374,21 +303,6 @@ CERT_ESSAY_TOPICS = [
     "Psixologlar tarbiyada erkinlik muhimligini taʼkidlashmoqda, ammo ba'zilar erkinlik salbiy oqibatlarga olib keladi degan fikrda.",
     "Ba'zilar inson faoliyati tufayli yer shari zararlanib borayotganini ta'kidlashmoqda, ayrimlar esa uni yashash uchun yaxshiroq joyga aylantiradi deb o'ylaydi.",
     "Ba'zilar ta'lim jarayonida mehnat faoliyati bilan shug'ullansa tajriba oshadi deyishsa, ayrimlar faqat bilim olish muhimligini ta'kidlashadi."
-]
-
-SAMPLE_ESSAYS = [
-    {
-        "id": 1,
-        "title": "Zamonaviy kasblar va Oliy ta'lim",
-        "topic": "Aksariyat maktab bitiruvchilari oliy ta'limni talab etmaydigan zamonaviy kasblarni egallashga qiziqish bildirishsa, ayrimlar zamonaviy kasblar insonga butun umrlik faoliyat bo'lib qolishiga ishonishmaydi.",
-        "text": "Dunyo rivojlangani sari zamonaviy kasblar ham takomillashib bormoqda. Katta hayot ostonasiga qadam qoʻyayotgan ko'plab o'quvchilar hozirgi kunda diplom talab qilmaydigan kasblarni oʻzlashtirishga xohish bildirishmoqda. Ammo baʼzilar bunday kasblarning kelajagi mavhum, inson uchun butun umrlik faoliyat bo'la olmaydi deb hisoblashmoqda. Quyidagi esseda har ikkala qarashni ko'rib chiqamiz.\n\nBirinchi qarash tarafdorlarining fikriga ko'ra, innovatsion kasblar qisqa muddatda o'rganiladi va yaxshi daromad keltiradi. Yangi avlod kasblariga IT, dizayn, marketing, treyding, servis sohalari kiradi. Ularning afzalliklari, birinchidan, oliy ta'limni talab etmasligi, ikkinchidan, qisqa muddatli kurslar orqali oʻrganish mumkinligidadir. Atrofimizga nazar tashlaydigan bo'lsak, ko'plab yoshlarning zamonaviy kasblar orqasidan mo'may daromad topayotganini ko'rishimiz mumkin. Bu sohalar ularga moliyaviy jihatdan mustaqil bo'lish va oz vaqtda tajriba orttirish imkonini bergan.\n\nIkkinchi qarash tarafdorlari zamonaviy kasblarni tanlashda xavf-xatarlarni oldindan ko'ra oladilar. Avvalo, bu sohalar telefon, kompyuter kabi texnikalar bilan bog'liq bo'lib, ulardan chiqayotgan nurlar inson sog'ligi uchun zararlidir. Bundan tashqari texnologiyalar o'zgarib, baʼzi kasblar avtomatlashtirilishi yoki sunʼiy intellekt tomonidan bajarilishi mumkin. Hatto inson mimikalarini oʻzlashtirayotgan robotlar rivojlanib borayotgan davrda zamonaviy kasblar taraqqiyoti mavhum masala bo'lib qolmoqda.\n\nHar ikkala tomonning fikrlaridan kelib chiqadigan bo'lsak, zamonaviy kasblar tez rivojlanmoqda. Shu bilan birga ularning kelajagi noma'lum hamdir. Oliy ta'lim talab qiladigan mutaxassisliklar barqarorlik va uzoq muddatli rivojlanish imkonini beradi. Qay birini tanlash esa insonning oʻziga bog'liq.\n\nXulosa qilib aytganda, zamonaviy kasblarni tanlash har kimning ixtiyoriy tanlovi. Oliy ta'limni talab qilmaydigan kasblar qisqa muddatli maqsadlar uchun foydali bo'lishi mumkin, lekin bu kasblar insonning hayoti davomida bir umrlik faoliyat bo'la olmaydi."
-    },
-    {
-        "id": 2,
-        "title": "Xususiy va davlat maktablari ta'limi",
-        "topic": "Ba'zilar bolaga mukammal bilim berish uchun uni xususiy maktabda o'qitish kerak deb hisoblashsa, ayrimlar davlat maktabida ham mukammal bilim olish mumkin deb bilishadi.",
-        "text": "Ayrimlar farzandlarini zamonaviy jihozlar, malakali o'qituvchilar va individual yondashuv bilan ajralib turadigan xususiy maktablarda o'qitishni afzal deb bilsa, ba'zilar davlat maktablaridagi anʼanaviy ta'lim bilan mukammal bilim olish mumkin deb hisoblashadi. Har ikki tomon ham oʻz fikrlarining asosli dalillariga ega.\n\nFarzandlarini xususiy maktablarda o'qitish tarafdori bo'lgan ota-onalar bu muassasalar koʻproq resurslar va imkoniyatlarga egaligini ta'kidlaydilar. Xususiy maktablar bir qator qulayliklarga ega. Birinchidan, ulardagi sinflarda o'quvchi sonining ozligi o'qituvchi har bir o'quvchiga alohida vaqt ajrata olishini taʼminlaydi. Natijada o'quvchilar mavzularni qiynalmay o'zlashtiradilar. Ikkinchidan, zamonaviy texnologiyalar bilan jihozlangan xonalarda ta'lim olgan o'quvchining bilim darajasi ham yuqori bo'ladi. Shu bilan birga xususiy ta'lim muassasalarida o'qish pulli bo'lgani uchun o'quvchidan ham ota-onadan ham masʼuliyatni talab qiladi. Qo'qon shahridagi 'Lider school' xususiy maktabi o'quvchilari turli sertifikatlarni qo'lga kiritib, muddatidan oldin talaba boʻlish imkoniyatiga egaligini fikrimiz isboti sifatida keltirishimiz mumkin.\n\nDavlat maktablarida o'qishni qo'llab-quvvatlaydiganlar esa sifatli ta'lim olish uchun o'qituvchi malakasi va o'quvchi iqtidorini yetarli deb hisoblaydilar. Bunday maktablar bepul boʻlgani uchun jamiyatning salmoqli qatlamini ta'lim jarayoniga qamrab oladi. Davlat maktablarida qo'shimcha to'garaklar, sport mashg'ulotlari va madaniy tadbirlar ko'proq o'tkaziladi. Bu holat o'quvchilarning har tomonlama rivojlanishiga sabab bo'ladi. O'zbekistonda 11 yillik majburiy bepul ta'lim joriy etilgan, shuning uchun mamlakatimizda savodsizlik darajasi atigi 0.02 foizni tashkil etadi.\n\n'Har kim o'z qarichi bilan oʻlchar' deganlaridek, farzandlarini qanday ta'lim muassasasida o'qitish ota-onaning oʻziga bog'liq. Moliyaviy sharoiti to'g'ri kelsa, menimcha, bola xususiy maktabda o'qigani ma'qul. Chunki pulli muassasalarda berilgan bilimga yarasha talab ham kuchli bo'ladi.\n\nXulosa qilib aytganda, mukammal ta'lim olish uchun maktabning turi emas, balki ta'lim jarayonini to'g'ri tashkil etish muhim. Xususiy maktablar esa bu borada qo'shimcha imkoniyatlar taklif qila oladi."
-    }
 ]
 
 def get_next_quiz_number(quiz_type):
@@ -533,10 +447,13 @@ def get_main_menu(user_id=None):
     )
     markup.row(
         tele_types.KeyboardButton("🎒 Abituriyentlar uchun"),
-        tele_types.KeyboardButton("🔬 Ilmiy izlanuvchilar uchun")
+        tele_types.KeyboardButton("🛠 Quiz Test Tuzuvchi")
     )
     markup.row(
-        tele_types.KeyboardButton("👤 Shaxsiy kabinet"),
+        tele_types.KeyboardButton("🔬 Ilmiy izlanuvchilar uchun"),
+        tele_types.KeyboardButton("👤 Shaxsiy kabinet")
+    )
+    markup.row(
         tele_types.KeyboardButton("🏆 Jonli Reyting Doskasi")
     )
     if user_id and int(user_id) == int(ADMIN_ID):
@@ -636,7 +553,7 @@ def send_cert_essay_hub(chat_id):
         "va baholash mezonlari asosidagi maxsus bo'lim:\n\n"
         "▫️ **Esse tekshiruvi (50 ballik):** Yozgan matningizni mezonlar bo'yicha ekspert tahlil qildiring;\n"
         "▫️ **Esse mavzulari:** 19 ta rasmiy mavzular banki va yangi AI mavzular tavsiyasi;\n"
-        "▫️ **Namunaviy esselar:** Tayyor namunalar kutubxonasi va AI generatsiyasi.\n\n"
+        "▫️ **Namunaviy esselar:** 20 ta tayyor namunalar kutubxonasi va AI generatsiyasi.\n\n"
         "👇 *Kerakli xizmatni tanlang:* \n"
         "╰──────────────────────────────────────────────╯"
     )
@@ -644,7 +561,7 @@ def send_cert_essay_hub(chat_id):
     markup.add(
         tele_types.InlineKeyboardButton(text="✍️ Esse tekshiruvi (50 ballik mezon)", callback_data="btn_esse"),
         tele_types.InlineKeyboardButton(text="💡 Esse mavzulari (Bank & AI)", callback_data="cert_topics_hub"),
-        tele_types.InlineKeyboardButton(text="📚 Namunaviy esselar (Namunalar & AI)", callback_data="cert_samples_hub_0"),
+        tele_types.InlineKeyboardButton(text="📚 Namunaviy esselar (20 ta namuna & AI)", callback_data="cert_samples_hub_0"),
         tele_types.InlineKeyboardButton(text="🔙 Abituriyent bo'limiga qaytish", callback_data="back_to_abituriyent")
     )
     bot.send_message(chat_id, caption, parse_mode="Markdown", reply_markup=markup)
@@ -687,7 +604,7 @@ def send_cert_samples_page(chat_id, message_id=None, page=0):
     text = (
         f"╭── 📚 **NAMUNAVIY ESSELAR KUTUBXONASI** ──╮\n\n"
         f"Ushbu bo'limda Milliy sertifikat mezonlariga to'liq mos namunalar mavjud.\n"
-        f"📄 *Sahifa: {page + 1}/{total_pages}*\n\n"
+        f"📄 *Sahifa: {page + 1}/{total_pages} (Jami {total} ta namuna)*\n\n"
         "O'qimoqchi bo'lgan essengizni tanlang:\n"
         "╰──────────────────────────────────────────╯"
     )
@@ -788,6 +705,25 @@ def send_theme_catalog(chat_id):
     markup.add(tele_types.InlineKeyboardButton(text="🔙 Orqaga", callback_data="btn_bmb_themed_hub"))
     bot.send_message(chat_id, caption, parse_mode="Markdown", reply_markup=markup)
 
+def send_quiz_creator_hub(chat_id):
+    caption = (
+        "╭── 🛠 **QUIZ TEST TUZUVCHI KONSTRUKTORI** ──╮\n\n"
+        "Siz ushbu bo'limda o'zingiz xohlagan mavzu yoki matn asosida "
+        "100% xatosiz, 4 variantli professional Quiz test paketini tuzishingiz mumkin!\n\n"
+        "✨ **Imkoniyatlar:**\n"
+        "▫️ Erkin mavzu yoki darslik parchasini kiritish;\n"
+        "▫️ Savollar sonini (5, 10, 15, 20 yoki 30 ta) tanlash;\n"
+        "▫️ Savolga ajratilgan vaqtni (15, 30 yoki 45 soniya) belgilash;\n"
+        "▫️ Testni o'z guruhingizga tashlab, **jonli bellashuv** o'tkazish!\n\n"
+        "👇 *Test tuzishni boshlash uchun bosing:* \n"
+        "╰──────────────────────────────────────────╯"
+    )
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        tele_types.InlineKeyboardButton(text="🚀 Yangi Quiz Test tuzish", callback_data="start_custom_quiz_builder")
+    )
+    bot.send_message(chat_id, caption, parse_mode="Markdown", reply_markup=markup)
+
 def dynamic_ai_delivery(chat_id, prompt_text, user_id, category_tag):
     if check_security_violation(prompt_text):
         bot.send_message(chat_id, SECURITY_WARNING, parse_mode="Markdown")
@@ -836,7 +772,7 @@ def deliver_styled_response(chat_id, user_id, text, category_tag):
         "╭── 💎 **ILMIY-METODIK EKSPERT XULOSASI** ──╮\n\n"
         f"**>** {text.strip()}\n\n"
         "╰──────────────────────────────────────────╯\n"
-        f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`"
+        f"🏛 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})"
     )
 
     if is_admin:
@@ -888,7 +824,7 @@ def send_subscription_prompt(chat_id):
     markup.add(
         tele_types.InlineKeyboardButton(
             text="✨ Rasmiy kanalga a'zo bo'lish", 
-            url=f"https://t.me/{CHANNEL_USERNAME.replace('@', '')}"
+            url=CHANNEL_URL
         ),
         tele_types.InlineKeyboardButton(
             text="🔄 Obunani tasdiqlash", 
@@ -899,13 +835,12 @@ def send_subscription_prompt(chat_id):
         "╭─── 🏛 **ILMIY-METODIK HAMJAMIYAT** ───╮\n\n"
         "AI-Tilshunos xizmatlaridan to'liq va limitsiz foydalanish "
         "uchun rasmiy ta'limiy kanalimizga obuna bo'ling:\n\n"
-        f"👉 **Kanal:** {CHANNEL_USERNAME}\n\n"
+        f"👉 **Kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})\n\n"
         "Obuna bo'lgach, quyidagi tugma orqali tasdiqlang.\n"
         "╰─────────────────────────────────────╯"
     )
     bot.send_message(chat_id, matn, parse_mode="Markdown", reply_markup=markup)
 
-# --- SYSTEM INSTRUCTION: 100% XATOSIZLIK, USLUB VA MEZON TALABI ---
 SYSTEM_INSTRUCTION = (
     "Siz O'zbekiston Respublikasi Fanlar akademiyasi Til va adabiyot instituti yetakchi filologi, "
     "OAK eksperti hamda BMB (DTM) va Milliy sertifikat bo'yicha bosh ilmiy-metodistsiz.\n\n"
@@ -984,7 +919,7 @@ def generate_quiz_batch(prompt_spec, count=30):
                         opts = [str(o).strip() for o in q.get("options", []) if str(o).strip()]
                         if len(opts) == 4 and 0 <= int(q.get("correct_option_id", 0)) < 4:
                             cleaned_questions.append(q)
-                    if len(cleaned_questions) >= min(10, count):
+                    if len(cleaned_questions) >= min(5, count):
                         return cleaned_questions[:count]
             except Exception as e:
                 last_error = str(e)
@@ -998,27 +933,26 @@ def generate_quiz_batch(prompt_spec, count=30):
                     break
     raise Exception(f"Test shakllantirishda xatolik: {last_error[:300]}")
 
-# --- BAZA.JSON VA AI INTEGRATSIYASI BILAN BMB TEST TAYYORLASH ---
-def get_themed_bmb_questions(theme_name):
+def get_themed_bmb_questions(theme_name, count=30):
     local_base = load_local_knowledge_base()
     if local_base and "tests" in local_base and len(local_base["tests"]) > 0:
         base_tests = local_base["tests"]
 
         if any(k in theme_name.lower() for k in ["barcha", "umumiy", "dtm", "bmb"]):
-            return random.sample(base_tests, min(len(base_tests), 30))
+            return random.sample(base_tests, min(len(base_tests), count))
 
         filtered = [
             t for t in base_tests 
             if theme_name.lower() in t.get("bolim", "").lower()
         ]
-        if len(filtered) >= 15:
-            return random.sample(filtered, min(len(filtered), 30))
+        if len(filtered) >= count:
+            return random.sample(filtered, count)
 
     seed = random.randint(10000, 99999)
     prompt = (
         f"O'zbekiston Respublikasi BMB (DTM) va Milliy sertifikat standarti bo'yicha "
         f"amaldagi 5-11-sinf Ona tili va adabiyot darsliklari asosida aynan '{theme_name}' mavzusida "
-        f"TO'LIQ 30 TA 100% XATOSIZ, ORIGINAL, ILMIY VA USLUBIY JIHATDAN MUKAMMAL Quiz test tuzing (Seed #{seed}).\n\n"
+        f"TO'LIQ {count} TA 100% XATOSIZ, ORIGINAL, ILMIY VA USLUBIY JIHATDAN MUKAMMAL Quiz test tuzing (Seed #{seed}).\n\n"
         "QAT'IY QOIDALAR:\n"
         "1. Darslik faktlariga 100% mos bo'lsin. Imloviy va grammatik xatolarga mutlaqo yo'l qo'yilmasin.\n"
         "2. Har bir savolda aniq 4 ta variant (A, B, C, D) bo'lsin, birortasi takrorlanmasin.\n"
@@ -1032,9 +966,9 @@ def get_themed_bmb_questions(theme_name):
         '    "explanation": "Qisqa ilmiy izoh va darslik manbasi (maks 180 belgi)"\n'
         "  }\n"
         "]\n"
-        "DIQQAT: Ro'yxatda 30 ta savol bo'lsin. Variantlar uzunligi 95 belgidan oshmasin."
+        f"DIQQAT: Ro'yxatda aniq {count} ta savol bo'lsin. Variantlar uzunligi 95 belgidan oshmasin."
     )
-    return generate_quiz_batch(prompt, 30)
+    return generate_quiz_batch(prompt, count)
 
 def get_attestation_questions():
     seed = random.randint(10000, 99999)
@@ -1059,7 +993,6 @@ def get_attestation_questions():
     )
     return generate_quiz_batch(prompt, 40)
 
-# --- ISHTIROKCHILAR JAVOBLARINI TUTISH (OCHIQ SO'ROVNOMA ASOSIDA) ---
 @bot.poll_answer_handler()
 def handle_poll_answer(poll_answer):
     poll_id = poll_answer.poll_id
@@ -1089,12 +1022,9 @@ def handle_poll_answer(poll_answer):
         if chosen_opt == correct_opt:
             scores[u_id]["correct"] += 1
 
-# --- TEST JARAYONINI BOSHQARISH SIKLI (OCHIQ SO'ROVNOMA BILAN) ---
 def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
     total_q = len(questions)
-    
-    # Barcha chatlarda (guruh va kanallarda ham) kim qaysi variantni belgilaganini hamma ko'rishi uchun is_anonymous=False
-    is_anon = False
+    is_anon = False  # Barcha ishtirokchilarning tanlovi hamma uchun ko'rinadi
 
     start_time = time.time()
     ACTIVE_QUIZ_TRACKER[target_chat_id] = {
@@ -1107,10 +1037,11 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         f"🏁 **DIQQAT, {title.upper()} BOSHLANDI!**\n\n"
         f"▫️ Jami savollar: `{total_q} ta`\n"
         f"▫️ Har bir savolga vaqt: `⏳ {duration_per_q} soniya`\n"
-        f"▫️ Holati: **Ochiq so'rovnoma (Kim nima belgilagani ko'rinadi)**\n"
-        f"▫️ Rasmiy kanal: `{CHANNEL_USERNAME}`\n\n"
+        f"▫️ Rejim: **Ochiq test (Har bir ishtirokchining tanlovi ko'rinadi)**\n"
+        f"▫️ Rasmiy kanal: [{CHANNEL_USERNAME}]({CHANNEL_URL})\n\n"
         "Har bir to'g'ri javob qayd etiladi va yakunda **REYTING JADVALI** e'lon qilinadi!",
-        parse_mode="Markdown"
+        parse_mode="Markdown",
+        disable_web_page_preview=True
     )
     time.sleep(2)
 
@@ -1127,7 +1058,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         if correct_id < 0 or correct_id >= len(options):
             correct_id = 0
 
-        explanation = f"{q_data.get('explanation', '')}\n👉 {CHANNEL_USERNAME}"[:195]
+        explanation = f"{q_data.get('explanation', '')}\n👉 @onatilidanyordam"[:195]
 
         try:
             poll_msg = bot.send_poll(
@@ -1145,7 +1076,6 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                 "correct_option_id": correct_id
             }
         except Exception as err:
-            # Agar kanalda Telegram ochiq so'rovnomani cheklasa, zaxira sifatida anonim jo'natadi
             try:
                 poll_msg = bot.send_poll(
                     chat_id=target_chat_id,
@@ -1207,7 +1137,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             "🏅 **ISHTIROKCHILARNING JONLI NATIJALARI:**\n"
             f"{leaderboard_text}\n"
             "────────────────────────────────\n"
-            f"✨ Rasmiy filologik kanalimiz: `{CHANNEL_USERNAME}`"
+            f"✨ Rasmiy filologik kanalimiz: [{CHANNEL_USERNAME}]({CHANNEL_URL})"
         )
     else:
         finish_msg = (
@@ -1215,7 +1145,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             f"  🏆 **{title.upper()} YAKUNLANDI!**\n"
             f"╚════════════════════════════════╝\n\n"
             "Test yakunlandi. Hech bir ishtirokchi javob belgilamadi.\n\n"
-            f"Rasmiy kanal: `{CHANNEL_USERNAME}`"
+            f"Rasmiy kanal: [{CHANNEL_USERNAME}]({CHANNEL_URL})"
         )
 
     markup = tele_types.InlineKeyboardMarkup(row_width=1)
@@ -1224,11 +1154,11 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             text="🏆 Jonli Reyting Doskasi (Mini-App)", 
             web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
         ),
+        tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL),
         tele_types.InlineKeyboardButton(text="📤 Natijani ulashish", switch_inline_query="Mening test natijam")
     )
-    bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown", reply_markup=markup)
+    bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
 
-# --- 3 KISHI «TAYYORMAN» LOBBISI (GURUHLAR VA KANALLAR UCHUN) ---
 def setup_match_lobby(chat_id, questions, duration_per_q, title):
     match_id = f"m_{int(time.time())}_{random.randint(100, 999)}"
     READY_MATCHES[match_id] = {
@@ -1243,7 +1173,7 @@ def setup_match_lobby(chat_id, questions, duration_per_q, title):
     markup = tele_types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         tele_types.InlineKeyboardButton(text="✋ Men tayyorman (0/3)", callback_data=f"rdy_{match_id}"),
-        tele_types.InlineKeyboardButton(text="📢 Kanalga a'zo bo'lish", url=f"https://t.me/{CHANNEL_USERNAME.replace('@', '')}")
+        tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL)
     )
 
     announcement = (
@@ -1253,11 +1183,11 @@ def setup_match_lobby(chat_id, questions, duration_per_q, title):
         f"▫️ Savollar soni: `{len(questions)} ta`\n"
         f"▫️ Har bir savolga: `⏳ {duration_per_q} soniya`\n"
         f"▫️ Rejim: **Ochiq test (Har kimning javobi ko'rinadi)**\n"
-        f"▫️ Manzil: `{CHANNEL_USERNAME}`\n\n"
+        f"▫️ Rasmiy kanal: [{CHANNEL_USERNAME}]({CHANNEL_URL})\n\n"
         "⚠️ **Qoida:** Bellashuv start olishi uchun kamida **3 nafar ishtirokchi** "
         "«Men tayyorman» tugmasini bosishi lozim!"
     )
-    bot.send_message(chat_id, announcement, parse_mode="Markdown", reply_markup=markup)
+    bot.send_message(chat_id, announcement, parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("rdy_"))
 def callback_match_lobby(call):
@@ -1282,7 +1212,7 @@ def callback_match_lobby(call):
         markup = tele_types.InlineKeyboardMarkup(row_width=1)
         markup.add(
             tele_types.InlineKeyboardButton(text=f"✋ Men tayyorman ({count}/3)", callback_data=f"rdy_{match_id}"),
-            tele_types.InlineKeyboardButton(text="📢 Kanalga a'zo bo'lish", url=f"https://t.me/{CHANNEL_USERNAME.replace('@', '')}")
+            tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL)
         )
         try:
             bot.edit_message_reply_markup(chat_id=m["chat_id"], message_id=call.message.message_id, reply_markup=markup)
@@ -1308,7 +1238,6 @@ def callback_match_lobby(call):
             daemon=True
         ).start()
 
-# --- YANGILANGAN: TEST TAYYOR BO'LGANDA TANLOV MENYUSI ---
 def offer_quiz_dispatch(chat_id, user_id, questions, duration_per_q, title):
     quiz_id = f"qz_{int(time.time())}_{random.randint(100, 999)}"
     PENDING_QUIZZES[quiz_id] = {
@@ -1342,7 +1271,6 @@ def offer_quiz_dispatch(chat_id, user_id, questions, duration_per_q, title):
             reply_markup=markup
         )
 
-# --- TEST TANLOV CALLBACKLARI ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith(("act_chan_", "act_bot_", "act_sendgrp_")))
 def callback_quiz_routing(call):
     data = call.data
@@ -1420,7 +1348,95 @@ def callback_quiz_routing(call):
                 )
         bot.register_next_step_handler(msg, forward_quiz_to_group)
 
-# --- GURUHDAN /quiz_start BUYRUG'I ---
+@bot.callback_query_handler(func=lambda call: call.data == "start_custom_quiz_builder")
+def callback_start_quiz_builder(call):
+    uid = call.from_user.id
+    USER_CUSTOM_BUILDERS[uid] = {}
+    bot.answer_callback_query(call.id)
+    
+    msg = bot.send_message(
+        call.message.chat.id,
+        "✍️ **1-QADAM: Test mavzusini yoki matnni kiriting:**\n\n"
+        "Qaysi mavzuda yoki qaysi matn asosida Quiz test tuzmoqchisiz? Yozib yuboring:\n"
+        "👉 *Masalan: «Boburnoma fitonimlari va etnolingvistikasi», «Eski turkiy til leksikasi», «Qo'shma gap sintaksisi» yoki darslikdan parcha.*",
+        parse_mode="Markdown"
+    )
+    def step_get_topic(m):
+        topic = m.text.strip()
+        USER_CUSTOM_BUILDERS[uid]["topic"] = topic
+        
+        markup = tele_types.InlineKeyboardMarkup(row_width=3)
+        markup.row(
+            tele_types.InlineKeyboardButton(text="5 ta savol", callback_data="cb_qcount_5"),
+            tele_types.InlineKeyboardButton(text="10 ta savol", callback_data="cb_qcount_10"),
+            tele_types.InlineKeyboardButton(text="15 ta savol", callback_data="cb_qcount_15")
+        )
+        markup.row(
+            tele_types.InlineKeyboardButton(text="20 ta savol", callback_data="cb_qcount_20"),
+            tele_types.InlineKeyboardButton(text="30 ta savol", callback_data="cb_qcount_30")
+        )
+        bot.send_message(
+            call.message.chat.id,
+            f"📌 **Mavzu qabul qilindi:** *{topic[:80]}...*\n\n"
+            "📊 **2-QADAM: Test nechta savoldan iborat bo'lsin?** Tanlang:",
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+    bot.register_next_step_handler(msg, step_get_topic)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("cb_qcount_"))
+def callback_quiz_builder_count(call):
+    uid = call.from_user.id
+    count = int(call.data.replace("cb_qcount_", ""))
+    if uid not in USER_CUSTOM_BUILDERS:
+        USER_CUSTOM_BUILDERS[uid] = {"topic": "Ona tili va adabiyot umumiy"}
+    USER_CUSTOM_BUILDERS[uid]["count"] = count
+    bot.answer_callback_query(call.id)
+
+    markup = tele_types.InlineKeyboardMarkup(row_width=3)
+    markup.row(
+        tele_types.InlineKeyboardButton(text="⏳ 15 soniya", callback_data="cb_qtime_15"),
+        tele_types.InlineKeyboardButton(text="⏳ 30 soniya", callback_data="cb_qtime_30"),
+        tele_types.InlineKeyboardButton(text="⏳ 45 soniya", callback_data="cb_qtime_45")
+    )
+    bot.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text=f"📊 Savollar soni: `{count} ta`\n\n⏱ **3-QADAM: Har bir savolga qancha vaqt berilsin?** Tanlang:",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("cb_qtime_"))
+def callback_quiz_builder_finish(call):
+    uid = call.from_user.id
+    duration = int(call.data.replace("cb_qtime_", ""))
+    builder_data = USER_CUSTOM_BUILDERS.get(uid, {})
+    topic = builder_data.get("topic", "Ona tili va adabiyot")
+    count = builder_data.get("count", 10)
+    
+    bot.answer_callback_query(call.id, "Test generatsiyasi boshlandi...")
+    status_msg = bot.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text=f"🧠 *AI Tilshunos ekspertimiz «{topic[:50]}» bo'yicha 100% xatosiz {count} ta test savolini shakllantirmoqda... Iltimos kuting!*",
+        parse_mode="Markdown"
+    )
+
+    def generate_and_dispatch():
+        try:
+            questions = get_themed_bmb_questions(topic, count=count)
+            quiz_title = f"«{topic[:40]}» testi ({count} ta)"
+            try:
+                bot.delete_message(call.message.chat.id, status_msg.message_id)
+            except Exception:
+                pass
+            offer_quiz_dispatch(call.message.chat.id, uid, questions, duration_per_q=duration, title=quiz_title)
+        except Exception as e:
+            bot.send_message(call.message.chat.id, f"❌ Test shakllantirishda xatolik yuz berdi: {e}")
+
+    threading.Thread(target=generate_and_dispatch, daemon=True).start()
+
 @bot.message_handler(commands=['quiz_start'])
 def cmd_quiz_start_group(message):
     chat_type = message.chat.type
@@ -1433,7 +1449,7 @@ def cmd_quiz_start_group(message):
         try:
             bmb_num = get_next_quiz_number("bmb_30")
             quiz_title = f"№{bmb_num} BMB 30 talik test (Guruh Bellashuvi)"
-            questions = get_themed_bmb_questions("5-11-sinf barcha darsliklari")
+            questions = get_themed_bmb_questions("5-11-sinf barcha darsliklari", 30)
             setup_match_lobby(message.chat.id, questions, duration_per_q=30, title=quiz_title)
         except Exception as e:
             bot.reply_to(message, f"❌ Xatolik yuz berdi: {e}")
@@ -1452,7 +1468,7 @@ def callback_admin_approval(call):
         content = ADMIN_POST_STORAGE.get(post_id)
         if content:
             try:
-                bot.send_message(CHANNEL_USERNAME, content, parse_mode="Markdown")
+                bot.send_message(CHANNEL_USERNAME, content, parse_mode="Markdown", disable_web_page_preview=True)
                 bot.edit_message_text(
                     chat_id=call.message.chat.id,
                     message_id=call.message.message_id,
@@ -1535,10 +1551,10 @@ def callback_publish_quote(call):
         return
 
     clean_text = text_data.split("📚 Aniq manba:")[0].strip()
-    channel_post = f"{clean_text}\n\n───────────────\n🌟 **Rasmiy kanal:** `{CHANNEL_USERNAME}`"
+    channel_post = f"{clean_text}\n\n───────────────\n🌟 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})"
 
     try:
-        bot.send_message(CHANNEL_USERNAME, channel_post, parse_mode="Markdown")
+        bot.send_message(CHANNEL_USERNAME, channel_post, parse_mode="Markdown", disable_web_page_preview=True)
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
@@ -1654,7 +1670,7 @@ def callback_button_actions(call):
             quiz_title = f"«{theme}» mavzusi bo'yicha test (30 ta)"
             bot.send_message(cid, f"⏳ *«{theme}» bo'yicha 100% xatosiz test shakllanmoqda...*", parse_mode="Markdown")
             try:
-                questions = get_themed_bmb_questions(theme)
+                questions = get_themed_bmb_questions(theme, 30)
                 offer_quiz_dispatch(cid, uid, questions, duration_per_q=30, title=quiz_title)
             except Exception as e:
                 bot.send_message(cid, f"❌ Xatolik: {e}")
@@ -1667,7 +1683,7 @@ def callback_button_actions(call):
             quiz_title = f"{cat_info['title']} (30 ta)"
             bot.send_message(cid, f"⏳ *{cat_info['title']} bo'yicha 100% xatosiz test tayyorlanmoqda...*", parse_mode="Markdown")
             try:
-                questions = get_themed_bmb_questions(cat_info["prompt"])
+                questions = get_themed_bmb_questions(cat_info["prompt"], 30)
                 offer_quiz_dispatch(cid, uid, questions, duration_per_q=30, title=quiz_title)
             except Exception as e:
                 bot.send_message(cid, f"❌ Xatolik: {e}")
@@ -1722,7 +1738,7 @@ def callback_button_actions(call):
         try:
             bmb_num = get_next_quiz_number("bmb_30")
             quiz_title = f"№{bmb_num} BMB 30 talik test"
-            questions = get_themed_bmb_questions("5-11-sinf barcha bo'limlari")
+            questions = get_themed_bmb_questions("5-11-sinf barcha bo'limlari", 30)
             offer_quiz_dispatch(cid, uid, questions, duration_per_q=30, title=quiz_title)
         except Exception as e:
             bot.send_message(cid, f"❌ Xatolik: {e}")
@@ -1762,17 +1778,18 @@ def default_inline_query(inline_query):
         r = tele_types.InlineQueryResultArticle(
             id='1',
             title="AI Tilshunos & Metodist Platformasi",
-            description="BMB testlari, Milliy sertifikat esselari va metodik baza",
+            description="BMB testlari, Milliy sertifikat esselari va Quiz konstruktori",
             input_message_content=tele_types.InputTextMessageContent(
                 message_text=(
                     "🏛 **AI TILSHUNOS & METODIST PORTALI**\n\n"
                     "Ona tili, adabiyot va pedagogika sohasidagi sun'iy intellekt yordamchisi.\n\n"
                     "▫️ BMB 30 talik testlar va jonli reyting;\n"
+                    "▫️ Quiz test tuzuvchi konstruktor (erkin mavzu);\n"
                     "▫️ Milliy sertifikat esselari;\n"
                     "▫️ Attestatsiya Y1, Y2, Y3 testlari;\n"
                     "▫️ OAK maqola va dars konspektlari konstruktori.\n\n"
                     f"👉 Botdan foydalanish: @aitilshunosbot\n"
-                    f"👉 Rasmiy kanal: {CHANNEL_USERNAME}"
+                    f"👉 Rasmiy kanal: [{CHANNEL_USERNAME}]({CHANNEL_URL})"
                 ),
                 parse_mode="Markdown"
             )
@@ -1869,8 +1886,9 @@ def callback_admin_user_management(call):
                 bot.send_message(
                     target_uid,
                     f"📬 **Bosh administrator xabarnomasi:**\n\n{m.text}\n\n"
-                    f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
-                    parse_mode="Markdown"
+                    f"🏛 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})",
+                    parse_mode="Markdown",
+                    disable_web_page_preview=True
                 )
                 bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi: `{target_uid}` ({u_name})", parse_mode="Markdown")
             except Exception as e:
@@ -1897,8 +1915,9 @@ def callback_admin_user_management(call):
                     bot.send_message(
                         int(target_id),
                         f"📬 **Administrator xabarnomasi:**\n\n{m_text.text}\n\n"
-                        f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
-                        parse_mode="Markdown"
+                        f"🏛 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})",
+                        parse_mode="Markdown",
+                        disable_web_page_preview=True
                     )
                     bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi (`{target_id}`)", parse_mode="Markdown")
                 except Exception:
@@ -1938,8 +1957,9 @@ def callback_admin_user_management(call):
                     bot.send_message(
                         uid_key,
                         f"📢 **Umumiy E'lon:**\n\n{m.text}\n\n"
-                        f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
-                        parse_mode="Markdown"
+                        f"🏛 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})",
+                        parse_mode="Markdown",
+                        disable_web_page_preview=True
                     )
                     success += 1
                     conn_up.execute("UPDATE users SET status = 'active' WHERE user_id = ?", (uid_key,))
@@ -2017,8 +2037,9 @@ def cmd_broadcast(message):
             bot.send_message(
                 uid_key,
                 f"📢 **Umumiy E'lon:**\n\n{text_to_send}\n\n"
-                f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
-                parse_mode="Markdown"
+                f"🏛 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})",
+                parse_mode="Markdown",
+                disable_web_page_preview=True
             )
             success += 1
             conn.execute("UPDATE users SET status = 'active' WHERE user_id = ?", (uid_key,))
@@ -2051,8 +2072,9 @@ def cmd_send_pm(message):
         bot.send_message(
             int(target_id),
             f"📬 **Bosh administrator xabarnomasi:**\n\n{pm_text}\n\n"
-            f"🏛 **Rasmiy kanal:** `{CHANNEL_USERNAME}`",
-            parse_mode="Markdown"
+            f"🏛 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})",
+            parse_mode="Markdown",
+            disable_web_page_preview=True
         )
         bot.reply_to(message, f"✅ Xabar `{target_id}` ga yetkazildi!", parse_mode="Markdown")
     except Exception:
@@ -2078,8 +2100,8 @@ def auto_poster_loop():
             if current_time == "08:30" and not sent_flags["08:30"]:
                 hikmat_full = get_verified_didactic_content("hikmat")
                 clean_text = hikmat_full.split("📚 Aniq manba:")[0].strip()
-                channel_post = f"☀️ **TONGGI HIKMAT & ILMIY TAFAKKUR**\n\n{clean_text}\n\n───────────────\n🌟 **Rasmiy kanal:** `{CHANNEL_USERNAME}`"
-                bot.send_message(CHANNEL_USERNAME, channel_post, parse_mode="Markdown")
+                channel_post = f"☀️ **TONGGI HIKMAT & ILMIY TAFAKKUR**\n\n{clean_text}\n\n───────────────\n🌟 **Rasmiy kanal:** [{CHANNEL_USERNAME}]({CHANNEL_URL})"
+                bot.send_message(CHANNEL_USERNAME, channel_post, parse_mode="Markdown", disable_web_page_preview=True)
                 sent_flags["08:30"] = True
 
             elif current_time == "20:30" and not sent_flags["20:30"]:
@@ -2112,7 +2134,7 @@ def auto_poster_loop():
                             options=[opt[:95] for opt in q_obj["options"][:4]],
                             type="quiz",
                             correct_option_id=q_obj["correct_option_id"],
-                            explanation=f"{q_obj.get('explanation', '')}\n👉 {CHANNEL_USERNAME}"[:190],
+                            explanation=f"{q_obj.get('explanation', '')}\n👉 @onatilidanyordam"[:190],
                             is_anonymous=False
                         )
                         time.sleep(3)
@@ -2144,12 +2166,13 @@ def send_welcome(message):
     user_name = message.from_user.first_name or "Foydalanuvchi"
     text = (
         f"╭──── ✨ **Assalomu alaykum, {user_name}!** ────╮\n\n"
-        f"🏛 **AI TILSHUNOS & METODIST (v11.0 - Open Group Quiz Edition)** portaliga xush kelibsiz!\n"
+        f"🏛 **AI TILSHUNOS & METODIST (v11.3 - Full Pro Edition)** portaliga xush kelibsiz!\n"
         f"{streak_msg}\n"
         "Quyidagi asosiy yo'nalishlardan birini tanlang:\n\n"
         "🎓 **Talabalar uchun:** Mumtoz meros, aruz, qadimgi til va etimologiya\n"
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va Attestatsiya testlari\n"
         "🎒 **Abituriyentlar uchun:** Milliy sertifikat esselari, O'TIL, BMB va Mavzuli testlar\n"
+        "🛠 **Quiz Test Tuzuvchi:** O'zingiz xohlagan mavzuda professional test yasash\n"
         "🔬 **Ilmiy izlanuvchilar uchun:** OAK maqola va tezis loyihalash\n\n"
         "👇 *Yo'nalishingizni tanlang:* \n"
         "╰─────────────────────────────────────╯"
@@ -2202,6 +2225,9 @@ def handle_all_messages(message):
             "Quyidagi tugma orqali reyting doskasini ko'rishingiz mumkin:", 
             reply_markup=markup
         )
+
+    elif text == "🛠 Quiz Test Tuzuvchi":
+        send_quiz_creator_hub(message.chat.id)
 
     elif text == "🎓 Talabalar uchun":
         send_section_card(message.chat.id, "talaba")
@@ -2264,7 +2290,7 @@ def handle_all_messages(message):
             bot.send_message(
                 message.chat.id,
                 f"☀️ **KUN HIKMATI (ADMIN TEKSHIRUVI):**\n\n{hikmat_full}\n\n"
-                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat {CHANNEL_USERNAME} imzosi qo'yiladi.*",
+                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat rasmiy kanal havolasi qo'yiladi.*",
                 parse_mode="Markdown",
                 reply_markup=markup
             )
@@ -2286,7 +2312,7 @@ def handle_all_messages(message):
             bot.send_message(
                 message.chat.id,
                 f"⚡️ **MOTIVATSIYA (ADMIN TEKSHIRUVI):**\n\n{motiv_full}\n\n"
-                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat {CHANNEL_USERNAME} imzosi qo'yiladi.*",
+                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat rasmiy kanal havolasi qo'yiladi.*",
                 parse_mode="Markdown",
                 reply_markup=markup
             )
@@ -2296,5 +2322,5 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v11.0 (Open Group Quiz Edition) faol ishga tushdi...")
+print("AI Tilshunos v11.3 (Full Pro Edition) faol ishga tushdi...")
 bot.infinity_polling()
