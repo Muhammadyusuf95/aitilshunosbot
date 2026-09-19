@@ -1113,7 +1113,6 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
         time.sleep(duration_per_q + 2)
 
     tracker = ACTIVE_QUIZ_TRACKER.pop(target_chat_id, None)
-    duration_total = int(time.time() - start_time)
     scores = tracker["scores"] if tracker else {}
 
     results = load_data(RESULTS_FILE)
@@ -1189,8 +1188,8 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             text="🏆 Jonli Reyting Doskasi (Mini-App)", 
             web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
         ),
-        tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL),
-        tele_types.InlineKeyboardButton(text="📤 Natijani ulashish", switch_inline_query="Mening test natijam")
+        tele_types.InlineKeyboardButton(text="📤 Ushbu testni guruhga ulashish", switch_inline_query="test_taklifi"),
+        tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL)
     )
     bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
 
@@ -1273,16 +1272,22 @@ def callback_match_lobby(call):
             daemon=True
         ).start()
 
-markup = tele_types.InlineKeyboardMarkup(row_width=1)
-    markup.add(
-        tele_types.InlineKeyboardButton(
-            text="🏆 Jonli Reyting Doskasi (Mini-App)", 
-            web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
-        ),
-        tele_types.InlineKeyboardButton(text="📤 Ushbu testni guruhga ulashish", switch_inline_query="test_taklifi"),
-        tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL)
-    )
-    bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
+def offer_quiz_dispatch(chat_id, user_id, questions, duration_per_q, title):
+    quiz_id = f"qz_{int(time.time())}_{random.randint(100, 999)}"
+    PENDING_QUIZZES[quiz_id] = {
+        "questions": questions,
+        "duration": duration_per_q,
+        "title": title
+    }
+
+    markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    if int(user_id) == int(ADMIN_ID):
+        markup.add(
+            tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga e'lon qilish (@onatilidanyordam)", callback_data=f"act_chan_{quiz_id}"),
+            tele_types.InlineKeyboardButton(text="👥 Guruhga tashlash (Bot admin bo'lgan)", callback_data=f"act_sendgrp_{quiz_id}"),
+            tele_types.InlineKeyboardButton(text="📤 Istalgan guruhga ulashish (Inline)", switch_inline_query=quiz_id),
+            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida yakkaxon ishlash (Darhol)", callback_data=f"act_bot_{quiz_id}")
+        )
         bot.send_message(
             chat_id,
             f"👑 **Hurmatli Admin!**\n\n**{title}** muvaffaqiyatli shakllantirildi.\nTestni qayerda o'tkazmoqchisiz?",
@@ -1291,8 +1296,9 @@ markup = tele_types.InlineKeyboardMarkup(row_width=1)
         )
     else:
         markup.add(
-            tele_types.InlineKeyboardButton(text="👥 O'z guruhimga tashlash (Bellashuv)", callback_data=f"act_sendgrp_{quiz_id}"),
-            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida yakkaxon ishlash (Darhol)", callback_data=f"act_bot_{quiz_id}")
+            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida yakkaxon ishlash (Darhol)", callback_data=f"act_bot_{quiz_id}"),
+            tele_types.InlineKeyboardButton(text="👥 Guruhga tashlash (Bot admin bo'lgan)", callback_data=f"act_sendgrp_{quiz_id}"),
+            tele_types.InlineKeyboardButton(text="📤 Istalgan guruhga ulashish (Inline)", switch_inline_query=quiz_id)
         )
         bot.send_message(
             chat_id,
