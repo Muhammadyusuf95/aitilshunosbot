@@ -1273,21 +1273,15 @@ def callback_match_lobby(call):
             daemon=True
         ).start()
 
-def offer_quiz_dispatch(chat_id, user_id, questions, duration_per_q, title):
-    quiz_id = f"qz_{int(time.time())}_{random.randint(100, 999)}"
-    PENDING_QUIZZES[quiz_id] = {
-        "questions": questions,
-        "duration": duration_per_q,
-        "title": title
-    }
-
-    markup = tele_types.InlineKeyboardMarkup(row_width=1)
-    if int(user_id) == int(ADMIN_ID):
-        markup.add(
-            tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga e'lon qilish (@onatilidanyordam)", callback_data=f"act_chan_{quiz_id}"),
-            tele_types.InlineKeyboardButton(text="👥 Guruhga tashlash (Guruh ID orqali)", callback_data=f"act_sendgrp_{quiz_id}"),
-            tele_types.InlineKeyboardButton(text="🤖 Botning o'zida yakkaxon ishlash (Darhol)", callback_data=f"act_bot_{quiz_id}")
-        )
+markup = tele_types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        tele_types.InlineKeyboardButton(
+            text="🏆 Jonli Reyting Doskasi (Mini-App)", 
+            web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
+        ),
+        tele_types.InlineKeyboardButton(text="📤 Ushbu testni guruhga ulashish", switch_inline_query="test_taklifi"),
+        tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL)
+    )
         bot.send_message(
             chat_id,
             f"👑 **Hurmatli Admin!**\n\n**{title}** muvaffaqiyatli shakllantirildi.\nTestni qayerda o'tkazmoqchisiz?",
@@ -1807,29 +1801,48 @@ def callback_retry(call):
     p = prompt_map.get(tag, "'{input}' bo'yicha ilmiy tahlil bering.")
     bot.register_next_step_handler(msg, lambda m: dynamic_ai_delivery(call.message.chat.id, p.format(input=m.text), call.from_user.id, tag))
 
+# --- INLINE QUERY HANDLER: GURUHLARGA ULASHISH TIZIMI ---
 @bot.inline_handler(lambda query: True)
-def default_inline_query(inline_query):
+def handle_inline_quiz_share(inline_query):
     try:
-        r = tele_types.InlineQueryResultArticle(
-            id='1',
-            title="AI Tilshunos & Metodist Platformasi",
-            description="BMB testlari, Milliy sertifikat esselari va Quiz konstruktori",
-            input_message_content=tele_types.InputTextMessageContent(
-                message_text=(
-                    "🏛 **AI TILSHUNOS & METODIST PORTALI**\n\n"
-                    "Ona tili, adabiyot va pedagogika sohasidagi sun'iy intellekt yordamchisi.\n\n"
-                    "▫️ BMB 30 talik testlar va jonli reyting;\n"
-                    "▫️ Quiz test tuzuvchi konstruktor (erkin mavzu);\n"
-                    "▫️ Milliy sertifikat esselari;\n"
-                    "▫️ Attestatsiya Y1, Y2, Y3 testlari;\n"
-                    "▫️ OAK maqola va dars konspektlari konstruktori.\n\n"
-                    f"👉 Botdan foydalanish: @aitilshunosbot\n"
-                    f"👉 Rasmiy kanal: [{CHANNEL_USERNAME}]({CHANNEL_URL})"
-                ),
-                parse_mode="Markdown"
+        query_text = inline_query.query.strip()
+        
+        deep_link = f"https://t.me/aitilshunosbot?start={query_text}" if query_text else "https://t.me/aitilshunosbot"
+        
+        message_content = (
+            "╔════════════════════════════════╗\n"
+            "  🧠 **ONA TILI VA ADABIYOT TESTI**\n"
+            "╚════════════════════════════════╝\n\n"
+            "📚 Ushbu guruh a'zolari uchun maxsus test tavsiya etiladi!\n\n"
+            "▫️ Mezon: **BMB va Milliy sertifikat standarti**\n"
+            "▫️ Sifati: **100% xatosiz, akademik manbalar asosida**\n"
+            "▫️ Imkoniyat: **Jonli reyting doskasi va olovli seriyalar**\n\n"
+            f"🏛 **Rasmiy kanal:** @onatilidanyordam\n\n"
+            "👇 *Testni yechish va umumiy reytingda qatnashish uchun bosing:*"
+        )
+        
+        # Guruh a'zolari bosib to'g'ri botga o'tishi uchun inline tugma
+        inline_markup = tele_types.InlineKeyboardMarkup()
+        inline_markup.add(
+            tele_types.InlineKeyboardButton(
+                text="🚀 Testni boshlash (Reytingda qatnashish)",
+                url=deep_link
             )
         )
-        bot.answer_inline_query(inline_query.id, [r])
+        
+        r = tele_types.InlineQueryResultArticle(
+            id='quiz_share_card',
+            title="🧠 Testni ushbu guruhga ulashish",
+            description="Guruh a'zolari bilan birgalikda test ishlash va reytingda qatnashish",
+            input_message_content=tele_types.InputTextMessageContent(
+                message_text=message_content,
+                parse_mode="Markdown",
+                disable_web_page_preview=True
+            ),
+            reply_markup=inline_markup
+        )
+        
+        bot.answer_inline_query(inline_query.id, [r], cache_time=1)
     except Exception as e:
         print(f"Inline query xatosi: {e}")
 
