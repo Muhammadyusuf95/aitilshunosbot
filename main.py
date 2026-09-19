@@ -1282,6 +1282,7 @@ markup = tele_types.InlineKeyboardMarkup(row_width=1)
         tele_types.InlineKeyboardButton(text="📤 Ushbu testni guruhga ulashish", switch_inline_query="test_taklifi"),
         tele_types.InlineKeyboardButton(text="📢 Rasmiy kanalga a'zo bo'lish", url=CHANNEL_URL)
     )
+    bot.send_message(target_chat_id, finish_msg, parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
         bot.send_message(
             chat_id,
             f"👑 **Hurmatli Admin!**\n\n**{title}** muvaffaqiyatli shakllantirildi.\nTestni qayerda o'tkazmoqchisiz?",
