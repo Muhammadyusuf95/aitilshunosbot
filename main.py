@@ -804,6 +804,7 @@ def deliver_styled_response(chat_id, user_id, text, category_tag):
         bot.send_message(chat_id, styled_text, parse_mode="Markdown", reply_markup=markup)
 
 def is_subscribed(user_id):
+    return True
     try:
         if int(user_id) == int(ADMIN_ID):
             return True
