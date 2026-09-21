@@ -1780,7 +1780,7 @@ def callback_button_actions(call):
 
     elif data == "btn_tezis":
         msg = bot.send_message(cid, "✍️ Tezis mavzusini kiriting:")
-        p = "Konferensiya uchun '{input}' mavzusida tezis yozish bo'yicha REJA va YO'RIQNOMA bering. Tayyor matn bermang."
+        p = "Konferensiya uchun '{input}' mavzusida tezis yozish bo'yicha YO'RIQNOMA bering. Tayyor matn bermang."
         bot.register_next_step_handler(msg, lambda m: dynamic_ai_delivery(cid, p.format(input=m.text), uid, "tezis"))
 
     bot.answer_callback_query(call.id)
@@ -1849,14 +1849,17 @@ def handle_inline_quiz_share(inline_query):
 def get_users_page_markup(page=0, per_page=8):
     conn = get_db_connection()
     cursor = conn.cursor()
-    total_users = cursor.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM users")
+    total_users = cursor.fetchone()[0]
     total_pages = max(1, (total_users + per_page - 1) // per_page)
     
     start_idx = page * per_page
     cursor.execute("SELECT user_id, username, first_name, points, streak, status, joined_at FROM users ORDER BY joined_at DESC LIMIT %s OFFSET %s", (per_page, start_idx))
     rows = cursor.fetchall()
     
-    active_count = cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
+    active_count = cursor.fetchone()[0]
     blocked_count = total_users - active_count
     cursor.close()
     conn.close()
@@ -1948,8 +1951,10 @@ def callback_admin_user_management(call):
             except Exception as e:
                 if "blocked by the user" in str(e):
                     conn_m = get_db_connection()
-                    conn_m.cursor().execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (target_uid,))
+                    cursor_m = conn_m.cursor()
+                    cursor_m.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (target_uid,))
                     conn_m.commit()
+                    cursor_m.close()
                     conn_m.close()
                 bot.send_message(cid, f"❌ Xabarni yetkazib bo'lmadi: Foydalanuvchi botni bloklagan.")
 
@@ -1976,8 +1981,10 @@ def callback_admin_user_management(call):
                     bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi (`{target_id}`)", parse_mode="Markdown")
                 except Exception:
                     conn_m = get_db_connection()
-                    conn_m.cursor().execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
+                    cursor_m = conn_m.cursor()
+                    cursor_m.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
                     conn_m.commit()
+                    cursor_m.close()
                     conn_m.close()
                     bot.send_message(cid, f"❌ Yetkazib bo'lmadi: Foydalanuvchi botni bloklagan.")
             bot.register_next_step_handler(msg_txt, send_direct_msg)
@@ -2042,8 +2049,10 @@ def callback_admin_user_management(call):
     elif data == "admin_back_to_panel":
         conn_p = get_db_connection()
         cursor_p = conn_p.cursor()
-        total_u = cursor_p.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        active_u = cursor_p.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
+        cursor_p.execute("SELECT COUNT(*) FROM users")
+        total_u = cursor_p.fetchone()[0]
+        cursor_p.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
+        active_u = cursor_p.fetchone()[0]
         blocked_u = total_u - active_u
         cursor_p.close()
         conn_p.close()
@@ -2310,8 +2319,10 @@ def handle_all_messages(message):
     elif text == "📊 Boshqaruv & Statistika" and is_admin:
         conn = get_db_connection()
         cursor = conn.cursor()
-        total_u = cursor.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        active_u = cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM users")
+        total_u = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
+        active_u = cursor.fetchone()[0]
         blocked_u = total_u - active_u
         cursor.close()
         conn.close()
