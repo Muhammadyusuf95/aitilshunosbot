@@ -4,7 +4,7 @@ import json
 import random
 import time
 from datetime import datetime, timedelta
-import sqlite3
+import psycopg2
 import pytz
 import requests
 from flask import Flask, render_template_string
@@ -21,56 +21,39 @@ except ImportError:
 
 app = Flask(__name__)
 RESULTS_FILE = "test_results.json"
-USERS_FILE = "users.json"
 COUNTERS_FILE = "quiz_counters.json"
 BAZA_FILE = "baza.json"
-DB_FILE = "users.db"
 
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            username TEXT,
-            first_name TEXT,
-            points INTEGER DEFAULT 0,
-            streak INTEGER DEFAULT 0,
-            last_active TEXT,
-            status TEXT DEFAULT 'active',
-            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-
-    if os.path.exists(USERS_FILE):
-        try:
-            with open(USERS_FILE, "r", encoding="utf-8") as f:
-                old_users = json.load(f)
-                for uid, udata in old_users.items():
-                    cursor.execute("""
-                        INSERT OR IGNORE INTO users (user_id, username, first_name, points, streak, last_active, status)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """, (
-                        int(uid),
-                        udata.get("username", ""),
-                        udata.get("first_name", ""),
-                        udata.get("points", 0),
-                        udata.get("streak", 1),
-                        udata.get("last_active", ""),
-                        udata.get("status", "active")
-                    ))
-            conn.commit()
-        except Exception:
-            pass
-    conn.close()
-
-init_db()
+# --- POSTGRESQL BULUTLI BAZA ULANISHI (NEON.TECH) ---
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    return conn
+    return psycopg2.connect(DATABASE_URL, sslmode='require')
+
+def init_db():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                user_id BIGINT PRIMARY KEY,
+                username TEXT,
+                first_name TEXT,
+                points INTEGER DEFAULT 0,
+                streak INTEGER DEFAULT 0,
+                last_active TEXT,
+                status TEXT DEFAULT 'active',
+                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print("PostgreSQL bulutli bazasi muvaffaqiyatli ulandi va jadvallar yaratildi!")
+    except Exception as e:
+        print(f"Baza yaratishda xatolik: {e}")
+
+init_db()
 
 def load_data(filepath):
     if not os.path.exists(filepath):
@@ -189,13 +172,22 @@ WEBAPP_HTML = """
 
 @app.route('/')
 def home():
-    return "AI Tilshunos & Metodist v11.3 (Modular Edition) Faol!"
+    return "AI Tilshunos & Metodist v11.3 (PostgreSQL Cloud Edition) Faol!"
 
 @app.route('/leaderboard')
 def webapp_leaderboard():
     results = load_data(RESULTS_FILE)
     conn = get_db_connection()
-    users_db = {str(row["user_id"]): dict(row) for row in conn.execute("SELECT * FROM users").fetchall()}
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users")
+    rows = cursor.fetchall()
+    users_db = {}
+    for r in rows:
+        users_db[str(r[0])] = {
+            "user_id": r[0], "username": r[1], "first_name": r[2],
+            "points": r[3], "streak": r[4], "last_active": r[5], "status": r[6]
+        }
+    cursor.close()
     conn.close()
     
     sorted_res = sorted(
@@ -294,7 +286,7 @@ CERT_ESSAY_TOPICS = [
     "Ba'zilar kredit yillar davomida ushalmagan orzularni amalga oshirishning qulay yo'li deb hisoblashadi, ayrimlari esa kredit ortiqcha xarajati va moliyaviy holatni qiyinlashtiradi degan fikrda.",
     "Bugungi kunda sodir bo'layotgan jinoyatlar OAV, internet tarmoqlari orqali ommaga taqdim etilmoqda. Oshkora ko'rsatilishi kimlar uchundir jinoyatga yo'l ochib berishi mumkin deb qaralsa, baʼzilar oshkor ko'rsatish tarafdori.",
     "Ayrimlar oilaviy muammolar aks etgan videolavhalarning ijtimoiy tarmoqlarda tarqalishi jamiyat ma'naviyatiga va ruhiyatiga salbiy ta'sir koʻrsatadi deb bilishsa, ayrimlar aksincha fikrda.",
-    "Ayrimlar yaxshi yashash uchun bitta kasbning mohir ustasi bo'lish kerak deb bilishsa, ba'zilar bir necha kasbning egasi bo'lish foydaliroq deb hisoblashadi.",
+    "Ayrimlar yaxshi yashash uchun bitta kasbning mohir ustasi bo'lish kerak deb bilishsa, ba'zilar bir necha kasbning egasi bo'lish foydaliroq deb hisoblaydilar.",
     "Sun'iy intellektning insoniyat hayotiga ijobiy va salbiy ta'sirlari.",
     "Plastik qadoqdagi suv yoki vodoprovod suvi iste'moli: afzallik va kamchiliklar.",
     "O'qitishda milliy usullarni yanada rivojlantirish muhimmi yoki chet el tajribasini qo'llashmi?",
@@ -319,12 +311,13 @@ def update_user_streak(user):
     today_str = datetime.now().strftime("%Y-%m-%d")
     yesterday_str = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
     
-    row = cursor.execute("SELECT * FROM users WHERE user_id = ?", (u_id,)).fetchone()
+    cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users WHERE user_id = %s", (u_id,))
+    row = cursor.fetchone()
     
     if row:
-        streak = row["streak"]
-        points = row["points"]
-        last_active = row["last_active"]
+        streak = row[4]
+        points = row[3]
+        last_active = row[5]
         streak_broken = False
         
         if last_active == today_str:
@@ -340,8 +333,8 @@ def update_user_streak(user):
             
         cursor.execute("""
             UPDATE users 
-            SET username = ?, first_name = ?, points = ?, streak = ?, last_active = ?, status = 'active'
-            WHERE user_id = ?
+            SET username = %s, first_name = %s, points = %s, streak = %s, last_active = %s, status = 'active'
+            WHERE user_id = %s
         """, (user.username or "", user.first_name or "", points, streak, today_str, u_id))
     else:
         streak = 1
@@ -349,10 +342,11 @@ def update_user_streak(user):
         streak_broken = False
         cursor.execute("""
             INSERT INTO users (user_id, username, first_name, points, streak, last_active, status)
-            VALUES (?, ?, ?, ?, ?, ?, 'active')
+            VALUES (%s, %s, %s, %s, %s, %s, 'active')
         """, (u_id, user.username or "", user.first_name or "", points, streak, today_str))
         
     conn.commit()
+    cursor.close()
     conn.close()
     return streak, points, streak_broken
 
@@ -636,14 +630,17 @@ def send_cert_samples_page(chat_id, message_id=None, page=0):
 
 def show_user_profile(chat_id, user):
     conn = get_db_connection()
-    row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user.id,)).fetchone()
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users WHERE user_id = %s", (user.id,))
+    row = cursor.fetchone()
+    cursor.close()
     conn.close()
 
     results = load_data(RESULTS_FILE)
     u_id = str(user.id)
     
-    points = row["points"] if row else 0
-    streak = row["streak"] if row else 1
+    points = row[3] if row else 0
+    streak = row[4] if row else 1
     
     test_data = results.get(u_id, {})
     best_correct = test_data.get("correct", 0)
@@ -1014,7 +1011,6 @@ def handle_poll_answer(poll_answer):
     if user.last_name:
         u_name += f" {user.last_name}"
 
-    # Savolga javob berish uchun sarflangan vaqt (soniya)
     time_spent_on_q = max(0.1, time.time() - q_start_time)
 
     if chat_id in ACTIVE_QUIZ_TRACKER:
@@ -1035,7 +1031,7 @@ def handle_poll_answer(poll_answer):
 
 def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
     total_q = len(questions)
-    is_anon = False  # Barcha ishtirokchilar kim nima belgilaganini jonli ko'rishi uchun
+    is_anon = False 
 
     start_time = time.time()
     ACTIVE_QUIZ_TRACKER[target_chat_id] = {
@@ -1129,16 +1125,14 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M")
             }
             cursor.execute("""
-                UPDATE users SET points = points + ? WHERE user_id = ?
+                UPDATE users SET points = points + %s WHERE user_id = %s
             """, (info["correct"] * 2, uid))
             
         conn.commit()
+        cursor.close()
         conn.close()
         save_data(RESULTS_FILE, results)
 
-        # SARALASH MEZONI:
-        # 1. To'g'ri javoblar ko'pligi (kamayish tartibida: -x[1]["correct"])
-        # 2. Sarflangan umumiy vaqt kamligi (o'sish tartibida: x[1]["total_time"])
         sorted_participants = sorted(
             scores.items(),
             key=lambda x: (-x[1]["correct"], x[1]["total_time"])
@@ -1808,7 +1802,6 @@ def callback_retry(call):
     p = prompt_map.get(tag, "'{input}' bo'yicha ilmiy tahlil bering.")
     bot.register_next_step_handler(msg, lambda m: dynamic_ai_delivery(call.message.chat.id, p.format(input=m.text), call.from_user.id, tag))
 
-# --- INLINE QUERY HANDLER: GURUHLARGA ULASHISH TIZIMI ---
 @bot.inline_handler(lambda query: True)
 def handle_inline_quiz_share(inline_query):
     try:
@@ -1828,7 +1821,6 @@ def handle_inline_quiz_share(inline_query):
             "👇 *Testni yechish va umumiy reytingda qatnashish uchun bosing:*"
         )
         
-        # Guruh a'zolari bosib to'g'ri botga o'tishi uchun inline tugma
         inline_markup = tele_types.InlineKeyboardMarkup()
         inline_markup.add(
             tele_types.InlineKeyboardButton(
@@ -1853,17 +1845,20 @@ def handle_inline_quiz_share(inline_query):
     except Exception as e:
         print(f"Inline query xatosi: {e}")
 
-# --- ADMIN FOYDALANUVCHILAR BOSHQARUVI (SQLITE) ---
+# --- ADMIN FOYDALANUVCHILAR BOSHQARUVI (POSTGRESQL) ---
 def get_users_page_markup(page=0, per_page=8):
     conn = get_db_connection()
-    total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+    cursor = conn.cursor()
+    total_users = cursor.execute("SELECT COUNT(*) FROM users").fetchone()[0]
     total_pages = max(1, (total_users + per_page - 1) // per_page)
     
     start_idx = page * per_page
-    rows = conn.execute("SELECT * FROM users ORDER BY joined_at DESC LIMIT ? OFFSET ?", (per_page, start_idx)).fetchall()
+    cursor.execute("SELECT user_id, username, first_name, points, streak, status, joined_at FROM users ORDER BY joined_at DESC LIMIT %s OFFSET %s", (per_page, start_idx))
+    rows = cursor.fetchall()
     
-    active_count = conn.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
+    active_count = cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
     blocked_count = total_users - active_count
+    cursor.close()
     conn.close()
 
     text = f"👥 **BOT FOYDALANUVCHILARI**\n"
@@ -1872,13 +1867,14 @@ def get_users_page_markup(page=0, per_page=8):
 
     markup = tele_types.InlineKeyboardMarkup(row_width=2)
     for idx, row in enumerate(rows, start=start_idx + 1):
-        name = row["first_name"] or "Foydalanuvchi"
-        uname = f"@{row['username']}" if row["username"] else "usernamesiz"
-        st = "🟢" if row["status"] != "blocked" else "🔴"
-        streak = row["streak"]
-        points = row["points"]
-        uid = row["user_id"]
+        uid = row[0]
+        uname = f"@{row[1]}" if row[1] else "usernamesiz"
+        name = row[2] or "Foydalanuvchi"
+        points = row[3]
+        streak = row[4]
+        status = row[5]
         
+        st = "🟢" if status != "blocked" else "🔴"
         text += f"`{idx}.` {st} **{name}** ({uname})\n    └ ID: `{uid}` • 🔥 {streak} kun • `{points} ball`\n"
         btn_label = f"💬 {name[:12]}..." if len(name) > 12 else f"💬 {name}"
         markup.add(tele_types.InlineKeyboardButton(text=btn_label, callback_data=f"sendpm_{uid}"))
@@ -1922,9 +1918,12 @@ def callback_admin_user_management(call):
     elif data.startswith("sendpm_"):
         target_uid = int(data.replace("sendpm_", ""))
         conn = get_db_connection()
-        row = conn.execute("SELECT * FROM users WHERE user_id = ?", (target_uid,)).fetchone()
+        cursor = conn.cursor()
+        cursor.execute("SELECT first_name FROM users WHERE user_id = %s", (target_uid,))
+        row = cursor.fetchone()
+        cursor.close()
         conn.close()
-        u_name = row["first_name"] if row else "Foydalanuvchi"
+        u_name = row[0] if row else "Foydalanuvchi"
 
         bot.answer_callback_query(call.id)
         msg = bot.send_message(
@@ -1949,7 +1948,7 @@ def callback_admin_user_management(call):
             except Exception as e:
                 if "blocked by the user" in str(e):
                     conn_m = get_db_connection()
-                    conn_m.execute("UPDATE users SET status = 'blocked' WHERE user_id = ?", (target_uid,))
+                    conn_m.cursor().execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (target_uid,))
                     conn_m.commit()
                     conn_m.close()
                 bot.send_message(cid, f"❌ Xabarni yetkazib bo'lmadi: Foydalanuvchi botni bloklagan.")
@@ -1977,7 +1976,7 @@ def callback_admin_user_management(call):
                     bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi (`{target_id}`)", parse_mode="Markdown")
                 except Exception:
                     conn_m = get_db_connection()
-                    conn_m.execute("UPDATE users SET status = 'blocked' WHERE user_id = ?", (int(target_id),))
+                    conn_m.cursor().execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
                     conn_m.commit()
                     conn_m.close()
                     bot.send_message(cid, f"❌ Yetkazib bo'lmadi: Foydalanuvchi botni bloklagan.")
@@ -1999,7 +1998,10 @@ def callback_admin_user_management(call):
                 return
             
             conn_b = get_db_connection()
-            user_ids = [row["user_id"] for row in conn_b.execute("SELECT user_id FROM users").fetchall()]
+            cursor_b = conn_b.cursor()
+            cursor_b.execute("SELECT user_id FROM users")
+            user_ids = [row[0] for row in cursor_b.fetchall()]
+            cursor_b.close()
             conn_b.close()
             
             success = 0
@@ -2007,6 +2009,7 @@ def callback_admin_user_management(call):
             bot.send_message(cid, f"🚀 {len(user_ids)} ta a'zoga xabar yo'llash boshlandi...")
             
             conn_up = get_db_connection()
+            cursor_up = conn_up.cursor()
             for uid_key in user_ids:
                 try:
                     bot.send_message(
@@ -2017,13 +2020,14 @@ def callback_admin_user_management(call):
                         disable_web_page_preview=True
                     )
                     success += 1
-                    conn_up.execute("UPDATE users SET status = 'active' WHERE user_id = ?", (uid_key,))
+                    cursor_up.execute("UPDATE users SET status = 'active' WHERE user_id = %s", (uid_key,))
                     time.sleep(0.04)
                 except Exception as ex:
                     if "blocked by the user" in str(ex):
-                        conn_up.execute("UPDATE users SET status = 'blocked' WHERE user_id = ?", (uid_key,))
+                        cursor_up.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (uid_key,))
                         blocked += 1
             conn_up.commit()
+            cursor_up.close()
             conn_up.close()
             
             bot.send_message(
@@ -2037,9 +2041,11 @@ def callback_admin_user_management(call):
 
     elif data == "admin_back_to_panel":
         conn_p = get_db_connection()
-        total_u = conn_p.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        active_u = conn_p.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
+        cursor_p = conn_p.cursor()
+        total_u = cursor_p.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        active_u = cursor_p.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
         blocked_u = total_u - active_u
+        cursor_p.close()
         conn_p.close()
 
         results = load_data(RESULTS_FILE)
@@ -2082,7 +2088,9 @@ def cmd_broadcast(message):
         return
 
     conn = get_db_connection()
-    user_ids = [row["user_id"] for row in conn.execute("SELECT user_id FROM users").fetchall()]
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM users")
+    user_ids = [row[0] for row in cursor.fetchall()]
     
     success = 0
     blocked = 0
@@ -2097,13 +2105,14 @@ def cmd_broadcast(message):
                 disable_web_page_preview=True
             )
             success += 1
-            conn.execute("UPDATE users SET status = 'active' WHERE user_id = ?", (uid_key,))
+            cursor.execute("UPDATE users SET status = 'active' WHERE user_id = %s", (uid_key,))
             time.sleep(0.04)
         except Exception as ex:
             if "blocked by the user" in str(ex):
-                conn.execute("UPDATE users SET status = 'blocked' WHERE user_id = ?", (uid_key,))
+                cursor.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (uid_key,))
                 blocked += 1
     conn.commit()
+    cursor.close()
     conn.close()
     bot.send_message(
         message.chat.id, 
@@ -2134,8 +2143,10 @@ def cmd_send_pm(message):
         bot.reply_to(message, f"✅ Xabar `{target_id}` ga yetkazildi!", parse_mode="Markdown")
     except Exception:
         conn = get_db_connection()
-        conn.execute("UPDATE users SET status = 'blocked' WHERE user_id = ?", (int(target_id),))
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
         conn.commit()
+        cursor.close()
         conn.close()
         bot.reply_to(message, f"❌ Foydalanuvchi botni bloklagan.")
 
@@ -2298,9 +2309,11 @@ def handle_all_messages(message):
 
     elif text == "📊 Boshqaruv & Statistika" and is_admin:
         conn = get_db_connection()
-        total_u = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        active_u = conn.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
+        cursor = conn.cursor()
+        total_u = cursor.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        active_u = cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'").fetchone()[0]
         blocked_u = total_u - active_u
+        cursor.close()
         conn.close()
 
         results = load_data(RESULTS_FILE)
@@ -2377,9 +2390,8 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v10.9 (National Certificate Edition) faol ishga tushdi...")
+print("AI Tilshunos v11.3 (PostgreSQL Cloud Edition) faol ishga tushdi...")
 
-# Eski webhook ni o'chirib tashlaymiz, shunda polling xatosiz ishlaydi
 try:
     bot.remove_webhook()
 except Exception:
