@@ -244,7 +244,7 @@ def keep_alive():
 
 threading.Thread(target=keep_alive, daemon=True).start()
 
-TELEGRAM_TOKEN = "8753873278:AAHVTSw8TypCYaaoUrm5gLqXZFmvFLsSbEM"
+TELEGRAM_TOKEN = "8753873278:AAGAWAPhChXM0voZBJXsPUwCsJqXJptivo0"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 CHANNEL_USERNAME = "@onatilidanyordam"
