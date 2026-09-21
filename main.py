@@ -2409,4 +2409,6 @@ try:
 except Exception:
     pass
 
+bot.remove_webhook()
+print("AI Tilshunos v11.3 (PostgreSQL Cloud Edition) faol ishga tushdi...")
 bot.infinity_polling(skip_pending=True)
