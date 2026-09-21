@@ -2377,5 +2377,12 @@ def handle_all_messages(message):
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
-print("AI Tilshunos v11.3 (Full Pro Edition) faol ishga tushdi...")
-bot.infinity_polling()
+print("AI Tilshunos v10.9 (National Certificate Edition) faol ishga tushdi...")
+
+# Eski webhook ni o'chirib tashlaymiz, shunda polling xatosiz ishlaydi
+try:
+    bot.remove_webhook()
+except Exception:
+    pass
+
+bot.infinity_polling(skip_pending=True)
