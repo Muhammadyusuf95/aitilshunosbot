@@ -2555,4 +2555,4 @@ except Exception:
     pass
 
 bot.infinity_polling(skip_pending=True)
-```<FollowUp label="Kodni ishga tushirishda muammo bo'lyaptimi?" query="Yangi funksiya ishlashiga oid xatolik yoki savol bormi?"/>
+
