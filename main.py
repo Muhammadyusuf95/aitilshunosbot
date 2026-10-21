@@ -28,9 +28,14 @@ BAZA_FILE = "baza.json"
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL topilmadi. Iltimos, muhit o'zgaruvchisini sozlang.")
     return psycopg2.connect(DATABASE_URL, sslmode='require')
 
 def init_db():
+    if not DATABASE_URL:
+        print("Baza yaratishda xatolik: DATABASE_URL ko'rsatilmagan.")
+        return
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -177,18 +182,22 @@ def home():
 @app.route('/leaderboard')
 def webapp_leaderboard():
     results = load_data(RESULTS_FILE)
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users")
-    rows = cursor.fetchall()
     users_db = {}
-    for r in rows:
-        users_db[str(r[0])] = {
-            "user_id": r[0], "username": r[1], "first_name": r[2],
-            "points": r[3], "streak": r[4], "last_active": r[5], "status": r[6]
-        }
-    cursor.close()
-    conn.close()
+    if DATABASE_URL:
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users")
+            rows = cursor.fetchall()
+            for r in rows:
+                users_db[str(r[0])] = {
+                    "user_id": r[0], "username": r[1], "first_name": r[2],
+                    "points": r[3], "streak": r[4], "last_active": r[5], "status": r[6]
+                }
+            cursor.close()
+            conn.close()
+        except Exception:
+            pass
     
     sorted_res = sorted(
         results.items(), 
@@ -305,6 +314,9 @@ def get_next_quiz_number(quiz_type):
     return current
 
 def update_user_streak(user):
+    if not DATABASE_URL:
+        return 1, 0, False
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     u_id = user.id
@@ -629,18 +641,24 @@ def send_cert_samples_page(chat_id, message_id=None, page=0):
         bot.send_message(chat_id, text, parse_mode="Markdown", reply_markup=markup)
 
 def show_user_profile(chat_id, user):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users WHERE user_id = %s", (user.id,))
-    row = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    points = 0
+    streak = 1
+    if DATABASE_URL:
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users WHERE user_id = %s", (user.id,))
+            row = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if row:
+                points = row[3]
+                streak = row[4]
+        except Exception:
+            pass
 
     results = load_data(RESULTS_FILE)
     u_id = str(user.id)
-    
-    points = row[3] if row else 0
-    streak = row[4] if row else 1
     
     test_data = results.get(u_id, {})
     best_correct = test_data.get("correct", 0)
@@ -804,7 +822,6 @@ def deliver_styled_response(chat_id, user_id, text, category_tag):
         bot.send_message(chat_id, styled_text, parse_mode="Markdown", reply_markup=markup)
 
 def is_subscribed(user_id):
-    return True
     try:
         if int(user_id) == int(ADMIN_ID):
             return True
@@ -815,7 +832,7 @@ def is_subscribed(user_id):
         chat_member = bot.get_chat_member(CHANNEL_USERNAME, user_id)
         return chat_member.status in ['creator', 'administrator', 'member']
     except Exception:
-        return True
+        return False
 
 def send_subscription_prompt(chat_id):
     markup = tele_types.InlineKeyboardMarkup(row_width=1)
@@ -864,7 +881,7 @@ def generate_ai_content(prompt_text):
         "Talablar: Telegram Markdown formatida, ko'rkam sarlavhalar va ilmiy uslubda bo'lsin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    models = ["gemini-3.6-flash"]
+    models = ["gemini-1.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -892,7 +909,7 @@ def generate_ai_content(prompt_text):
     raise Exception(f"AI Xatolik tafsiloti: {last_error[:300]}")
 
 def generate_quiz_batch(prompt_spec, count=30):
-    models = ["gemini-3.6-flash"]
+    models = ["gemini-1.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -1115,23 +1132,28 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
     results = load_data(RESULTS_FILE)
 
     if scores:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        for uid, info in scores.items():
-            results[str(uid)] = {
-                "name": info["name"],
-                "correct": info["correct"],
-                "duration": round(info["total_time"], 1),
-                "date": datetime.now().strftime("%Y-%m-%d %H:%M")
-            }
-            cursor.execute("""
-                UPDATE users SET points = points + %s WHERE user_id = %s
-            """, (info["correct"] * 2, uid))
-            
-        conn.commit()
-        cursor.close()
-        conn.close()
+        if DATABASE_URL:
+            try:
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                
+                for uid, info in scores.items():
+                    results[str(uid)] = {
+                        "name": info["name"],
+                        "correct": info["correct"],
+                        "duration": round(info["total_time"], 1),
+                        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+                    }
+                    cursor.execute("""
+                        UPDATE users SET points = points + %s WHERE user_id = %s
+                    """, (info["correct"] * 2, uid))
+                    
+                conn.commit()
+                cursor.close()
+                conn.close()
+            except Exception:
+                pass
+
         save_data(RESULTS_FILE, results)
 
         sorted_participants = sorted(
@@ -1318,11 +1340,14 @@ def callback_quiz_routing(call):
 
         bot.answer_callback_query(call.id, "Kanalga yuborilmoqda...")
         setup_match_lobby(CHANNEL_USERNAME, q_data["questions"], q_data["duration"], q_data["title"])
-        bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text=f"✅ **{q_data['title']}** rasmiy {CHANNEL_USERNAME} kanaliga e'lon qilindi!\n3 kishi «Tayyorman»ni bosgach ochiq test boshlanadi."
-        )
+        try:
+            bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text=f"✅ **{q_data['title']}** rasmiy {CHANNEL_USERNAME} kanaliga e'lon qilindi!\n3 kishi «Tayyorman»ni bosgach ochiq test boshlanadi."
+            )
+        except Exception:
+            pass
 
     elif data.startswith("act_bot_"):
         quiz_id = data.replace("act_bot_", "")
@@ -1430,13 +1455,16 @@ def callback_quiz_builder_count(call):
         tele_types.InlineKeyboardButton(text="⏳ 30 soniya", callback_data="cb_qtime_30"),
         tele_types.InlineKeyboardButton(text="⏳ 45 soniya", callback_data="cb_qtime_45")
     )
-    bot.edit_message_text(
-        chat_id=call.message.chat.id,
-        message_id=call.message.message_id,
-        text=f"📊 Savollar soni: `{count} ta`\n\n⏱ **3-QADAM: Har bir savolga qancha vaqt berilsin?** Tanlang:",
-        parse_mode="Markdown",
-        reply_markup=markup
-    )
+    try:
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=f"📊 Savollar soni: `{count} ta`\n\n⏱ **3-QADAM: Har bir savolga qancha vaqt berilsin?** Tanlang:",
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+    except Exception:
+        pass
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("cb_qtime_"))
 def callback_quiz_builder_finish(call):
@@ -1561,7 +1589,7 @@ def get_verified_didactic_content(content_type="hikmat"):
         )
 
     response = ai_client.models.generate_content(
-        model="gemini-3.6-flash",
+        model="gemini-1.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -1848,6 +1876,9 @@ def handle_inline_quiz_share(inline_query):
 
 # --- ADMIN FOYDALANUVCHILAR BOSHQARUVI (POSTGRESQL) ---
 def get_users_page_markup(page=0, per_page=8):
+    if not DATABASE_URL:
+        return "⚠️ Ma'lumotlar bazasi topilmadi", tele_types.InlineKeyboardMarkup()
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -1910,24 +1941,33 @@ def callback_admin_user_management(call):
 
     if data == "admin_view_users":
         text, markup = get_users_page_markup(page=0)
-        bot.edit_message_text(chat_id=cid, message_id=mid, text=text, parse_mode="Markdown", reply_markup=markup)
+        try:
+            bot.edit_message_text(chat_id=cid, message_id=mid, text=text, parse_mode="Markdown", reply_markup=markup)
+        except Exception:
+            pass
         bot.answer_callback_query(call.id)
 
     elif data.startswith("usrpage_"):
         page = int(data.replace("usrpage_", ""))
         text, markup = get_users_page_markup(page=page)
-        bot.edit_message_text(chat_id=cid, message_id=mid, text=text, parse_mode="Markdown", reply_markup=markup)
+        try:
+            bot.edit_message_text(chat_id=cid, message_id=mid, text=text, parse_mode="Markdown", reply_markup=markup)
+        except Exception:
+            pass
         bot.answer_callback_query(call.id)
 
     elif data.startswith("sendpm_"):
         target_uid = int(data.replace("sendpm_", ""))
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT first_name FROM users WHERE user_id = %s", (target_uid,))
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        u_name = row[0] if row else "Foydalanuvchi"
+        u_name = "Foydalanuvchi"
+        if DATABASE_URL:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT first_name FROM users WHERE user_id = %s", (target_uid,))
+            row = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if row:
+                u_name = row[0]
 
         bot.answer_callback_query(call.id)
         msg = bot.send_message(
@@ -1950,7 +1990,7 @@ def callback_admin_user_management(call):
                 )
                 bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi: `{target_uid}` ({u_name})", parse_mode="Markdown")
             except Exception as e:
-                if "blocked by the user" in str(e):
+                if "blocked by the user" in str(e) and DATABASE_URL:
                     conn_m = get_db_connection()
                     cursor_m = conn_m.cursor()
                     cursor_m.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (target_uid,))
@@ -1981,12 +2021,13 @@ def callback_admin_user_management(call):
                     )
                     bot.send_message(cid, f"✅ Xabar muvaffaqiyatli yetkazildi (`{target_id}`)", parse_mode="Markdown")
                 except Exception:
-                    conn_m = get_db_connection()
-                    cursor_m = conn_m.cursor()
-                    cursor_m.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
-                    conn_m.commit()
-                    cursor_m.close()
-                    conn_m.close()
+                    if DATABASE_URL:
+                        conn_m = get_db_connection()
+                        cursor_m = conn_m.cursor()
+                        cursor_m.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
+                        conn_m.commit()
+                        cursor_m.close()
+                        conn_m.close()
                     bot.send_message(cid, f"❌ Yetkazib bo'lmadi: Foydalanuvchi botni bloklagan.")
             bot.register_next_step_handler(msg_txt, send_direct_msg)
         bot.register_next_step_handler(msg, ask_id_step)
@@ -2005,6 +2046,10 @@ def callback_admin_user_management(call):
                 bot.send_message(cid, "❌ Bekor qilindi.")
                 return
             
+            if not DATABASE_URL:
+                bot.send_message(cid, "⚠️ Baza ulanmagan.")
+                return
+                
             conn_b = get_db_connection()
             cursor_b = conn_b.cursor()
             cursor_b.execute("SELECT user_id FROM users")
@@ -2048,18 +2093,25 @@ def callback_admin_user_management(call):
         bot.register_next_step_handler(msg, broadcast_step)
 
     elif data == "admin_back_to_panel":
-        conn_p = get_db_connection()
-        cursor_p = conn_p.cursor()
-        cursor_p.execute("SELECT COUNT(*) FROM users")
-        total_u = cursor_p.fetchone()[0]
-        cursor_p.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
-        active_u = cursor_p.fetchone()[0]
-        blocked_u = total_u - active_u
-        cursor_p.close()
-        conn_p.close()
+        total_u = 0
+        active_u = 0
+        blocked_u = 0
+        if DATABASE_URL:
+            conn_p = get_db_connection()
+            cursor_p = conn_p.cursor()
+            cursor_p.execute("SELECT COUNT(*) FROM users")
+            total_u = cursor_p.fetchone()[0]
+            cursor_p.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
+            active_u = cursor_p.fetchone()[0]
+            blocked_u = total_u - active_u
+            cursor_p.close()
+            conn_p.close()
 
         results = load_data(RESULTS_FILE)
-        ch_count = bot.get_chat_member_count(CHANNEL_USERNAME)
+        try:
+            ch_count = bot.get_chat_member_count(CHANNEL_USERNAME)
+        except Exception:
+            ch_count = "N/A"
 
         markup = tele_types.InlineKeyboardMarkup(row_width=1)
         markup.add(
@@ -2071,21 +2123,24 @@ def callback_admin_user_management(call):
                 web_app=tele_types.WebAppInfo(url=f"{RENDER_APP_URL}/leaderboard")
             )
         )
-        bot.edit_message_text(
-            chat_id=cid,
-            message_id=mid,
-            text=(
-                f"📊 **BOSHQARUV VA STATISTIKA PANELI (ADMIN):**\n\n"
-                f"▫️ Jami ro'yxatdan o'tganlar: `{total_u} nafar`\n"
-                f"▫️ Faol foydalanuvchilar: `{active_u} nafar`\n"
-                f"▫️ Botni to'xtatganlar: `{blocked_u} nafar`\n"
-                f"▫️ Test topshirganlar: `{len(results)} nafar`\n"
-                f"▫️ Rasmiy kanal a'zolari: `{ch_count} nafar`\n\n"
-                "Quyidagi boshqaruv amallaridan birini tanlang:"
-            ),
-            parse_mode="Markdown",
-            reply_markup=markup
-        )
+        try:
+            bot.edit_message_text(
+                chat_id=cid,
+                message_id=mid,
+                text=(
+                    f"📊 **BOSHQARUV VA STATISTIKA PANELI (ADMIN):**\n\n"
+                    f"▫️ Jami ro'yxatdan o'tganlar: `{total_u} nafar`\n"
+                    f"▫️ Faol foydalanuvchilar: `{active_u} nafar`\n"
+                    f"▫️ Botni to'xtatganlar: `{blocked_u} nafar`\n"
+                    f"▫️ Test topshirganlar: `{len(results)} nafar`\n"
+                    f"▫️ Rasmiy kanal a'zolari: `{ch_count} nafar`\n\n"
+                    "Quyidagi boshqaruv amallaridan birini tanlang:"
+                ),
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+        except Exception:
+            pass
         bot.answer_callback_query(call.id)
 
 @bot.message_handler(commands=['send'])
@@ -2095,6 +2150,10 @@ def cmd_broadcast(message):
     text_to_send = message.text.replace("/send", "").strip()
     if not text_to_send:
         bot.reply_to(message, "Xabar matnini kiriting. Masalan: `/send Yangi test qo'shildi!`", parse_mode="Markdown")
+        return
+
+    if not DATABASE_URL:
+        bot.reply_to(message, "Baza ishlamayapti.")
         return
 
     conn = get_db_connection()
@@ -2152,12 +2211,13 @@ def cmd_send_pm(message):
         )
         bot.reply_to(message, f"✅ Xabar `{target_id}` ga yetkazildi!", parse_mode="Markdown")
     except Exception:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        if DATABASE_URL:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET status = 'blocked' WHERE user_id = %s", (int(target_id),))
+            conn.commit()
+            cursor.close()
+            conn.close()
         bot.reply_to(message, f"❌ Foydalanuvchi botni bloklagan.")
 
 def auto_poster_loop():
@@ -2195,7 +2255,7 @@ def auto_poster_loop():
                             "}"
                         )
                         raw = ai_client.models.generate_content(
-                            model="gemini-3.6-flash",
+                            model="gemini-1.5-flash",
                             contents=p_single,
                             config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, temperature=0.3)
                         ).text.strip()
@@ -2318,18 +2378,25 @@ def handle_all_messages(message):
         send_section_card(message.chat.id, "izlanuvchi")
 
     elif text == "📊 Boshqaruv & Statistika" and is_admin:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM users")
-        total_u = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
-        active_u = cursor.fetchone()[0]
-        blocked_u = total_u - active_u
-        cursor.close()
-        conn.close()
+        total_u = 0
+        active_u = 0
+        blocked_u = 0
+        if DATABASE_URL:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM users")
+            total_u = cursor.fetchone()[0]
+            cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
+            active_u = cursor.fetchone()[0]
+            blocked_u = total_u - active_u
+            cursor.close()
+            conn.close()
 
         results = load_data(RESULTS_FILE)
-        ch_count = bot.get_chat_member_count(CHANNEL_USERNAME)
+        try:
+            ch_count = bot.get_chat_member_count(CHANNEL_USERNAME)
+        except Exception:
+            ch_count = "N/A"
 
         markup = tele_types.InlineKeyboardMarkup(row_width=1)
         markup.add(
@@ -2409,5 +2476,4 @@ try:
 except Exception:
     pass
 
-print("AI Tilshunos v11.3 (PostgreSQL Cloud Edition) faol ishga tushdi...")
 bot.infinity_polling(skip_pending=True)
