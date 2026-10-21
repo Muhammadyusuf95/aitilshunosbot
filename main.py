@@ -306,6 +306,23 @@ CERT_ESSAY_TOPICS = [
     "Ba'zilar ta'lim jarayonida mehnat faoliyati bilan shug'ullansa tajriba oshadi deyishsa, ayrimlar faqat bilim olish muhimligini ta'kidlashadi."
 ]
 
+# --- YANGI ALIFBO TRANSLITERATSIYASI FUNKSIYASI ---
+def transliterate_text(text):
+    if not text:
+        return ""
+    # Har xil ko'rinishdagi tutuq belgilari inobatga olingan
+    replacements = [
+        ("Oʻ", "Ö"), ("O'", "Ö"), ("O‘", "Ö"), ("O’", "Ö"), ("O`", "Ö"),
+        ("oʻ", "ö"), ("o'", "ö"), ("o‘", "ö"), ("o’", "ö"), ("o`", "ö"),
+        ("Gʻ", "Ğ"), ("G'", "Ğ"), ("G‘", "Ğ"), ("G’", "Ğ"), ("G`", "Ğ"),
+        ("gʻ", "ğ"), ("g'", "ğ"), ("g‘", "ğ"), ("g’", "ğ"), ("g`", "ğ"),
+        ("Sh", "Ş"), ("SH", "Ş"), ("sh", "ş"), ("sH", "ş"),
+        ("Ch", "Ç"), ("CH", "Ç"), ("ch", "ç"), ("cH", "ç")
+    ]
+    for old, new in replacements:
+        text = text.replace(old, new)
+    return text
+
 def get_next_quiz_number(quiz_type):
     counters = load_data(COUNTERS_FILE)
     current = counters.get(quiz_type, 0) + 1
@@ -457,15 +474,15 @@ def get_main_menu(user_id=None):
     )
     markup.row(
         tele_types.KeyboardButton("🔬 Ilmiy izlanuvchilar uchun"),
-        tele_types.KeyboardButton("👤 Shaxsiy kabinet")
+        tele_types.KeyboardButton("🔠 Yangi Alifbo")
     )
     markup.row(
-        tele_types.KeyboardButton("🏆 Jonli Reyting Doskasi")
+        tele_types.KeyboardButton("🏆 Jonli Reyting Doskasi"),
+        tele_types.KeyboardButton("👤 Shaxsiy kabinet")
     )
     if user_id and int(user_id) == int(ADMIN_ID):
         markup.row(
-            tele_types.KeyboardButton("☀️ Kun hikmati (Admin)"),
-            tele_types.KeyboardButton("⚡️ Motivatsiya (Admin)")
+            tele_types.KeyboardButton("📖 Kun hikmati & Motivatsiya (Admin)")
         )
         markup.row(tele_types.KeyboardButton("📊 Boshqaruv & Statistika"))
     return markup
@@ -1623,6 +1640,59 @@ def callback_publish_quote(call):
     except Exception as e:
         bot.answer_callback_query(call.id, f"Xatolik: {e}", show_alert=True)
 
+# ---- YANGI ALIFBO VA ADMIN INLINE TUGMALARI ISHLATISH QISMI ----
+@bot.callback_query_handler(func=lambda call: call.data in ["admin_gen_hikmat", "admin_gen_motiv"])
+def admin_generators_callback(call):
+    if int(call.from_user.id) != int(ADMIN_ID):
+        bot.answer_callback_query(call.id, "Faqat admin uchun!", show_alert=True)
+        return
+    
+    cid = call.message.chat.id
+    if call.data == "admin_gen_hikmat":
+        bot.send_message(cid, "⏳ *Tarixiy davrlar bo'yicha yangi hikmat saralanmoqda...*", parse_mode="Markdown")
+        try:
+            hikmat_full = get_verified_didactic_content("hikmat")
+            p_id = f"hik_{int(time.time())}"
+            ADMIN_POST_STORAGE[p_id] = hikmat_full
+
+            markup = tele_types.InlineKeyboardMarkup(row_width=1)
+            markup.add(
+                tele_types.InlineKeyboardButton(text="📢 Kanalga joylash (Manbasiz)", callback_data=f"pub_{p_id}"),
+                tele_types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data=f"cancel_{p_id}")
+            )
+            bot.send_message(
+                cid,
+                f"☀️ **KUN HIKMATI (ADMIN TEKSHIRUVI):**\n\n{hikmat_full}\n\n"
+                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat rasmiy kanal havolasi qo'yiladi.*",
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+        except Exception as e:
+            bot.send_message(cid, f"❌ Xatolik: {e}")
+            
+    elif call.data == "admin_gen_motiv":
+        bot.send_message(cid, "⏳ *Tarixiy davrlar bo'yicha ma'rifiy motivatsiya saralanmoqda...*", parse_mode="Markdown")
+        try:
+            motiv_full = get_verified_didactic_content("motiv")
+            p_id = f"mot_{int(time.time())}"
+            ADMIN_POST_STORAGE[p_id] = motiv_full
+
+            markup = tele_types.InlineKeyboardMarkup(row_width=1)
+            markup.add(
+                tele_types.InlineKeyboardButton(text="📢 Kanalga joylash (Manbasiz)", callback_data=f"pub_{p_id}"),
+                tele_types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data=f"cancel_{p_id}")
+            )
+            bot.send_message(
+                cid,
+                f"⚡️ **MOTIVATSIYA (ADMIN TEKSHIRUVI):**\n\n{motiv_full}\n\n"
+                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat rasmiy kanal havolasi qo'yiladi.*",
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+        except Exception as e:
+            bot.send_message(cid, f"❌ Xatolik: {e}")
+    bot.answer_callback_query(call.id)
+
 @bot.callback_query_handler(func=lambda call: call.data.startswith((
     "btn_", "theme_", "seltheme_", "hub_milliy_sertifikat", "cert_topics_hub", 
     "view_all_cert_topics", "generate_new_topics", "cert_samples_hub_", 
@@ -2309,7 +2379,8 @@ def send_welcome(message):
         "👨‍🏫 **O'qituvchilar uchun:** Konspektlar, metodlar va Attestatsiya testlari\n"
         "🎒 **Abituriyentlar uchun:** Milliy sertifikat esselari, O'TIL, BMB va Mavzuli testlar\n"
         "🛠 **Quiz Test Tuzuvchi:** O'zingiz xohlagan mavzuda professional test yasash\n"
-        "🔬 **Ilmiy izlanuvchilar uchun:** OAK maqola va tezis loyihalash\n\n"
+        "🔬 **Ilmiy izlanuvchilar uchun:** OAK maqola va tezis loyihalash\n"
+        "🔠 **Yangi Alifbo:** O'zbek alifbosining yangi (Ö, Ğ, Ş, Ç) shakliga o'tkazish\n\n"
         "👇 *Yo'nalishingizni tanlang:* \n"
         "╰─────────────────────────────────────╯"
     )
@@ -2376,6 +2447,57 @@ def handle_all_messages(message):
 
     elif text == "🔬 Ilmiy izlanuvchilar uchun":
         send_section_card(message.chat.id, "izlanuvchi")
+        
+    # --- YANGI ALIFBO TRANS-LITERATSIYA BO'LIMI ---
+    elif text == "🔠 Yangi Alifbo":
+        msg = bot.send_message(
+            message.chat.id, 
+            "🔠 **Yangi Alifbo Transliteratsiyasi**\n\n"
+            "Lotin alifbosidagi matnni yuboring. Barcha O', G', Sh, Ch harflari "
+            "yangi O'zbek alifbosiga (Ö, Ğ, Ş, Ç) o'tkazib beriladi.\n\n"
+            "💡 *Matn hajmi cheklanmagan! Matningizni yuboring:*", 
+            parse_mode="Markdown"
+        )
+        def process_transliteration(m):
+            if m.text and m.text in [
+                "🔙 Asosiy menyu", "👤 Shaxsiy kabinet", "🏆 Jonli Reyting Doskasi", 
+                "🛠 Quiz Test Tuzuvchi", "🎓 Talabalar uchun", "👨‍🏫 O'qituvchilar uchun", 
+                "🎒 Abituriyentlar uchun", "🔬 Ilmiy izlanuvchilar uchun", "🔠 Yangi Alifbo", 
+                "📖 Kun hikmati & Motivatsiya (Admin)", "📊 Boshqaruv & Statistika"
+            ]:
+                handle_all_messages(m)
+                return
+                
+            if m.text:
+                res = transliterate_text(m.text)
+                max_chunk = 4000
+                for i in range(0, len(res), max_chunk):
+                    bot.send_message(m.chat.id, res[i:i+max_chunk])
+                
+                bot.send_message(
+                    m.chat.id, 
+                    "✅ *Tarjima muvaffaqiyatli yakunlandi!*\n\nYana matn yuborishingiz yoki menyudan boshqa bo'limni tanlashingiz mumkin.", 
+                    parse_mode="Markdown"
+                )
+                bot.register_next_step_handler(m, process_transliteration)
+            else:
+                bot.send_message(m.chat.id, "Iltimos, faqat matn xabar yuboring.")
+                bot.register_next_step_handler(m, process_transliteration)
+
+        bot.register_next_step_handler(msg, process_transliteration)
+
+    # --- ADMIN FUNKSIYALARI ---
+    elif text == "📖 Kun hikmati & Motivatsiya (Admin)" and is_admin:
+        markup = tele_types.InlineKeyboardMarkup(row_width=2)
+        markup.add(
+            tele_types.InlineKeyboardButton(text="☀️ Kun hikmati generatsiyasi", callback_data="admin_gen_hikmat"),
+            tele_types.InlineKeyboardButton(text="⚡️ Motivatsiya generatsiyasi", callback_data="admin_gen_motiv")
+        )
+        bot.send_message(
+            message.chat.id, 
+            "👑 **Admin paneli:** \nQaysi birini kanal uchun tayyorlab beray?", 
+            reply_markup=markup
+        )
 
     elif text == "📊 Boshqaruv & Statistika" and is_admin:
         total_u = 0
@@ -2422,50 +2544,6 @@ def handle_all_messages(message):
             reply_markup=markup
         )
 
-    elif text == "☀️ Kun hikmati (Admin)" and is_admin:
-        bot.send_message(message.chat.id, "⏳ *Tarixiy davrlar bo'yicha yangi hikmat saralanmoqda...*", parse_mode="Markdown")
-        try:
-            hikmat_full = get_verified_didactic_content("hikmat")
-            p_id = f"hik_{int(time.time())}"
-            ADMIN_POST_STORAGE[p_id] = hikmat_full
-
-            markup = tele_types.InlineKeyboardMarkup(row_width=1)
-            markup.add(
-                tele_types.InlineKeyboardButton(text="📢 Kanalga joylash (Manbasiz)", callback_data=f"pub_{p_id}"),
-                tele_types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data=f"cancel_{p_id}")
-            )
-            bot.send_message(
-                message.chat.id,
-                f"☀️ **KUN HIKMATI (ADMIN TEKSHIRUVI):**\n\n{hikmat_full}\n\n"
-                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat rasmiy kanal havolasi qo'yiladi.*",
-                parse_mode="Markdown",
-                reply_markup=markup
-            )
-        except Exception as e:
-            bot.send_message(message.chat.id, f"❌ Xatolik: {e}")
-
-    elif text == "⚡️ Motivatsiya (Admin)" and is_admin:
-        bot.send_message(message.chat.id, "⏳ *Tarixiy davrlar bo'yicha ma'rifiy motivatsiya saralanmoqda...*", parse_mode="Markdown")
-        try:
-            motiv_full = get_verified_didactic_content("motiv")
-            p_id = f"mot_{int(time.time())}"
-            ADMIN_POST_STORAGE[p_id] = motiv_full
-
-            markup = tele_types.InlineKeyboardMarkup(row_width=1)
-            markup.add(
-                tele_types.InlineKeyboardButton(text="📢 Kanalga joylash (Manbasiz)", callback_data=f"pub_{p_id}"),
-                tele_types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data=f"cancel_{p_id}")
-            )
-            bot.send_message(
-                message.chat.id,
-                f"⚡️ **MOTIVATSIYA (ADMIN TEKSHIRUVI):**\n\n{motiv_full}\n\n"
-                f"💡 *Kanalga chiqarilsa manba qismi avtomatik olib tashlanadi va faqat rasmiy kanal havolasi qo'yiladi.*",
-                parse_mode="Markdown",
-                reply_markup=markup
-            )
-        except Exception as e:
-            bot.send_message(message.chat.id, f"❌ Xatolik: {e}")
-
     else:
         bot.send_message(message.chat.id, "Iltimos, pastdagi menyu tugmalaridan birini tanlang:", reply_markup=get_main_menu(u_id))
 
@@ -2477,3 +2555,4 @@ except Exception:
     pass
 
 bot.infinity_polling(skip_pending=True)
+```<FollowUp label="Kodni ishga tushirishda muammo bo'lyaptimi?" query="Yangi funksiya ishlashiga oid xatolik yoki savol bormi?"/>
