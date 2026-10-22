@@ -13,7 +13,7 @@ from telebot import types as tele_types
 from google import genai
 from google.genai import types
 
-# Alohida fayldagi 20 ta namunaviy esseni yuklab olamiz
+# Alohida fayldagi namunaviy esselarni yuklab olamiz
 try:
     from sample_essays import SAMPLE_ESSAYS
 except ImportError:
@@ -198,7 +198,7 @@ def webapp_leaderboard():
             conn.close()
         except Exception:
             pass
-    
+     
     sorted_res = sorted(
         results.items(), 
         key=lambda x: (
@@ -207,7 +207,7 @@ def webapp_leaderboard():
             x[1].get("duration", 999999)
         )
     )[:25]
-    
+     
     top_list = []
     active_streak_count = sum(1 for u in users_db.values() if u.get("streak", 0) > 1)
 
@@ -216,7 +216,7 @@ def webapp_leaderboard():
         dur = info.get("duration", 0)
         dur_str = f"{dur//60}m {dur%60}s"
         u_record = users_db.get(str(uid), {})
-        
+         
         top_list.append({
             "rank": idx,
             "rank_icon": icon,
@@ -306,11 +306,9 @@ CERT_ESSAY_TOPICS = [
     "Ba'zilar ta'lim jarayonida mehnat faoliyati bilan shug'ullansa tajriba oshadi deyishsa, ayrimlar faqat bilim olish muhimligini ta'kidlashadi."
 ]
 
-# --- YANGI ALIFBO TRANSLITERATSIYASI FUNKSIYASI ---
 def transliterate_text(text):
     if not text:
         return ""
-    # Har xil ko'rinishdagi tutuq belgilari inobatga olingan
     replacements = [
         ("Oʻ", "Ö"), ("O'", "Ö"), ("O‘", "Ö"), ("O’", "Ö"), ("O`", "Ö"),
         ("oʻ", "ö"), ("o'", "ö"), ("o‘", "ö"), ("o’", "ö"), ("o`", "ö"),
@@ -333,22 +331,22 @@ def get_next_quiz_number(quiz_type):
 def update_user_streak(user):
     if not DATABASE_URL:
         return 1, 0, False
-        
+         
     conn = get_db_connection()
     cursor = conn.cursor()
     u_id = user.id
     today_str = datetime.now().strftime("%Y-%m-%d")
     yesterday_str = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-    
+     
     cursor.execute("SELECT user_id, username, first_name, points, streak, last_active, status FROM users WHERE user_id = %s", (u_id,))
     row = cursor.fetchone()
-    
+     
     if row:
         streak = row[4]
         points = row[3]
         last_active = row[5]
         streak_broken = False
-        
+         
         if last_active == today_str:
             pass
         elif last_active == yesterday_str:
@@ -359,7 +357,7 @@ def update_user_streak(user):
                 streak_broken = True
             streak = 1
             points += 10
-            
+             
         cursor.execute("""
             UPDATE users 
             SET username = %s, first_name = %s, points = %s, streak = %s, last_active = %s, status = 'active'
@@ -373,7 +371,7 @@ def update_user_streak(user):
             INSERT INTO users (user_id, username, first_name, points, streak, last_active, status)
             VALUES (%s, %s, %s, %s, %s, %s, 'active')
         """, (u_id, user.username or "", user.first_name or "", points, streak, today_str))
-        
+         
     conn.commit()
     cursor.close()
     conn.close()
@@ -609,7 +607,7 @@ def show_all_cert_topics(chat_id):
     for idx, top in enumerate(CERT_ESSAY_TOPICS, 1):
         text += f"**{idx}.** {top}\n\n"
     text += "╰──────────────────────────────────────────╯"
-    
+     
     markup = tele_types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         tele_types.InlineKeyboardButton(text="✨ AI orqali yangi mavzu topish", callback_data="generate_new_topics"),
@@ -676,10 +674,10 @@ def show_user_profile(chat_id, user):
 
     results = load_data(RESULTS_FILE)
     u_id = str(user.id)
-    
+     
     test_data = results.get(u_id, {})
     best_correct = test_data.get("correct", 0)
-    
+     
     sorted_res = sorted(results.items(), key=lambda x: -x[1].get("correct", 0))
     rank = "Ishtirok etmagan"
     for idx, (uid_k, _) in enumerate(sorted_res, 1):
@@ -898,7 +896,7 @@ def generate_ai_content(prompt_text):
         "Talablar: Telegram Markdown formatida, ko'rkam sarlavhalar va ilmiy uslubda bo'lsin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    models = ["gemini-3.5-flash"]
+    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -926,7 +924,7 @@ def generate_ai_content(prompt_text):
     raise Exception(f"AI Xatolik tafsiloti: {last_error[:300]}")
 
 def generate_quiz_batch(prompt_spec, count=30):
-    models = ["gemini-3.5-flash"]
+    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -1035,7 +1033,7 @@ def handle_poll_answer(poll_answer):
     chat_id = poll_info["chat_id"]
     correct_opt = poll_info["correct_option_id"]
     q_start_time = poll_info.get("sent_time", time.time())
-    
+     
     if not poll_answer.option_ids:
         return
     chosen_opt = poll_answer.option_ids[0]
@@ -1057,10 +1055,10 @@ def handle_poll_answer(poll_answer):
                 "total_answered": 0,
                 "total_time": 0.0
             }
-        
+         
         scores[u_id]["total_answered"] += 1
         scores[u_id]["total_time"] += time_spent_on_q
-        
+         
         if chosen_opt == correct_opt:
             scores[u_id]["correct"] += 1
 
@@ -1068,7 +1066,6 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
     total_q = len(questions)
     is_anon = False 
 
-    start_time = time.time()
     ACTIVE_QUIZ_TRACKER[target_chat_id] = {
         "scores": {},
         "total_q": total_q
@@ -1120,7 +1117,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                 "correct_option_id": correct_id,
                 "sent_time": poll_sent_at
             }
-        except Exception as err:
+        except Exception:
             try:
                 poll_sent_at = time.time()
                 poll_msg = bot.send_poll(
@@ -1153,7 +1150,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
             try:
                 conn = get_db_connection()
                 cursor = conn.cursor()
-                
+                 
                 for uid, info in scores.items():
                     results[str(uid)] = {
                         "name": info["name"],
@@ -1164,7 +1161,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                     cursor.execute("""
                         UPDATE users SET points = points + %s WHERE user_id = %s
                     """, (info["correct"] * 2, uid))
-                    
+                     
                 conn.commit()
                 cursor.close()
                 conn.close()
@@ -1188,7 +1185,7 @@ def run_interactive_quiz_loop(target_chat_id, questions, duration_per_q, title):
                 medal = "🥉"
             else:
                 medal = f"**{rank}.**"
-                
+                 
             perc = round((info["correct"] / total_q) * 100, 1)
             spent_time = round(info["total_time"], 1)
             leaderboard_text += (
@@ -1344,7 +1341,7 @@ def offer_quiz_dispatch(chat_id, user_id, questions, duration_per_q, title):
 @bot.callback_query_handler(func=lambda call: call.data.startswith(("act_chan_", "act_bot_", "act_sendgrp_")))
 def callback_quiz_routing(call):
     data = call.data
-    
+     
     if data.startswith("act_chan_"):
         if int(call.from_user.id) != int(ADMIN_ID):
             bot.answer_callback_query(call.id, "Faqat admin uchun!", show_alert=True)
@@ -1426,7 +1423,7 @@ def callback_start_quiz_builder(call):
     uid = call.from_user.id
     USER_CUSTOM_BUILDERS[uid] = {}
     bot.answer_callback_query(call.id)
-    
+     
     msg = bot.send_message(
         call.message.chat.id,
         "✍️ **1-QADAM: Test mavzusini yoki matnni kiriting:**\n\n"
@@ -1437,7 +1434,7 @@ def callback_start_quiz_builder(call):
     def step_get_topic(m):
         topic = m.text.strip()
         USER_CUSTOM_BUILDERS[uid]["topic"] = topic
-        
+         
         markup = tele_types.InlineKeyboardMarkup(row_width=3)
         markup.row(
             tele_types.InlineKeyboardButton(text="5 ta savol", callback_data="cb_qcount_5"),
@@ -1490,7 +1487,7 @@ def callback_quiz_builder_finish(call):
     builder_data = USER_CUSTOM_BUILDERS.get(uid, {})
     topic = builder_data.get("topic", "Ona tili va adabiyot")
     count = builder_data.get("count", 10)
-    
+     
     bot.answer_callback_query(call.id, "Test generatsiyasi boshlandi...")
     status_msg = bot.edit_message_text(
         chat_id=call.message.chat.id,
@@ -1606,7 +1603,7 @@ def get_verified_didactic_content(content_type="hikmat"):
         )
 
     response = ai_client.models.generate_content(
-        model="gemini-3.5-flash",
+        model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -1619,7 +1616,7 @@ def get_verified_didactic_content(content_type="hikmat"):
 def callback_publish_quote(call):
     if int(call.from_user.id) != int(ADMIN_ID):
         return
-    
+     
     post_id = call.data.replace("pub_", "")
     text_data = ADMIN_POST_STORAGE.get(post_id)
     if not text_data:
@@ -1640,13 +1637,12 @@ def callback_publish_quote(call):
     except Exception as e:
         bot.answer_callback_query(call.id, f"Xatolik: {e}", show_alert=True)
 
-# ---- YANGI ALIFBO VA ADMIN INLINE TUGMALARI ISHLATISH QISMI ----
 @bot.callback_query_handler(func=lambda call: call.data in ["admin_gen_hikmat", "admin_gen_motiv"])
 def admin_generators_callback(call):
     if int(call.from_user.id) != int(ADMIN_ID):
         bot.answer_callback_query(call.id, "Faqat admin uchun!", show_alert=True)
         return
-    
+     
     cid = call.message.chat.id
     if call.data == "admin_gen_hikmat":
         bot.send_message(cid, "⏳ *Tarixiy davrlar bo'yicha yangi hikmat saralanmoqda...*", parse_mode="Markdown")
@@ -1669,7 +1665,7 @@ def admin_generators_callback(call):
             )
         except Exception as e:
             bot.send_message(cid, f"❌ Xatolik: {e}")
-            
+             
     elif call.data == "admin_gen_motiv":
         bot.send_message(cid, "⏳ *Tarixiy davrlar bo'yicha ma'rifiy motivatsiya saralanmoqda...*", parse_mode="Markdown")
         try:
@@ -1693,11 +1689,13 @@ def admin_generators_callback(call):
             bot.send_message(cid, f"❌ Xatolik: {e}")
     bot.answer_callback_query(call.id)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith((
-    "btn_", "theme_", "seltheme_", "hub_milliy_sertifikat", "cert_topics_hub", 
-    "view_all_cert_topics", "generate_new_topics", "cert_samples_hub_", 
-    "read_essay_", "ai_write_sample_essay", "back_to_abituriyent"
-)))
+@bot.callback_query_handler(func=lambda call: call.data in [
+    "btn_gazal", "btn_aruz", "btn_qadim", "btn_etim", "btn_konspekt", "btn_metod",
+    "btn_attest", "btn_izoh", "btn_bmb_gen", "btn_maqola", "btn_tezis", "btn_esse",
+    "btn_bmb_themed_hub", "theme_open_catalog", "theme_custom_input",
+    "hub_milliy_sertifikat", "cert_topics_hub", "view_all_cert_topics",
+    "generate_new_topics", "ai_write_sample_essay", "back_to_abituriyent"
+] or call.data.startswith(("seltheme_", "cert_samples_hub_", "read_essay_")))
 def callback_button_actions(call):
     cid = call.message.chat.id
     uid = call.from_user.id
@@ -1905,9 +1903,9 @@ def callback_retry(call):
 def handle_inline_quiz_share(inline_query):
     try:
         query_text = inline_query.query.strip()
-        
+         
         deep_link = f"https://t.me/aitilshunosbot?start={query_text}" if query_text else "https://t.me/aitilshunosbot"
-        
+         
         message_content = (
             "╔════════════════════════════════╗\n"
             "  🧠 **ONA TILI VA ADABIYOT TESTI**\n"
@@ -1919,7 +1917,7 @@ def handle_inline_quiz_share(inline_query):
             f"🏛 **Rasmiy kanal:** @onatilidanyordam\n\n"
             "👇 *Testni yechish va umumiy reytingda qatnashish uchun bosing:*"
         )
-        
+         
         inline_markup = tele_types.InlineKeyboardMarkup()
         inline_markup.add(
             tele_types.InlineKeyboardButton(
@@ -1927,7 +1925,7 @@ def handle_inline_quiz_share(inline_query):
                 url=deep_link
             )
         )
-        
+         
         r = tele_types.InlineQueryResultArticle(
             id='quiz_share_card',
             title="🧠 Testni ushbu guruhga ulashish",
@@ -1939,27 +1937,26 @@ def handle_inline_quiz_share(inline_query):
             ),
             reply_markup=inline_markup
         )
-        
+         
         bot.answer_inline_query(inline_query.id, [r], cache_time=1)
     except Exception as e:
         print(f"Inline query xatosi: {e}")
 
-# --- ADMIN FOYDALANUVCHILAR BOSHQARUVI (POSTGRESQL) ---
 def get_users_page_markup(page=0, per_page=8):
     if not DATABASE_URL:
         return "⚠️ Ma'lumotlar bazasi topilmadi", tele_types.InlineKeyboardMarkup()
-        
+         
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+     
     cursor.execute("SELECT COUNT(*) FROM users")
     total_users = cursor.fetchone()[0]
     total_pages = max(1, (total_users + per_page - 1) // per_page)
-    
+     
     start_idx = page * per_page
     cursor.execute("SELECT user_id, username, first_name, points, streak, status, joined_at FROM users ORDER BY joined_at DESC LIMIT %s OFFSET %s", (per_page, start_idx))
     rows = cursor.fetchall()
-    
+     
     cursor.execute("SELECT COUNT(*) FROM users WHERE status != 'blocked'")
     active_count = cursor.fetchone()[0]
     blocked_count = total_users - active_count
@@ -1978,7 +1975,7 @@ def get_users_page_markup(page=0, per_page=8):
         points = row[3]
         streak = row[4]
         status = row[5]
-        
+         
         st = "🟢" if status != "blocked" else "🔴"
         text += f"`{idx}.` {st} **{name}** ({uname})\n    └ ID: `{uid}` • 🔥 {streak} kun • `{points} ball`\n"
         btn_label = f"💬 {name[:12]}..." if len(name) > 12 else f"💬 {name}"
@@ -2115,22 +2112,22 @@ def callback_admin_user_management(call):
             if m.text.strip() == "/cancel":
                 bot.send_message(cid, "❌ Bekor qilindi.")
                 return
-            
+             
             if not DATABASE_URL:
                 bot.send_message(cid, "⚠️ Baza ulanmagan.")
                 return
-                
+                 
             conn_b = get_db_connection()
             cursor_b = conn_b.cursor()
             cursor_b.execute("SELECT user_id FROM users")
             user_ids = [row[0] for row in cursor_b.fetchall()]
             cursor_b.close()
             conn_b.close()
-            
+             
             success = 0
             blocked = 0
             bot.send_message(cid, f"🚀 {len(user_ids)} ta a'zoga xabar yo'llash boshlandi...")
-            
+             
             conn_up = get_db_connection()
             cursor_up = conn_up.cursor()
             for uid_key in user_ids:
@@ -2152,7 +2149,7 @@ def callback_admin_user_management(call):
             conn_up.commit()
             cursor_up.close()
             conn_up.close()
-            
+             
             bot.send_message(
                 cid, 
                 f"✅ **Tarqatish yakunlandi!**\n\n"
@@ -2230,7 +2227,7 @@ def cmd_broadcast(message):
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM users")
     user_ids = [row[0] for row in cursor.fetchall()]
-    
+     
     success = 0
     blocked = 0
     bot.reply_to(message, f"📢 {len(user_ids)} ta a'zoga xabar yo'llash boshlandi...")
@@ -2267,7 +2264,7 @@ def cmd_send_pm(message):
     if len(parts) < 3:
         bot.reply_to(message, "Foydalanish: `/pm USER_ID xabar matni`", parse_mode="Markdown")
         return
-    
+     
     target_id = parts[1].strip()
     pm_text = parts[2].strip()
 
@@ -2325,7 +2322,7 @@ def auto_poster_loop():
                             "}"
                         )
                         raw = ai_client.models.generate_content(
-                            model="gemini-3.5-flash",
+                            model="gemini-2.5-flash",
                             contents=p_single,
                             config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, temperature=0.3)
                         ).text.strip()
@@ -2447,8 +2444,7 @@ def handle_all_messages(message):
 
     elif text == "🔬 Ilmiy izlanuvchilar uchun":
         send_section_card(message.chat.id, "izlanuvchi")
-        
-    # --- YANGI ALIFBO TRANS-LITERATSIYA BO'LIMI ---
+         
     elif text == "🔠 Yangi Alifbo":
         msg = bot.send_message(
             message.chat.id, 
@@ -2467,13 +2463,13 @@ def handle_all_messages(message):
             ]:
                 handle_all_messages(m)
                 return
-                
+                 
             if m.text:
                 res = transliterate_text(m.text)
                 max_chunk = 4000
                 for i in range(0, len(res), max_chunk):
                     bot.send_message(m.chat.id, res[i:i+max_chunk])
-                
+                 
                 bot.send_message(
                     m.chat.id, 
                     "✅ *Tarjima muvaffaqiyatli yakunlandi!*\n\nYana matn yuborishingiz yoki menyudan boshqa bo'limni tanlashingiz mumkin.", 
@@ -2486,7 +2482,6 @@ def handle_all_messages(message):
 
         bot.register_next_step_handler(msg, process_transliteration)
 
-    # --- ADMIN FUNKSIYALARI ---
     elif text == "📖 Kun hikmati & Motivatsiya (Admin)" and is_admin:
         markup = tele_types.InlineKeyboardMarkup(row_width=2)
         markup.add(
@@ -2555,4 +2550,3 @@ except Exception:
     pass
 
 bot.infinity_polling(skip_pending=True)
-
