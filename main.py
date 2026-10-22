@@ -13,7 +13,7 @@ from telebot import types as tele_types
 from google import genai
 from google.genai import types
 
-# Alohida fayldagi namunaviy esselarni yuklab olamiz
+# Alohida fayldagi 20 ta namunaviy esseni yuklab olamiz
 try:
     from sample_essays import SAMPLE_ESSAYS
 except ImportError:
@@ -2549,7 +2549,7 @@ try:
 except Exception:
     pass
 
-# Konflikt xatolarining (409 Conflict) oldini olish uchun xavfsiz polling
+# Konflikt xatolarining oldini olish uchun xavfsiz polling
 while True:
     try:
         bot.infinity_polling(timeout=60, long_polling_timeout=60, skip_pending=True)
