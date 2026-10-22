@@ -896,7 +896,7 @@ def generate_ai_content(prompt_text):
         "Talablar: Telegram Markdown formatida, ko'rkam sarlavhalar va ilmiy uslubda bo'lsin. "
         "Oxirida '📚 Manba:' keltirilsin."
     )
-    models = ["gemini-3.5-flash", "gemini-3.5-flash"]
+    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -924,7 +924,7 @@ def generate_ai_content(prompt_text):
     raise Exception(f"AI Xatolik tafsiloti: {last_error[:300]}")
 
 def generate_quiz_batch(prompt_spec, count=30):
-    models = ["gemini-3.5-flash", "gemini-3.5-flash"]
+    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
     last_error = ""
     for model_name in models:
         for attempt in range(3):
@@ -1603,7 +1603,7 @@ def get_verified_didactic_content(content_type="hikmat"):
         )
 
     response = ai_client.models.generate_content(
-        model="gemini-3.5-flash",
+        model="gemini-2.5-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -2322,7 +2322,7 @@ def auto_poster_loop():
                             "}"
                         )
                         raw = ai_client.models.generate_content(
-                            model="gemini-3.5-flash",
+                            model="gemini-2.5-flash",
                             contents=p_single,
                             config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, temperature=0.3)
                         ).text.strip()
@@ -2549,4 +2549,10 @@ try:
 except Exception:
     pass
 
-bot.infinity_polling(skip_pending=True)
+# Konflikt xatolarining (409 Conflict) oldini olish uchun xavfsiz polling
+while True:
+    try:
+        bot.infinity_polling(timeout=60, long_polling_timeout=60, skip_pending=True)
+    except Exception as e:
+        print(f"Polling xatosi: {e}")
+        time.sleep(5)
