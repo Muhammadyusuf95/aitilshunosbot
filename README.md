@@ -33,3 +33,14 @@ Bot kanalda **admin** bo'lib, post va so'rovnoma yuborish huquqiga ega bo'lishi 
 
 ## Mavzu himoyasi
 Kirish filtri (`app/security.py`) + AI tizim ko'rsatmasi (`OFFTOPIC_REFUSED`) + chiqish filtri + ogohlantirishlar (24 soatda 3 marta → 24 soat cheklov; admin: `/unblock ID`).
+
+
+## v12.1 — o'sish funksiyalari
+- 🔗 Kanal → bot: kanal postlari/yakuniy xabarlarda botga o'tish tugmalari (`?start=daily|quick`)
+- 🔔 Eslatmalar: kuniga 18:00 da (seriya uzilishi arafasida / 3 kun kirmaganlarga), `/eslatma` bilan o'chirish
+- 🏆 Haftalik g'oliblar: yakshanba 19:00, TOP-3 kanalga + XP + nishon. Sovrin matni: `WEEKLY_PRIZE` env
+- 📅 Imtihon sanog'i va kunlik reja (➕ Yana → Imtihon sanasi)
+- 🖼 Natija kartochkasi (PNG, Pillow) — test yakunida
+- ⚔️ Do'st bilan bellashuv (`?start=duel_ID`)
+- 🏫 Sinf rejimi: o'qituvchi sinf kodi, topshiriq, natijalar; o'quvchi `?start=cls_KOD`
+Soddalashtirish: Aqliy mashq olib tashlandi, Qadimgi turkiy → etimologiyaga qo'shildi, Tadqiqotchi → Til asboblari ichida, asosiy menyu qisqartirildi.

@@ -29,7 +29,7 @@ def store_pending(uid, qs, title, duration=30):
 # =====================================================================================
 #  Test yaratish va tarqatish menyusi
 # =====================================================================================
-def launch_build(chat_id, user, title, builder, duration=30, then="dispatch"):
+def launch_build(chat_id, user, title, builder, duration=30, then="dispatch", extra=None):
     """Savollarni fon oqimida tayyorlaydi. then: 'dispatch' (tarqatish menyusi) yoki 'practice' (darhol mashq)."""
     ok, why = limiter.check(user.id, today_str())
     if not ok:
@@ -54,6 +54,12 @@ def launch_build(chat_id, user, title, builder, duration=30, then="dispatch"):
             pass
         if then == "practice":
             start_practice(chat_id, user, qs, title)
+        elif then == "duel":
+            from app.handlers import growth
+            growth.create_duel(chat_id, user, qs)
+        elif then == "class":
+            from app.handlers import growth
+            growth.finish_class_task(chat_id, user, qs, title, (extra or {})["code"])
         else:
             offer_dispatch(chat_id, user, qs, title, meta, duration)
 
@@ -322,13 +328,14 @@ def summary_view(s, info):
     rows = []
     if mistakes:
         rows.append([(f"🔁 Xatolar ustida ishlash ({mistakes})", "review:start")])
+    rows.append([("🖼 Natija kartochkasi", "rescard"), ("⚔️ Do'st bilan bellashuv", "duel:new")])
     rows.append([("⚡ Yana tezkor test", "quick:10"), ("🧠 BMB 30", "bmb30")])
     rows.append([rank_btn(), (f"📤 Ulashish", f"{s.correct}/{info['answered']} natija", "switch")])
     return card("🏁 NATIJA", esc(s.title), "\n".join(body)), kb(rows)
 
 
-def start_practice(chat_id, user, qs, title, mode="practice"):
-    s = practice.create(user.id, display_name(user), title, qs, mode, chat_id)
+def start_practice(chat_id, user, qs, title, mode="practice", ctx=None):
+    s = practice.create(user.id, display_name(user), title, qs, mode, chat_id, ctx)
     html, markup = question_view(s)
     send_html(bot, chat_id, html, reply_markup=markup)
 
@@ -378,6 +385,11 @@ def _finish(call, s):
     info = practice.finalize(s)
     practice.drop(s.uid)
     html, markup = summary_view(s, info)
+    if s.ctx:
+        from app.handlers import growth
+        extra = growth.session_done(s, info)
+        if extra:
+            html += "\n\n" + extra
     show(call, html, markup)
 
 

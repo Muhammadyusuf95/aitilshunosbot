@@ -7,13 +7,14 @@ from app import levels, questions as qmod
 from app.db import get_db
 
 SESSIONS = {}
+LAST_RESULT = {}  # uid -> natija kartochkasi uchun oxirgi natija
 _lock = threading.Lock()
 SESSION_TTL = 3 * 3600
 XP_PER_CORRECT = 2
 
 
 class Session:
-    def __init__(self, uid, name, title, qs, mode="practice", chat_id=None):
+    def __init__(self, uid, name, title, qs, mode="practice", chat_id=None, ctx=None):
         self.sid = uuid.uuid4().hex[:5]
         self.uid = uid
         self.name = name
@@ -21,6 +22,7 @@ class Session:
         self.questions = qs
         self.mode = mode  # practice | review | daily
         self.chat_id = chat_id
+        self.ctx = ctx or {}
         self.idx = 0
         self.correct = 0
         self.wrong_keys = []
@@ -73,8 +75,8 @@ class Session:
         return not self.finished
 
 
-def create(uid, name, title, qs, mode="practice", chat_id=None):
-    s = Session(uid, name, title, qs, mode, chat_id)
+def create(uid, name, title, qs, mode="practice", chat_id=None, ctx=None):
+    s = Session(uid, name, title, qs, mode, chat_id, ctx)
     with _lock:
         now = time.time()
         for k in [k for k, v in SESSIONS.items() if now - v.touched > SESSION_TTL]:
@@ -123,6 +125,10 @@ def finalize(s):
             new_badges.append("marathon")
 
     after = (db.get_user(s.uid) or {}).get("points", before)
+    if total:
+        cur_lv = levels.level_for(after)[0]
+        LAST_RESULT[s.uid] = dict(name=s.name, title=s.title, correct=s.correct, answered=total, accuracy=acc,
+                                  level=cur_lv[1], streak=(db.get_user(s.uid) or {}).get("streak") or 0)
     lv_before, lv_after = levels.level_for(before)[0], levels.level_for(after)[0]
     return dict(xp=xp, new_badges=new_badges, accuracy=acc, answered=total, points=after,
                 level_up=lv_after if lv_after != lv_before else None)

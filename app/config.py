@@ -63,4 +63,4 @@ LOBBY_TTL_SEC = 15 * 60
 TZ = pytz.timezone(os.environ.get("BOT_TZ", "Asia/Tashkent"))
 NUM_THREADS = _int("NUM_THREADS", 16)
 
-BOT_VERSION = "v12.0"
+BOT_VERSION = "v12.1"

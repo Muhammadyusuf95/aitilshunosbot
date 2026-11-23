@@ -50,7 +50,7 @@ def cb_hub(call):
     answer_cb(call)
     from app import ui
     views = {
-        "abit": ui.view_abit, "cert": ui.view_cert, "topics": ui.view_topics_hub, "themes": ui.view_themes_hub,
+        "more": ui.view_more, "abit": ui.view_abit, "cert": ui.view_cert, "topics": ui.view_topics_hub, "themes": ui.view_themes_hub,
     }
     if name in views:
         show(call, *views[name]())
@@ -307,28 +307,3 @@ def st_sfx(message, st):
         more = f"\n\n<i>…yana {len(res) - 12} ta natija bor.</i>" if len(res) > 12 else ""
         send_html(bot, message.chat.id, card("🔎 NATIJALAR", f"«{esc(q[:40])}»", "\n\n".join(lines) + more))
     set_state(message.from_user.id, "sfx")
-
-
-# ---------------- Aqliy mashq (ochiq topshiriqlar) ----------------
-@on_cb("open_next")
-def cb_open_next(call):
-    tasks = qmod.raw_bank().get("open_tasks", [])
-    answer_cb(call)
-    if not tasks:
-        send_html(bot, call.message.chat.id, "Hozircha topshiriqlar yo'q.")
-        return
-    i = random.randrange(len(tasks))
-    markup = kb([[("👁 Javobni ko'rish", f"open_ans:{i}")], [("➡️ Boshqa topshiriq", "open_next")]])
-    send_html(bot, call.message.chat.id, card("🧠 AQLIY MASHQ", "Avval o'zingiz o'ylab ko'ring",
-                                              esc(tasks[i]["task"])), reply_markup=markup)
-
-
-@on_cb("open_ans:")
-def cb_open_ans(call):
-    tasks = qmod.raw_bank().get("open_tasks", [])
-    i = int(call.data.split(":")[1])
-    answer_cb(call)
-    if 0 <= i < len(tasks):
-        t = tasks[i]
-        show(call, card("🧠 AQLIY MASHQ", "Javob", f"{esc(t['task'])}\n\n✅ <b>Javob:</b> {esc(t['answer'])}"),
-             kb([[("➡️ Boshqa topshiriq", "open_next")]]))

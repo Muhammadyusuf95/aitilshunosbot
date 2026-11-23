@@ -91,16 +91,10 @@ TOOLS = {
                 "3) bahr nomini va rukn (taf'ila) tizimini ayting; 4) har misra uchun vazn mosligini tekshiring. "
                 "Natijaga to'liq ishonchingiz bo'lmasa, 'Taxminiy' deb belgilab, sababini yozing."),
         tag="aruz"),
-    "qadim": dict(
-        title="🏛 Qadimgi turkiy so'zlar", ask="Qaysi tarixiy yoki arxaik so'z/iborani tahlil qilay? Yozing:",
-        prompt=("'{input}' so'zi/iborasini qadimgi turkiy manbalar (Orxon-Enisey bitiklari, 'Devonu lug'atit turk', "
-                "'Qutadg'u bilig') nuqtai nazaridan tahlil qiling: qadimgi shakli, ma'nosi, zamonaviy o'zbek tilidagi "
-                "muqobili va tovush o'zgarishlari. Aniq bo'lmagan joylarni 'ehtimol' deb belgilang."),
-        tag="qadimgi_til"),
     "etim": dict(
         title="🔍 So'z etimologiyasi", ask="Etimologiyasini bilmoqchi bo'lgan so'zni yozing:",
         prompt=("'{input}' so'zining etimologiyasini tushuntiring: kelib chiqishi (qaysi tildan), ildiz va qo'shimchalari, "
-                "tarixiy ma'no o'zgarishi, qardosh tillardagi shakllari. Rahmatullayev lug'ati yondashuviga tayaning; "
+                "tarixiy ma'no o'zgarishi, qadimgi turkiy manbalardagi (Orxon-Enisey, 'Devonu lug'atit turk') shakli va qardosh tillardagi shakllari. Rahmatullayev lug'ati yondashuviga tayaning; "
                 "bahsli yoki noaniq joylarni ochiq ayting."),
         tag="etimologiya"),
     "asar": dict(
@@ -165,18 +159,19 @@ TOOLS = {
 SECTIONS = {
     "talaba": dict(
         title="🎓 TALABA VA FILOLOGLAR", sub="Mumtoz meros · aruz · qadimgi til · etimologiya",
-        tools=["gazal", "aruz", "qadim", "etim", "asar"]),
+        tools=["gazal", "aruz", "etim", "asar"], back=("🔙 Yana bo'limlar", "hub:more")),
     "oqituvchi": dict(
         title="👨‍🏫 METODIST VA O'QITUVCHILAR", sub="Dars ishlanmasi · interfaol metod · attestatsiya",
-        tools=["konspekt", "metod", "rubrika"], extra=[("📝 Attestatsiya testi (40 ta)", "attest_start")]),
+        tools=["konspekt", "metod", "rubrika"], extra=[("📝 Attestatsiya testi (40 ta)", "attest_start")],
+        back=("🔙 Yana bo'limlar", "hub:more")),
     "izlanuvchi": dict(
         title="🔬 ILMIY IZLANUVCHILAR", sub="OAK maqola · tezis · annotatsiya · adabiyotlar",
-        tools=["maqola", "tezis", "annotatsiya", "adabiyot"]),
+        tools=["maqola", "tezis", "annotatsiya", "adabiyot"], back=("🔙 Til asboblari", "hub:asboblar")),
     "asboblar": dict(
         title="🧰 TIL ASBOBLARI", sub="Tezkor yordamchilar — har kuni kerak bo'ladiganlar",
         tools=["imlo", "izoh", "etim"],
         extra=[("🔠 Alifbo konvertori", "conv_hub"), ("🧩 So'z yasovchi qo'shimchalar", "sfx_hub"),
-               ("🧠 Aqliy mashq (ochiq topshiriq)", "open_next")]),
+               ("🔬 Ilmiy izlanuvchilar uchun", "hub:izlanuvchi")]),
 }
 
 ESSAY_STRUCTURE = (

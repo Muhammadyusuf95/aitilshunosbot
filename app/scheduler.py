@@ -22,8 +22,11 @@ from app.db import get_db
 from app.handlers.common import log_exc
 from app.runtime import bot
 from app.textfmt import esc
+from app.ui import kb
 
-SLOTS = [("daily", 7, 30), ("quick", 19, 30), ("theme", 20, 0), ("bmb", 20, 30), ("attest", 21, 0)]
+SLOTS = [("daily", 7, 30), ("remind", 18, 0), ("weekly", 19, 0), ("quick", 19, 30), ("theme", 20, 0),
+         ("bmb", 20, 30), ("attest", 21, 0)]
+WEEKLY_WEEKDAY = 6  # yakshanba
 PREP_MIN = 3
 GRACE_MIN = 60
 DURATIONS = {"quick": 30, "theme": 30, "bmb": 30, "attest": 45}  # har bir savolga soniya
@@ -35,6 +38,8 @@ def due(now, kv_get):
     today = now.strftime("%Y-%m-%d")
     out = []
     for key, h, m in SLOTS:
+        if key == "weekly" and now.weekday() != WEEKLY_WEEKDAY:
+            continue
         delta = (now.hour * 60 + now.minute) - (h * 60 + m)
         if -PREP_MIN <= delta <= GRACE_MIN and kv_get(f"sched:{key}") != today:
             out.append((key, delta))
@@ -84,7 +89,8 @@ def send_daily_question():
     today = datetime.now(config.TZ).strftime("%d.%m.%Y")
     bot.send_message(config.CHANNEL_USERNAME,
                      f"☀️ <b>KUN SAVOLI</b> · {today}\nBugungi savolga javob bering va izohni o'qing 👇",
-                     parse_mode="HTML")
+                     parse_mode="HTML",
+                     reply_markup=kb([[("⚡ Botda ishlash", f"https://t.me/{config.BOT_USERNAME}?start=daily", "url")]]))
     p = poll_payload(q, 1, 1, 0)
     p["question"] = p["question"].replace("[1/1] ", "", 1)
     if p["card"]:
@@ -101,6 +107,11 @@ def _wait_until(now_delta_min):
 
 def run_slot(key, delta, wait=True):
     """Bitta vazifani bajaradi: avval tayyorlaydi, so'ng vaqti kelganda yuboradi."""
+    if key in ("remind", "weekly"):
+        from app.handlers import growth
+        (growth.send_reminders if key == "remind" else growth.post_weekly)()
+        print(f"[jadval] {key} bajarildi")
+        return
     content = None
     if key != "daily":
         content = build_job(key)

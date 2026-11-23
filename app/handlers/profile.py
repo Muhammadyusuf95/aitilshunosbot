@@ -17,6 +17,11 @@ def _rank_line(uid):
     return parts[0], week
 
 
+def _exam_html(row):
+    from app.handlers.growth import exam_line
+    return exam_line(row)
+
+
 def profile_view(user):
     db = get_db()
     row = db.get_user(user.id) or {}
@@ -39,7 +44,8 @@ def profile_view(user):
         f"📝 Testlar: <b>{stats['tests']}</b>  ·  Savollar: <b>{stats['total']}</b>\n"
         f"🎯 Aniqlik: <b>{acc}%</b>  ·  Eng yaxshi: <b>{best_txt}</b>\n"
         f"🏆 O'rin: <b>{rank_all}</b> (hafta: {rank_week})\n"
-        f"🤝 Takliflar: <b>{row.get('invites') or 0}</b>\n\n"
+        f"🤝 Takliflar: <b>{row.get('invites') or 0}</b>\n"
+        f"{_exam_html(row)}\n"
         f"🏅 <b>Nishonlar:</b> {badge_line}"
     )
     rows = []

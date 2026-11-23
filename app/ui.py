@@ -11,6 +11,7 @@ BTN_ABIT = "🎒 Abituriyent"
 BTN_TEACH = "👨‍🏫 O'qituvchi"
 BTN_STUDENT = "🎓 Talaba"
 BTN_RESEARCH = "🔬 Tadqiqotchi"
+BTN_MORE = "➕ Yana"
 BTN_DAILY = "⚡ Kun savoli"
 BTN_TOOLS = "🧰 Til asboblari"
 BTN_QUIZ = "🛠 Quiz yaratish"
@@ -19,7 +20,7 @@ BTN_PROFILE = "👤 Shaxsiy kabinet"
 BTN_ADMIN = "👑 Admin paneli"
 
 MENU_ACTIONS = {
-    BTN_ABIT: "abit", BTN_TEACH: "oqituvchi", BTN_STUDENT: "talaba", BTN_RESEARCH: "izlanuvchi",
+    BTN_ABIT: "abit", BTN_TEACH: "oqituvchi", BTN_STUDENT: "talaba", BTN_RESEARCH: "izlanuvchi", BTN_MORE: "more",
     BTN_DAILY: "daily", BTN_TOOLS: "asboblar", BTN_QUIZ: "quiz", BTN_RANK: "rank",
     BTN_PROFILE: "profile", BTN_ADMIN: "admin",
     # Eski klaviatura yozuvlari ham ishlayversin
@@ -32,11 +33,9 @@ MENU_ACTIONS = {
 
 def main_menu(uid=None):
     m = tt.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2, input_field_placeholder="So'z, matn yoki bayt yuboring…")
-    m.row(tt.KeyboardButton(BTN_ABIT), tt.KeyboardButton(BTN_TEACH))
-    m.row(tt.KeyboardButton(BTN_STUDENT), tt.KeyboardButton(BTN_RESEARCH))
-    m.row(tt.KeyboardButton(BTN_DAILY), tt.KeyboardButton(BTN_TOOLS))
-    m.row(tt.KeyboardButton(BTN_QUIZ), tt.KeyboardButton(BTN_RANK))
-    m.row(tt.KeyboardButton(BTN_PROFILE))
+    m.row(tt.KeyboardButton(BTN_ABIT), tt.KeyboardButton(BTN_DAILY))
+    m.row(tt.KeyboardButton(BTN_TOOLS), tt.KeyboardButton(BTN_PROFILE))
+    m.row(tt.KeyboardButton(BTN_MORE))
     if uid is not None and int(uid) == int(config.ADMIN_ID):
         m.row(tt.KeyboardButton(BTN_ADMIN))
     return m
@@ -77,6 +76,8 @@ def view_section(key):
     rows = [[(TOOLS[t]["title"], f"tool:{t}")] for t in sec["tools"]]
     for label, cb in sec.get("extra", []):
         rows.append([(label, cb)])
+    if sec.get("back"):
+        rows.append([sec["back"]])
     rows.append([rank_btn()])
     body = "\n".join(f"▫️ {TOOLS[t]['title']}" for t in sec["tools"])
     return card(sec["title"], sec["sub"], body + "\n\n👇 <i>Kerakli bo'limni tanlang:</i>"), kb(rows)
@@ -203,3 +204,17 @@ def view_sfx_hub():
             "🔎 <b>Qidirish:</b> qo'shimchani (masalan <code>-chi</code>) yoki so'zni (masalan <code>o'quvchi</code>) "
             "yozib yuboring — o'zi topadi.")
     return card("🧩 SO'Z YASOVCHI QO'SHIMCHALAR", "Ot · sifat · fe'l · ravish", body), kb(rows)
+
+
+def view_more():
+    rows = [
+        [("👨‍🏫 O'qituvchi", "hub:oqituvchi"), ("🎓 Talaba", "hub:talaba")],
+        [("⚔️ Do'st bilan bellashuv", "duel:new"), ("🏫 Sinf rejimi", "cls:hub")],
+        [("📅 Imtihon sanasi", "exam:hub"), ("🛠 Quiz yaratish", "qb:start")],
+        [rank_btn("🏆 Reyting"), ("🔔 Eslatmalar", "rem:toggle")],
+    ]
+    body = ("▫️ <b>Bellashuv</b> — do'stingizni bir xil 10 savolda yenging\n"
+            "▫️ <b>Sinf rejimi</b> — o'qituvchi topshiriq beradi, natijani ko'radi\n"
+            "▫️ <b>Imtihon sanasi</b> — kunlar sanog'i va kunlik reja\n"
+            "▫️ <b>Eslatmalar</b> — seriya uzilmasligi uchun xabar")
+    return card("➕ YANA BO'LIMLAR", "Qo'shimcha imkoniyatlar", body), kb(rows)

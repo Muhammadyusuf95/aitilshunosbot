@@ -154,6 +154,9 @@ class Database:
         self._ensure_column("users", "referred_by", "BIGINT")
         self._ensure_column("users", "invites", "INTEGER DEFAULT 0")
         self._ensure_column("users", "daily_done", "TEXT")
+        self._ensure_column("users", "reminders", "INTEGER DEFAULT 1")
+        self._ensure_column("users", "exam_date", "TEXT")
+        self._ensure_column("users", "exam_name", "TEXT")
         self.execute(
             f"""CREATE TABLE IF NOT EXISTS quiz_results (
                 id {pk},
@@ -187,6 +190,24 @@ class Database:
             )"""
         )
         self.execute("CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT)")
+        self.execute(
+            """CREATE TABLE IF NOT EXISTS classes (
+                code TEXT PRIMARY KEY, teacher_id BIGINT NOT NULL, name TEXT, created_at TEXT)"""
+        )
+        self.execute(
+            """CREATE TABLE IF NOT EXISTS class_members (
+                code TEXT NOT NULL, user_id BIGINT NOT NULL, name TEXT, joined_at TEXT,
+                PRIMARY KEY (code, user_id))"""
+        )
+        self.execute(
+            f"""CREATE TABLE IF NOT EXISTS class_tests (
+                id {pk}, code TEXT NOT NULL, title TEXT, questions TEXT, created_at TEXT)"""
+        )
+        self.execute(
+            """CREATE TABLE IF NOT EXISTS class_results (
+                test_id BIGINT NOT NULL, user_id BIGINT NOT NULL, name TEXT, correct INTEGER, total INTEGER,
+                duration REAL, created_at TEXT, PRIMARY KEY (test_id, user_id))"""
+        )
 
     # ---------- foydalanuvchilar ----------
     def get_user(self, uid):
@@ -393,6 +414,76 @@ class Database:
             cur = int(self.kv_get(f"counter:{name}", 0) or 0) + 1
             self.kv_set(f"counter:{name}", cur)
             return cur
+
+    # ---------- imtihon va eslatmalar ----------
+    def set_exam(self, uid, name, date_str):
+        self.execute("UPDATE users SET exam_name = ?, exam_date = ? WHERE user_id = ?", (name, date_str, uid))
+
+    def set_reminders(self, uid, on):
+        self.execute("UPDATE users SET reminders = ? WHERE user_id = ?", (1 if on else 0, uid))
+
+    def users_for_reminder(self, last_active_dates):
+        marks = ",".join("?" for _ in last_active_dates)
+        return self.all(
+            "SELECT user_id, first_name, streak, last_active, exam_name, exam_date FROM users "
+            f"WHERE status != 'blocked' AND COALESCE(reminders, 1) = 1 AND last_active IN ({marks})",
+            list(last_active_dates),
+        )
+
+    # ---------- sinf rejimi ----------
+    def create_class(self, code, teacher_id, name):
+        self.execute("INSERT INTO classes (code, teacher_id, name, created_at) VALUES (?, ?, ?, ?)",
+                     (code, teacher_id, name[:60], utcnow_str()))
+
+    def get_class(self, code):
+        return self.one("SELECT * FROM classes WHERE code = ?", (code,))
+
+    def teacher_classes(self, teacher_id):
+        return self.all("SELECT c.code AS code, c.name AS name, "
+                        "(SELECT COUNT(*) FROM class_members m WHERE m.code = c.code) AS members "
+                        "FROM classes c WHERE c.teacher_id = ? ORDER BY c.created_at DESC", (teacher_id,))
+
+    def student_classes(self, uid):
+        return self.all("SELECT c.code AS code, c.name AS name FROM class_members m JOIN classes c ON c.code = m.code "
+                        "WHERE m.user_id = ? ORDER BY m.joined_at DESC", (uid,))
+
+    def join_class(self, code, uid, name):
+        return bool(self.execute(
+            "INSERT INTO class_members (code, user_id, name, joined_at) VALUES (?, ?, ?, ?) "
+            "ON CONFLICT (code, user_id) DO NOTHING", (code, uid, name, utcnow_str())))
+
+    def class_members(self, code):
+        return self.all("SELECT user_id, name FROM class_members WHERE code = ? ORDER BY joined_at", (code,))
+
+    def add_class_test(self, code, title, questions):
+        self.execute("INSERT INTO class_tests (code, title, questions, created_at) VALUES (?, ?, ?, ?)",
+                     (code, title[:100], json.dumps(questions, ensure_ascii=False), utcnow_str()))
+        r = self.one("SELECT MAX(id) AS id FROM class_tests WHERE code = ?", (code,))
+        return int(r["id"])
+
+    def get_class_test(self, test_id):
+        r = self.one("SELECT * FROM class_tests WHERE id = ?", (test_id,))
+        if r:
+            r["questions"] = json.loads(r["questions"])
+        return r
+
+    def class_tests(self, code, limit=5):
+        return self.all("SELECT id, title, created_at FROM class_tests WHERE code = ? ORDER BY id DESC LIMIT ?",
+                        (code, limit))
+
+    def save_class_result(self, test_id, uid, name, correct, total, duration):
+        """Faqat birinchi urinish hisobga olinadi. Yangi bo'lsa True."""
+        return bool(self.execute(
+            "INSERT INTO class_results (test_id, user_id, name, correct, total, duration, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (test_id, user_id) DO NOTHING",
+            (test_id, uid, name, correct, total, float(duration), utcnow_str())))
+
+    def class_test_results(self, test_id):
+        return self.all("SELECT user_id, name, correct, total, duration FROM class_results WHERE test_id = ? "
+                        "ORDER BY correct DESC, duration ASC", (test_id,))
+
+    def has_class_result(self, test_id, uid):
+        return bool(self.one("SELECT 1 AS x FROM class_results WHERE test_id = ? AND user_id = ?", (test_id, uid)))
 
     # ---------- admin ----------
     def user_counts(self):

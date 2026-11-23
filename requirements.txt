@@ -4,3 +4,4 @@ psycopg2-binary>=2.9
 Flask>=3.0
 pytz
 requests
+pillow>=10.1

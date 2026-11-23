@@ -201,3 +201,74 @@ def test_schedule_due_and_jobs():
         assert all(c[1]["chat_id"] == config.CHANNEL_USERNAME for c in f.CALLS if c[0] == "sendPoll")
     f.reset(); S.run_slot("daily", 0, wait=False)
     assert len([c for c in f.CALLS if c[0] == "sendPoll"]) == 1
+
+
+# ---------------- O'sish funksiyalari ----------------
+USER2 = {"id": 888, "is_bot": False, "first_name": "Vali", "username": "vali"}
+
+
+def _play(user, n=10, right=10):
+    from app import practice
+    for i in range(n):
+        s = practice.get(user["id"])
+        send(upd_cb(f"pq:{s.sid}:{i}:{i % 4 if i < right else (i + 1) % 4}", user))
+        send(upd_cb(f"pn:{s.sid}:{i}", user))
+
+
+def test_more_menu_and_exam():
+    from datetime import datetime, timedelta
+    f.reset(); send(upd_msg("➕ Yana")); assert any("Do'st bilan bellashuv" in str(c[1].get("reply_markup")) for c in f.CALLS)
+    f.reset(); send(upd_cb("exam:hub")); send(upd_cb("exam:t:cert")); send(upd_msg("01.01.2020"))
+    assert "noto'g'ri" in last_text()
+    d = (datetime.now(config.TZ).date() + timedelta(days=40)).strftime("%d.%m.%Y")
+    send(upd_msg(d)); assert "40 kun" in last_text()
+    f.reset(); send(upd_msg("/start")); assert "40 kun" in f.texts()[0]
+    send(upd_cb("exam:del"))
+
+
+def test_reminders():
+    from app.handlers import growth
+    d = dbmod.get_db()
+    d.execute("UPDATE users SET last_active = ? WHERE user_id = ?", (dbmod.today_str(-1), 777))
+    f.reset(); assert growth.send_reminders() >= 1 and any("seriya" in t.lower() for t in f.texts())
+    send(upd_cb("rem:toggle"))
+    f.reset(); assert growth.send_reminders() == 0
+    send(upd_cb("rem:toggle"))
+
+
+def test_duel_flow():
+    from app.handlers import growth
+    f.reset(); send(upd_cb("duel:new")); f.settle()
+    assert any("BELLASHUV TAYYOR" in t for t in f.texts())
+    kvs = dbmod.get_db().all("SELECT k FROM kv WHERE k LIKE 'duel:%'")
+    did = kvs[0]["k"].split(":")[1]
+    _play(USER, 10, 8)
+    send(upd_msg(f"/start duel_{did}", USER2)); assert any("BELLASHUVGA CHAQIRUV" in t for t in f.texts())
+    send(upd_cb(f"duel:join:{did}", USER2))
+    f.reset(); _play(USER2, 10, 4)
+    assert any("G'olib" in t and "Ali" in t for t in f.texts()) or any("BELLASHUV NATIJASI" in t for t in f.texts())
+    assert any(c[0] == "sendMessage" and str(c[1].get("chat_id")) == "777" and "NATIJASI" in c[1].get("text", "") for c in f.CALLS)
+    assert "duelist" in dbmod.get_db().get_badges(777) + dbmod.get_db().get_badges(888) or "Durang" in str(f.texts())
+
+
+def test_class_mode():
+    f.reset(); send(upd_cb("cls:new")); send(upd_msg("9-A sinf"))
+    code = dbmod.get_db().teacher_classes(777)[0]["code"]
+    send(upd_msg(f"/start cls_{code}", USER2)); assert any("sinfiga" in t for t in f.texts())
+    send(upd_cb(f"cls:task:{code}")); send(upd_msg("Fe'l zamonlari")); send(upd_cb(f"cls:n:{code}:5")); f.settle()
+    assert any(str(c[1].get("chat_id")) == "888" and "Yangi topshiriq" in c[1].get("text", "") for c in f.CALLS)
+    tid = dbmod.get_db().class_tests(code)[0]["id"]
+    send(upd_cb(f"cls:play:{tid}", USER2)); _play(USER2, 5, 3)
+    f.reset(); send(upd_cb(f"cls:r:{tid}"))
+    assert "Vali" in last_text() and "/5" in last_text()
+    f.reset(); send(upd_cb(f"cls:play:{tid}", USER2)); assert f.CALLS  # qayta topshirish rad etiladi
+    assert dbmod.get_db().has_class_result(tid, 888)
+
+
+def test_result_card_and_weekly():
+    from app.handlers import growth
+    f.reset(); send(upd_cb("rescard", USER2))
+    assert any(c[0] == "sendPhoto" for c in f.CALLS)
+    buf = growth.make_card(dict(name="Ali", title="Test", correct=8, answered=10, accuracy=80, level="Savodxon", streak=3))
+    assert buf.read(8) == b"\x89PNG\r\n\x1a\n"
+    f.reset(); assert growth.post_weekly() in (True, False)

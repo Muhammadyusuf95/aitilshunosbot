@@ -129,7 +129,10 @@ def _finish_quiz(chat_id, state, title, total):
         text = (f"🏆 <b>{esc(title.upper())} — NATIJALAR</b>\n━━━━━━━━━━━━━━━\n"
                 f"👥 Ishtirokchilar: <b>{len(scores)}</b> · Savollar: <b>{total}</b>\n\n" + "\n".join(lines) +
                 "\n\n<i>Har bir to'g'ri javob uchun +2 XP berildi.</i>")
-    markup = kb([[rank_btn("🏆 Umumiy reyting")], [("📢 Kanalga a'zo bo'lish", config.CHANNEL_URL, "url")]])
+    if state["anonymous"]:
+        markup = kb([[("🚀 Natijamni botda bilaman", f"https://t.me/{config.BOT_USERNAME}?start=quick", "url")]])
+    else:
+        markup = kb([[rank_btn("🏆 Umumiy reyting")], [("📢 Kanalga a'zo bo'lish", config.CHANNEL_URL, "url")]])
     try:
         send_html(bot, chat_id, text, reply_markup=markup)
     except Exception:  # noqa: BLE001

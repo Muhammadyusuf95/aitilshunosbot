@@ -21,6 +21,8 @@ BADGES = {
     "mistake_fixer": ("🛠", "Xato tuzatuvchi", "Xatolar ustida ishlab, 10 ta xatoni tuzatdingiz"),
     "essay_pro": ("✍️", "Esse ustasi", "3 ta esseni tekshirtirdingiz"),
     "inviter": ("🤝", "Elchi", "Do'stingizni botga taklif qildingiz"),
+    "weekly_winner": ("🏆", "Hafta g'olibi", "Haftalik TOP-3 ga kirdingiz"),
+    "duelist": ("⚔️", "Bellashuvchi", "Do'st bilan bellashuvda g'alaba qozondingiz"),
     "daily_7": ("📅", "Kun savoli ixlosmandi", "7 ta kun savoliga javob berdingiz"),
 }
 

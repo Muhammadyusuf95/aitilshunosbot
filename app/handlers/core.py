@@ -1,5 +1,5 @@
 """Kirish nuqtalari: /start, /help, /cancel, menyu tugmalari, holat (state) yo'naltiruvchisi, rasm/matn fallback."""
-from app import config, levels
+from app import config, levels, questions as qmod
 from app.db import get_db
 from app.handlers import admin, profile, tests, tools
 from app.handlers.common import on_cb, on_msg, send_subscription_prompt, touch
@@ -17,7 +17,7 @@ HELP_TEXT = card(
     "🧰 <b>Til asboblari</b> — imlo, alifbo konvertori, qo'shimchalar\n"
     "🛠 <b>Quiz yaratish</b> — o'z mavzu/matningizdan test\n\n"
     "💡 <b>Maslahat:</b> menyuga hojat yo'q — so'z, matn yoki <u>rasm</u> yuboring, bot nima qilishni taklif qiladi.\n\n"
-    "<b>Buyruqlar:</b>\n/start — bosh sahifa\n/daily — kun savoli\n/profile — kabinet\n/top — reyting\n"
+    "<b>Buyruqlar:</b>\n/start — bosh sahifa\n/daily — kun savoli\n/profile — kabinet\n/top — reyting\n/eslatma — eslatmalarni yoqish/o'chirish\n"
     "/cancel — joriy amalni bekor qilish\n\nGuruhda: <code>/quiz_start</code> · <code>/stop</code>")
 
 
@@ -41,6 +41,10 @@ def welcome(message, tr, is_ref=False):
         lines.append(f"🔥 Seriya: <b>{streak} kun</b>")
     if is_ref:
         lines.append("🤝 Do'stingiz taklifi uchun <b>+30 XP</b> qo'shildi!")
+    from app.handlers import growth
+    ex = growth.exam_line(row)
+    if ex:
+        lines += ["", ex]
     lines += ["", "<b>Nimadan boshlaymiz?</b> Menyudan tanlang yoki to'g'ridan-to'g'ri so'z, matn, rasm yuboring."]
     send_html(bot, message.chat.id,
               card(f"✨ Assalomu alaykum, {esc(u.first_name or 'do‘st')}!", "AI Tilshunos — ona tili va adabiyot ustozi",
@@ -77,6 +81,15 @@ def cmd_start(message):
         tests.start_shared_quiz(message.chat.id, u, payload)
     elif payload == "daily":
         tests.start_daily(message)
+    elif payload == "quick":
+        tests.launch_build(message.chat.id, u, "Tezkor test",
+                           lambda: qmod.build_quiz(qmod.theme_prompt(qmod.GENERAL_THEME), 10, sections=None), then="practice")
+    elif payload.startswith("duel_"):
+        from app.handlers import growth
+        growth.open_duel(message.chat.id, u, payload[5:])
+    elif payload.startswith("cls_"):
+        from app.handlers import growth
+        growth.join_class(message.chat.id, u, payload[4:].upper())
 
 
 @on_cb("check_sub", gated=False)
@@ -136,6 +149,9 @@ def dispatch_menu(action, message):
     uid = message.from_user.id
     if action in ("talaba", "oqituvchi", "izlanuvchi", "asboblar"):
         show(message, *view_section(action))
+    elif action == "more":
+        from app import ui
+        show(message, *ui.view_more())
     elif action == "abit":
         show(message, *view_abit())
     elif action == "daily":
