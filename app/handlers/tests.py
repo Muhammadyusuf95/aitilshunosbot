@@ -6,7 +6,7 @@ from collections import OrderedDict
 from app import config, levels, practice, questions as qmod
 from app.content import THEME_CATALOG
 from app.db import get_db, today_str
-from app.handlers.common import bg, friendly_ai_error, on_cb, remember_admin_post
+from app.handlers.common import bg, friendly_ai_error, guard, on_cb, remember_admin_post
 from app.handlers.tools import state_handler
 from app.runtime import answer_cb, bot, clear_state, display_name, set_state, show
 from app.security import SECURITY_WARNING, check_security_violation, limiter
@@ -179,8 +179,7 @@ def st_theme_custom(message, st):
     topic = (message.text or "").strip()
     if not topic:
         return
-    if check_security_violation(topic):
-        send_html(bot, message.chat.id, SECURITY_WARNING)
+    if not guard(message.chat.id, message.from_user, topic):
         return
     clear_state(message.from_user.id)
     launch_build(message.chat.id, message.from_user, f"«{topic[:40]}» (30 ta)",
@@ -214,8 +213,7 @@ def st_qb_topic(message, st):
     text = (message.text or "").strip()
     if not text:
         return
-    if check_security_violation(text):
-        send_html(bot, message.chat.id, SECURITY_WARNING)
+    if not guard(message.chat.id, message.from_user, text):
         return
     clear_state(message.from_user.id)
     _ask_count(message.chat.id, message.from_user.id, text)

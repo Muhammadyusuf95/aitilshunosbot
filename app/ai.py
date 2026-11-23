@@ -18,8 +18,16 @@ SYSTEM_INSTRUCTION = (
     "2. Har bir savolda aynan 4 ta turli variant va bitta mutlaqo to'g'ri javob bo'lsin; "
     "'correct_option_id' to'g'ri variantning 0..3 indeksi bo'lsin.\n"
     "3. Adabiyot savollari amaldagi 5-11-sinf darsliklariga mos bo'lsin.\n\n"
-    "TAQIQLAR: diniy aqidaviy bahslar, siyosat va amaldorlar shaxsi, tibbiy va huquqiy maslahat, "
-    "ekstremizm va haqoratli mazmun rad etiladi.\n\n"
+    "FAOLIYAT DOIRASI (QAT'IY): faqat tilshunoslik, ona tili, adabiyot, filologik ilmiy tadqiqot va shu fanlarni "
+    "o'qitish metodikasi.\n"
+    "QUYIDAGILAR TAQIQLANGAN: diniy mavzular; siyosat; ekstremizm; davlat, davlat rahbari va amaldorlarni maqtash yoki "
+    "tanqid qilish; davlat tuzumi va qonunchilikni muhokama qilish; turli oqim va firqalarga oid mavzular; shaxsni "
+    "kamsituvchi, haqoratlovchi, qadr-qimmatini toptovchi mazmun; behayo va nomaqbul kontent; tibbiyot, huquq, moliya, "
+    "texnologiya va boshqa sohalarga oid maslahat va ma'lumotlar.\n"
+    "Agar so'rov (yoki unga ilova qilingan matn/rasm) doiradan tashqari bo'lsa yoki taqiqlangan mavzuni o'z ichiga "
+    "olsa — hech qanday izoh yozmasdan FAQAT shu so'zni qaytaring: OFFTOPIC_REFUSED\n"
+    "Adabiy asarning o'zida uchragan tarixiy-badiiy tafsilotlar tahlili (masalan, mumtoz she'rning poetik tili) "
+    "til va adabiyot nuqtayi nazaridan, neytral va akademik tarzda izohlanishi mumkin.\n\n"
     "FORMAT: Telegramda o'qishga qulay — qisqa sarlavhalar (##), **qalin** ajratmalar, '-' bilan ro'yxatlar. "
     "Jadval va murakkab Markdown ishlatmang."
 )
@@ -31,6 +39,10 @@ class AIError(Exception):
 
 class AIUnavailable(AIError):
     pass
+
+
+class OffTopic(AIError):
+    """AI so'rovni doiradan tashqari deb rad etdi."""
 
 
 _client = None
@@ -89,6 +101,12 @@ def _try_models(client, models, contents, cfg):
     return None, last_err
 
 
+def _check_refusal(text):
+    if "OFFTOPIC_REFUSED" in text[:80]:
+        raise OffTopic("OFFTOPIC_REFUSED")
+    return text
+
+
 def _call(contents, temperature, system, json_mode=False):
     client = _get_client()
     cfg = dict(system_instruction=system, temperature=temperature)
@@ -96,13 +114,14 @@ def _call(contents, temperature, system, json_mode=False):
         cfg["response_mime_type"] = "application/json"
     text, err = _try_models(client, config.GEMINI_MODELS, contents, cfg)
     if text:
-        return text
+        return _check_refusal(text)
     if "404" in err or "not found" in err.lower() or "not supported" in err.lower():
         extra = [m for m in _discover_models(client) if m not in config.GEMINI_MODELS]
         if extra:
             print(f"[ai] topilgan modellar: {extra[:4]}")
             text, err2 = _try_models(client, extra[:4], contents, cfg)
             if text:
+                _check_refusal(text)
                 config.GEMINI_MODELS[:0] = [m for m in extra[:4]]  # keyingi so'rovlar uchun eslab qolamiz
                 return text
             err = err2 or err
@@ -155,6 +174,9 @@ def validate_question(q):
     if not text or len(opts) != 4 or any(not o for o in opts):
         return None
     if len({o.lower() for o in opts}) != 4 or not (0 <= idx < 4):
+        return None
+    from app.security import check_hard_violation
+    if check_hard_violation(text + " " + " ".join(opts)):
         return None
     return {
         "question": text,

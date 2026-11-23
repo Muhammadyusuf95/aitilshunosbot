@@ -59,7 +59,7 @@ def test_ai_tool_and_html():
 
 def test_forbidden():
     f.reset(); send(upd_cb("tool:izoh")); send(upd_msg("din haqida"))
-    assert "Mavzu doirasidan" in last_text()
+    assert "So'rov qabul qilinmadi" in last_text() and "1/3" in last_text()
 
 def test_practice_full():
     f.reset(); send(upd_cb("quick:10"))
@@ -144,3 +144,60 @@ def test_init_data_validation():
 
 def test_group_message_ignored():
     f.reset(); send(upd_msg("salom", chat_type="supergroup", chat_id=-100500)); assert not f.texts()
+
+
+def test_strikes_block_and_offtopic():
+    from app.security import strikes
+    u = dict(USER, id=4242, first_name="Bad")
+    strikes.unblock(4242)
+    for _ in range(3):
+        f.reset(); send(upd_cb("tool:izoh", user=u)); send(upd_msg("prezident haqida", user=u))
+    assert any("24 soatga cheklandi" in t for t in f.texts())
+    f.reset(); send(upd_cb("tool:izoh", user=u)); send(upd_msg("qalam", user=u))
+    assert any("cheklandi" in t for t in f.texts())
+    strikes.unblock(4242)
+    # AI mavzudan tashqari deb rad etsa
+    old = ai.generate_text
+    def refuse(p, **k): raise ai.OffTopic("OFFTOPIC_REFUSED")
+    ai.generate_text = refuse
+    try:
+        f.reset(); send(upd_cb("tool:izoh", user=u)); send(upd_msg("qalam", user=u))
+        assert any("So'rov qabul qilinmadi" in t for t in f.texts())
+    finally:
+        ai.generate_text = old; strikes.unblock(4242)
+
+def test_output_filter():
+    old = ai.generate_text
+    ai.generate_text = lambda p, **k: "bu haromi odam"
+    try:
+        f.reset(); send(upd_cb("tool:izoh")); send(upd_msg("qalam"))
+        assert not any("haromi" in t for t in f.texts()) and any("So'rov qabul qilinmadi" in t for t in f.texts())
+    finally:
+        ai.generate_text = old
+
+def test_schedule_due_and_jobs():
+    from datetime import datetime
+    from app import scheduler as S
+    tz = config.TZ
+    mk = lambda h, m: tz.localize(datetime(2026, 11, 24, h, m))
+    assert [k for k, _ in S.due(mk(7, 28), lambda k: None)] == ["daily"]
+    assert [k for k, _ in S.due(mk(19, 40), lambda k: None)] == ["quick"]
+    assert S.due(mk(12, 0), lambda k: None) == []
+    assert S.due(mk(7, 31), lambda k: "2026-11-24") == []  # bir kunda ikki marta emas
+    S.DURATIONS.update(quick=1, theme=1, bmb=1, attest=1)
+    for key in ("quick", "theme", "bmb", "attest"):
+        f.reset(); G.ACTIVE.clear()
+        qs_n = {"quick": 10, "theme": 30, "bmb": 30, "attest": 40}[key]
+        ai.generate_quiz = lambda prompt, n, seed=None, passage=None: fake_quiz(n)
+        # AI ishlamasa bazadan zaxira
+        S.qmod.ai.generate_quiz = (lambda *a, **k: (_ for _ in ()).throw(ai.AIError("x"))) if key == "bmb" else ai.generate_quiz
+        orig = G.run_quiz
+        G.run_quiz = lambda chat, qs, dur, title, st=None, _o=orig: _o(chat, qs[:2], 0.2, title, st)
+        try:
+            S.run_slot(key, 0, wait=False)
+        finally:
+            G.run_quiz = orig
+        assert len([c for c in f.CALLS if c[0] == "sendPoll"]) == 2, key
+        assert all(c[1]["chat_id"] == config.CHANNEL_USERNAME for c in f.CALLS if c[0] == "sendPoll")
+    f.reset(); S.run_slot("daily", 0, wait=False)
+    assert len([c for c in f.CALLS if c[0] == "sendPoll"]) == 1

@@ -8,7 +8,8 @@ from collections import OrderedDict
 from app import ai, config
 from app.db import get_db, today_str
 from app.runtime import answer_cb, bot, is_subscribed
-from app.security import SECURITY_WARNING, check_security_violation, limiter
+from app.security import (BLOCKED_TEXT, SECURITY_WARNING, check_hard_violation, check_security_violation,
+                          limiter, strikes)
 from app.textfmt import card, esc, md_to_html, send_html, send_long
 from app.ui import kb, rank_btn
 
@@ -132,6 +133,8 @@ def on_cb(*prefixes, gated=True):
 
 # ---------------- AI natijasini yetkazish ----------------
 def friendly_ai_error(e):
+    if isinstance(e, ai.OffTopic):
+        return SECURITY_WARNING
     low = str(e).lower()
     if "api key" in low or "api_key" in low or "permission_denied" in low or "403" in low or "401" in low:
         return "🔧 AI kaliti (GEMINI_API_KEY) noto'g'ri yoki ruxsati yo'q. Administratorga xabar bering."
@@ -152,11 +155,40 @@ def result_markup(user_id, tool_key=None, admin_post=None):
     return kb(rows)
 
 
+def violation(chat_id, user):
+    """Qoidabuzarlikni qayd etadi, foydalanuvchiga ogohlantirish yuboradi; 3-marta bo'lsa 24 soatga cheklaydi."""
+    count, blocked = strikes.add(user.id)
+    if blocked:
+        send_html(bot, chat_id, BLOCKED_TEXT)
+        try:
+            name = esc(user.first_name or "")
+            send_html(bot, config.ADMIN_ID, f"🚨 <b>{name}</b> (<code>{user.id}</code>) takroriy qoidabuzarlik tufayli "
+                                            f"24 soatga cheklandi. Bekor qilish: <code>/unblock {user.id}</code>")
+        except Exception:  # noqa: BLE001
+            pass
+    else:
+        send_html(bot, chat_id, SECURITY_WARNING + f"\n\n<i>Ogohlantirish: {count}/{strikes.LIMIT}</i>")
+
+
+def guard(chat_id, user, text):
+    """Kirish matnini tekshiradi. True — davom etish mumkin."""
+    if strikes.is_blocked(user.id):
+        send_html(bot, chat_id, BLOCKED_TEXT)
+        return False
+    if check_security_violation(text):
+        violation(chat_id, user)
+        return False
+    return True
+
+
 def run_ai_text(chat_id, user, prompt, title, tool_key=None, check_text=None, vision=None):
     """AI so'rovini xavfsizlik filtri, limit va xatolarga chidamli tarzda bajaradi va natijani yetkazadi."""
     uid = user.id
+    if strikes.is_blocked(uid):
+        send_html(bot, chat_id, BLOCKED_TEXT)
+        return False
     if check_text is not None and check_security_violation(check_text):
-        send_html(bot, chat_id, SECURITY_WARNING)
+        violation(chat_id, user)
         return False
     ok, why = limiter.check(uid, today_str())
     if not ok:
@@ -175,6 +207,9 @@ def run_ai_text(chat_id, user, prompt, title, tool_key=None, check_text=None, vi
             bot.delete_message(chat_id, status.message_id)
         except Exception:  # noqa: BLE001
             pass
+        if isinstance(e, ai.OffTopic):
+            violation(chat_id, user)
+            return False
         retry = kb([[("🔄 Qayta urinish", f"tool:{tool_key}")]]) if tool_key else None
         detail = f"\n\n<b>Admin uchun sabab:</b>\n<code>{esc(str(e)[:350])}</code>" if int(uid) == int(config.ADMIN_ID) else ""
         print(f"[ai-xato] {e}")
@@ -185,6 +220,9 @@ def run_ai_text(chat_id, user, prompt, title, tool_key=None, check_text=None, vi
         bot.delete_message(chat_id, status.message_id)
     except Exception:  # noqa: BLE001
         pass
+    if check_hard_violation(text):  # chiqish filtri
+        send_html(bot, chat_id, SECURITY_WARNING)
+        return False
     pid = remember_admin_post(text) if int(uid) == int(config.ADMIN_ID) else None
     body = (f"## {title}\n\n{text}\n\n"
             "──────────────\n"

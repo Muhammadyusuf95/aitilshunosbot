@@ -60,7 +60,7 @@ AI_DAILY_LIMIT = _int("AI_DAILY_LIMIT", 60)
 MIN_PLAYERS = _int("MIN_PLAYERS", 3)
 LOBBY_TTL_SEC = 15 * 60
 
-TZ = pytz.timezone("Asia/Tashkent")
+TZ = pytz.timezone(os.environ.get("BOT_TZ", "Asia/Tashkent"))
 NUM_THREADS = _int("NUM_THREADS", 16)
 
 BOT_VERSION = "v12.0"

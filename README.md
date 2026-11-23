@@ -26,3 +26,10 @@ data/              baza.json, namunaviy esselar
 tests/             pytest (soxta Telegram bilan)
 ```
 Testlar: `python -m pytest tests -q`
+
+## Kanal jadvali (Toshkent vaqti, `BOT_TZ` bilan o'zgaradi)
+07:30 Kun savoli · 19:30 Tezkor 10 talik · 20:00 Mavzulashtirilgan 30 talik · 20:30 BMB 30 talik · 21:00 Attestatsiya 40 talik.
+Bot kanalda **admin** bo'lib, post va so'rovnoma yuborish huquqiga ega bo'lishi shart. Kanal so'rovnomalari anonim (Telegram cheklovi).
+
+## Mavzu himoyasi
+Kirish filtri (`app/security.py`) + AI tizim ko'rsatmasi (`OFFTOPIC_REFUSED`) + chiqish filtri + ogohlantirishlar (24 soatda 3 marta → 24 soat cheklov; admin: `/unblock ID`).

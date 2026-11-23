@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from app import questions as qmod, translit
 from app.content import SECTIONS, TOOLS
-from app.handlers.common import bg, on_cb, run_ai_text
+from app.handlers.common import bg, guard, on_cb, run_ai_text
 from app.runtime import answer_cb, bot, clear_state, get_state, set_state, show
 from app.textfmt import card, esc, send_html
 from app.ui import kb, view_abit, view_conv_hub, view_section, view_sfx_hub
@@ -126,6 +126,8 @@ def smart_reply(message):
     text = (message.text or "").strip()
     if not text:
         return
+    if not guard(message.chat.id, message.from_user, text):
+        return
     token = stash("text", text[:MAX_INPUT])
     short = len(text) <= 40
     rows = []
@@ -209,6 +211,8 @@ def cb_conv(call):
 @state_handler("conv")
 def st_conv(message, st):
     text = message.text or ""
+    if not guard(message.chat.id, message.from_user, text):
+        return
     send_conversion(message.chat.id, st["data"]["mode"], text)
     set_state(message.from_user.id, "conv", mode=st["data"]["mode"])  # rejimda qolamiz
 

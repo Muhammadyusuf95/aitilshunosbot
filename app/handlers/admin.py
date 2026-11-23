@@ -383,3 +383,16 @@ def cb_cancel(call):
         bot.delete_message(call.message.chat.id, call.message.message_id)
     except Exception:  # noqa: BLE001
         pass
+
+
+@on_msg(commands=["unblock"])
+def cmd_unblock(message):
+    if not is_admin(message.from_user.id):
+        return
+    parts = (message.text or "").split()
+    if len(parts) < 2 or not parts[1].isdigit():
+        send_html(bot, message.chat.id, "Foydalanish: <code>/unblock USER_ID</code>")
+        return
+    from app.security import strikes
+    strikes.unblock(int(parts[1]))
+    send_html(bot, message.chat.id, f"✅ <code>{parts[1]}</code> cheklovi bekor qilindi.")
