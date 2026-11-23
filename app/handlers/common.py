@@ -133,6 +133,8 @@ def on_cb(*prefixes, gated=True):
 # ---------------- AI natijasini yetkazish ----------------
 def friendly_ai_error(e):
     low = str(e).lower()
+    if "api key" in low or "api_key" in low or "permission_denied" in low or "403" in low or "401" in low:
+        return "🔧 AI kaliti (GEMINI_API_KEY) noto'g'ri yoki ruxsati yo'q. Administratorga xabar bering."
     if "gemini_api_key" in low:
         return "🔧 AI xizmati hali sozlanmagan (GEMINI_API_KEY). Administratorga xabar bering."
     if "429" in low or "quota" in low or "exhausted" in low:
@@ -174,7 +176,9 @@ def run_ai_text(chat_id, user, prompt, title, tool_key=None, check_text=None, vi
         except Exception:  # noqa: BLE001
             pass
         retry = kb([[("🔄 Qayta urinish", f"tool:{tool_key}")]]) if tool_key else None
-        send_html(bot, chat_id, friendly_ai_error(e), reply_markup=retry)
+        detail = f"\n\n<b>Admin uchun sabab:</b>\n<code>{esc(str(e)[:350])}</code>" if int(uid) == int(config.ADMIN_ID) else ""
+        print(f"[ai-xato] {e}")
+        send_html(bot, chat_id, friendly_ai_error(e) + detail, reply_markup=retry)
         return False
 
     try:

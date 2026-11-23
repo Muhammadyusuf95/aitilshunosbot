@@ -48,37 +48,65 @@ def _get_client():
         return _client
 
 
-def _call(contents, temperature, system, json_mode=False):
-    """Modellar ro'yxati bo'yicha, har biri uchun bir necha urinish bilan so'rov yuboradi."""
-    from google.genai import types
+def _discover_models(client):
+    """Sozlangan modellar ishlamasa, hisobda mavjud 'flash' modellarini avtomatik topadi."""
+    found = []
+    try:
+        for m in client.models.list():
+            name = (getattr(m, "name", "") or "").replace("models/", "")
+            actions = getattr(m, "supported_actions", None) or []
+            if "flash" in name and "generateContent" in actions and not any(x in name for x in ("image", "tts", "live", "audio", "thinking-exp")):
+                found.append(name)
+    except Exception as e:  # noqa: BLE001
+        print(f"[ai] modellar ro'yxatini olib bo'lmadi: {e}")
+    return sorted(found, reverse=True)
 
-    client = _get_client()
-    cfg = dict(system_instruction=system, temperature=temperature)
-    if json_mode:
-        cfg["response_mime_type"] = "application/json"
+
+def _try_models(client, models, contents, cfg):
+    from google.genai import types
     last_err = ""
-    for model in config.GEMINI_MODELS:
+    for model in models:
         for attempt in range(3):
             try:
                 resp = client.models.generate_content(
-                    model=model, contents=contents, config=types.GenerateContentConfig(**cfg)
-                )
+                    model=model, contents=contents, config=types.GenerateContentConfig(**cfg))
                 text = (getattr(resp, "text", None) or "").strip()
                 if text:
-                    return text
-                last_err = "bo'sh javob"
+                    return text, ""
+                last_err = f"{model}: bo'sh javob"
                 break
             except Exception as e:  # noqa: BLE001
-                last_err = str(e)
-                low = last_err.lower()
+                last_err = f"{model}: {e}"
+                print(f"[ai] {last_err[:300]}")
+                low = str(e).lower()
                 if "429" in low or "resource_exhausted" in low:
                     time.sleep(2 + attempt * 2)
                     continue
                 if "503" in low or "unavailable" in low or "overloaded" in low or "500" in low:
                     time.sleep(1.5 + attempt)
                     continue
-                break  # 404 (model yo'q), 400 va h.k. — keyingi modelga o'tamiz
-    raise AIError(last_err[:300] or "Noma'lum xatolik")
+                break
+    return None, last_err
+
+
+def _call(contents, temperature, system, json_mode=False):
+    client = _get_client()
+    cfg = dict(system_instruction=system, temperature=temperature)
+    if json_mode:
+        cfg["response_mime_type"] = "application/json"
+    text, err = _try_models(client, config.GEMINI_MODELS, contents, cfg)
+    if text:
+        return text
+    if "404" in err or "not found" in err.lower() or "not supported" in err.lower():
+        extra = [m for m in _discover_models(client) if m not in config.GEMINI_MODELS]
+        if extra:
+            print(f"[ai] topilgan modellar: {extra[:4]}")
+            text, err2 = _try_models(client, extra[:4], contents, cfg)
+            if text:
+                config.GEMINI_MODELS[:0] = [m for m in extra[:4]]  # keyingi so'rovlar uchun eslab qolamiz
+                return text
+            err = err2 or err
+    raise AIError(err[:400] or "Noma'lum xatolik")
 
 
 def generate_text(prompt, temperature=0.3, system=SYSTEM_INSTRUCTION):
