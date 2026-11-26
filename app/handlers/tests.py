@@ -131,8 +131,10 @@ def cb_go(call):
             answer_cb(call, "Faqat admin uchun!", True)
             return
         answer_cb(call, "Kanalga yuborilmoqda…")
-        group.open_lobby(config.CHANNEL_USERNAME, item["questions"], item["duration"], item["title"], user.id)
-        show(call, f"✅ <b>{esc(item['title'])}</b> kanalga e'lon qilindi.")
+        group.open_lobby(config.CHANNEL_USERNAME, item["questions"], item["duration"], item["title"], user.id,
+                         notify=True)
+        show(call, f"✅ <b>{esc(item['title'])}</b> kanalga e'lon qilindi. "
+                   f"{config.MIN_PLAYERS} kishi «Tayyorman»ni bosgach boshlanadi.")
 
 
 # =====================================================================================

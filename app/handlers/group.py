@@ -1,7 +1,8 @@
-"""Guruh/kanal bellashuvi: lobby, vaqtli quiz (Telegram so'rovnomalari), jonli reyting, /quiz_start va /stop."""
+"""Guruh/kanal bellashuvi: lobby (2 kishi tayyor bo'lgach start), vaqtli quiz, pauza/davom etish, reyting, /quiz_start va /stop."""
 import random
 import threading
 import time
+from datetime import datetime
 
 from telebot.apihelper import ApiTelegramException
 
@@ -55,24 +56,110 @@ def _chat_is_channel(chat_id):
 
 # =====================================================================================
 #  Quiz yurgizuvchi
+#
+#  Qoidalar (v12.2):
+#   • So'rovnomalar YOPILMAYDI (open_period yo'q): test tugagach kirgan odam ham avval o'z variantini
+#     belgilaydi, shundan keyingina to'g'ri javob va izohni ko'radi. Javob belgilamaganga savol
+#     ishlanmagandek ko'rinadi (Telegram quiz so'rovnomasining tabiiy xulqi).
+#   • Reytingga faqat savol vaqti ichida berilgan javoblar kiradi.
+#   • Ketma-ket PAUSE_AFTER_MISSES ta savolga hech kim javob bermasa, test pauza qilinadi va
+#     kamida bir kishi «Davom etish»ni bosgach davom etadi. Pauza vaqti on_pause(soniya) orqali
+#     kanal jadvaliga uzatiladi (keyingi testlar shuncha vaqtga suriladi).
 # =====================================================================================
-def run_quiz(chat_id, questions, duration, title, starter_id=None):
+ANSWER_GRACE = 2          # savol vaqtidan keyin javoblarni qabul qilish uchun qo'shimcha soniya
+PAUSE_AFTER_MISSES = 2    # nechta savol ketma-ket javobsiz qolsa — pauza
+LOBBY_COUNTDOWN = 5       # ishtirokchilar yig'ilgach boshlanishgacha soniya
+PAUSES = {}               # token -> quiz state (Davom etish tugmasi uchun)
+
+
+def _pause_max_sec():
+    return max(60, int(config.QUIZ_PAUSE_MAX_MIN) * 60)
+
+
+def _channel_post_url(chat_id, message_id):
+    """Ommaviy kanal posti havolasi (faqat asosiy kanal uchun; maxfiy guruhlar uchun havola yasalmaydi)."""
+    uname = str(config.CHANNEL_USERNAME).lstrip("@")
+    if str(chat_id).lstrip("@").lower() == uname.lower() and uname:
+        return f"https://t.me/{uname}/{message_id}"
+    return None
+
+
+def _wait_pause(chat_id, state, remaining, scheduled):
+    """Pauza: «Davom etish» bosilguncha (yoki /stop, yoki chegaraviy vaqt) kutadi. (davom_etdimi, soniya)."""
+    token = f"{int(time.time()) % 100000}{random.randint(100, 999)}"
+    state["resume"] = threading.Event()
+    state["paused"] = True
+    PAUSES[token] = state
+    max_sec = _pause_max_sec()
+    tail = ("\n\n<i>Kanal jadvalidagi keyingi testlar pauza davomiyligiga ortga suriladi.</i>" if scheduled else "")
+    text = (f"⏸ <b>TEST PAUZA QILINDI</b>\n\n"
+            f"Ketma-ket {PAUSE_AFTER_MISSES} ta savolga hech kim javob bermadi.\n"
+            f"Kamida bir kishi «▶️ Davom etish»ni bossa, test qolgan <b>{remaining} ta</b> savol bilan davom etadi.\n"
+            f"⏳ {max_sec // 60} daqiqa ichida davom ettirilmasa, test yakunlanadi.{tail}")
+    t0 = time.time()
+    msg = None
+    try:
+        msg = send_html(bot, chat_id, text, reply_markup=kb([[("▶️ Davom etish", f"qcont:{token}")]]))
+    except Exception:  # noqa: BLE001
+        log_exc("pause message")
+    resumed = False
+    try:
+        while True:
+            if state["resume"].wait(1):
+                resumed = True
+                break
+            if state["cancel"].is_set() or time.time() - t0 >= max_sec:
+                break
+    finally:
+        PAUSES.pop(token, None)
+        state["paused"] = False
+    paused = time.time() - t0
+    state["pause_total"] = state.get("pause_total", 0) + paused
+    if msg is not None:
+        if resumed:
+            who = state.get("resumed_by")
+            note = f" — <b>{esc(who)}</b> davom ettirdi" if who and not state["anonymous"] else ""
+            done = f"▶️ <b>Test davom etmoqda!</b>{note}\n⏸ Pauza: {_fmt_dur(paused)}"
+        else:
+            done = "⏹ <b>Pauza tugadi</b> — test davom ettirilmadi va yakunlandi."
+        try:
+            from app.textfmt import edit_html
+            edit_html(bot, msg.chat.id, msg.message_id, done, None)
+        except Exception:  # noqa: BLE001
+            pass
+    return resumed, paused
+
+
+def _fmt_dur(sec):
+    sec = int(round(sec))
+    m, s = divmod(sec, 60)
+    return f"{m} daq. {s} s" if m else f"{s} s"
+
+
+def run_quiz(chat_id, questions, duration, title, starter_id=None, on_pause=None):
+    """Testni yurgizadi. on_pause(soniya) — har bir pauzadan keyin chaqiriladi (kanal jadvalini surish uchun)."""
     if chat_id in ACTIVE:
         send_html(bot, chat_id, "⚠️ Bu yerda test allaqachon davom etmoqda. Tugatish: /stop")
         return
     total = len(questions)
     anonymous = _chat_is_channel(chat_id)
-    state = dict(cancel=threading.Event(), scores={}, starter=starter_id, total=total, anonymous=anonymous)
+    state = dict(cancel=threading.Event(), resume=threading.Event(), paused=False, scores={}, starter=starter_id,
+                 total=total, anonymous=anonymous, pause_total=0.0, first_msg=None, asked=0)
     ACTIVE[chat_id] = state
     try:
         mode_line = ("Kanal rejimi: so'rovnomalar anonim, reyting yuritilmaydi" if anonymous
-                     else "Ochiq rejim: reyting to'g'ri javoblar soni va sarflangan vaqt bo'yicha")
-        send_html(bot, chat_id,
-                  f"🏁 <b>{esc(title.upper())} BOSHLANDI!</b>\n\n"
-                  f"▫️ Savollar: <b>{total} ta</b>\n▫️ Har bir savolga: <b>⏳ {duration} soniya</b>\n"
-                  f"▫️ {mode_line}\n▫️ To'xtatish: /stop")
+                     else "Reyting: vaqtida berilgan to'g'ri javoblar soni va tezlik bo'yicha")
+        start = send_html(bot, chat_id,
+                          f"🏁 <b>{esc(title.upper())} BOSHLANDI!</b>\n\n"
+                          f"▫️ Savollar: <b>{total} ta</b>\n▫️ Har bir savolga: <b>⏳ {duration} soniya</b>\n"
+                          f"▫️ {mode_line}\n"
+                          f"▫️ Ketma-ket {PAUSE_AFTER_MISSES} ta savol javobsiz qolsa — pauza\n"
+                          "▫️ Savollar yopilmaydi: keyin kirganlar ham javob belgilab, izohni ko'ra oladi"
+                          + ("" if anonymous else "\n▫️ To'xtatish: /stop"))
+        state["first_msg"] = getattr(start, "message_id", None)
         state["cancel"].wait(2)
 
+        misses = 0
         for i, q in enumerate(questions, 1):
             if state["cancel"].is_set():
                 break
@@ -84,17 +171,33 @@ def run_quiz(chat_id, questions, duration, title, starter_id=None):
                 msg = bot.send_poll(
                     chat_id, payload["question"], payload["options"], type="quiz",
                     correct_option_id=q["correct_option_id"], explanation=payload["explanation"],
-                    is_anonymous=anonymous, open_period=duration,
+                    is_anonymous=anonymous,
                 )
-                POLLS[msg.poll.id] = dict(chat_id=chat_id, correct=q["correct_option_id"], sent=sent)
+                info = dict(chat_id=chat_id, correct=q["correct_option_id"], sent=sent, open=True, votes=0)
+                POLLS[msg.poll.id] = info
             except Exception as e:  # noqa: BLE001
                 log_exc(f"send_poll {e}")
                 send_html(bot, chat_id, "⚠️ So'rovnomani yuborib bo'lmadi. Botga guruhda so'rovnoma yuborish huquqi kerak.")
                 break
-            state["cancel"].wait(duration + 2)
+            state["asked"] = i
+            state["cancel"].wait(duration + ANSWER_GRACE)
+            info["open"] = False  # reyting oynasi yopildi; so'rovnomaning o'zi ochiq qoladi
+            misses = 0 if info["votes"] > 0 else misses + 1
+            if misses >= PAUSE_AFTER_MISSES and i < total and not state["cancel"].is_set():
+                resumed, paused = _wait_pause(chat_id, state, total - i, scheduled=on_pause is not None)
+                if on_pause:
+                    try:
+                        on_pause(paused)
+                    except Exception:  # noqa: BLE001
+                        log_exc("on_pause")
+                if not resumed:
+                    break
+                misses = 0
+                state["cancel"].wait(2)
     finally:
         ACTIVE.pop(chat_id, None)
         _finish_quiz(chat_id, state, title, total)
+    return state
 
 
 def _medal(rank):
@@ -107,11 +210,22 @@ def _finish_quiz(chat_id, state, title, total):
     for pid in [p for p, v in POLLS.items() if v["chat_id"] == chat_id]:
         POLLS.pop(pid, None)
 
+    later = ("\n\n📝 <i>Savollar ochiq qoldi: testga kechikkanlar ham javobini belgilab, "
+             "to'g'ri javob va izohni ko'rishi mumkin.</i>")
+    nxt = ""
+    try:
+        from app import scheduler
+        nxt = scheduler.next_quiz_line()
+    except Exception:  # noqa: BLE001
+        pass
+    nxt = f"\n⏭ Keyingi kanal testi: <b>{esc(nxt)}</b>" if nxt and state["anonymous"] else ""
+
     if state["anonymous"]:
-        text = f"🏆 <b>{esc(title.upper())} YAKUNLANDI!</b>\n\nKanalda so'rovnomalar anonim — reyting yuritilmaydi.\n" \
-               f"Natijangizni bilish uchun botda ishlang: @{config.BOT_USERNAME}"
+        text = (f"🏆 <b>{esc(title.upper())} YAKUNLANDI!</b>\n\nKanalda so'rovnomalar anonim — reyting yuritilmaydi.\n"
+                f"Shaxsiy natija va xatolar tahlili: @{config.BOT_USERNAME}" + later + nxt)
     elif not scores:
-        text = f"🏆 <b>{esc(title.upper())} {'TO‘XTATILDI' if cancelled else 'YAKUNLANDI'}!</b>\n\nHech kim javob belgilamadi."
+        text = (f"🏆 <b>{esc(title.upper())} {'TO‘XTATILDI' if cancelled else 'YAKUNLANDI'}!</b>\n\n"
+                "Vaqtida javob belgilagan ishtirokchi bo'lmadi." + later)
     else:
         db = get_db()
         ranked = sorted(scores.items(), key=lambda x: (-x[1]["correct"], x[1]["time"]))
@@ -128,26 +242,35 @@ def _finish_quiz(chat_id, state, title, total):
                 log_exc("save group result")
         text = (f"🏆 <b>{esc(title.upper())} — NATIJALAR</b>\n━━━━━━━━━━━━━━━\n"
                 f"👥 Ishtirokchilar: <b>{len(scores)}</b> · Savollar: <b>{total}</b>\n\n" + "\n".join(lines) +
-                "\n\n<i>Har bir to'g'ri javob uchun +2 XP berildi.</i>")
+                "\n\n<i>Har bir to'g'ri javob uchun +2 XP berildi.</i>" + later)
+    if state.get("pause_total"):
+        text += f"\n⏸ Umumiy pauza: {_fmt_dur(state['pause_total'])}"
+    rows = []
+    first = state.get("first_msg")
+    url = _channel_post_url(chat_id, first) if first else None
+    if url:
+        rows.append([("📌 Test boshiga o'tish", url, "url")])
     if state["anonymous"]:
-        markup = kb([[("🚀 Natijamni botda bilaman", f"https://t.me/{config.BOT_USERNAME}?start=quick", "url")]])
+        rows.append([("🚀 Natijamni botda bilaman", f"https://t.me/{config.BOT_USERNAME}?start=quick", "url")])
     else:
-        markup = kb([[rank_btn("🏆 Umumiy reyting")], [("📢 Kanalga a'zo bo'lish", config.CHANNEL_URL, "url")]])
+        rows += [[rank_btn("🏆 Umumiy reyting")], [("📢 Kanalga a'zo bo'lish", config.CHANNEL_URL, "url")]]
     try:
-        send_html(bot, chat_id, text, reply_markup=markup)
+        send_html(bot, chat_id, text, reply_markup=kb(rows))
     except Exception:  # noqa: BLE001
         log_exc("finish message")
 
 
 @bot.poll_answer_handler()
 def on_poll_answer(pa):
+    """Ochiq (anonim bo'lmagan) so'rovnomalar: faqat savol vaqti ichidagi javoblar hisoblanadi."""
     try:
         info = POLLS.get(pa.poll_id)
-        if not info or not pa.option_ids:
+        if not info or not pa.option_ids or not info.get("open", True):
             return
         st = ACTIVE.get(info["chat_id"])
         if not st:
             return
+        info["votes"] = info.get("votes", 0) + 1
         user = pa.user
         sc = st["scores"].setdefault(user.id, dict(name=display_name(user), username=user.username or "",
                                                    correct=0, answered=0, time=0.0))
@@ -159,44 +282,134 @@ def on_poll_answer(pa):
         log_exc("poll_answer")
 
 
-# =====================================================================================
-#  Lobby
-# =====================================================================================
-def _lobby_markup(mid, count, need):
-    return kb([[(f"✋ Men tayyorman ({count}/{need})", f"rdy:{mid}")],
-               [("▶️ Hozir boshlash", f"gonow:{mid}"), ("📢 Kanal", config.CHANNEL_URL, "url")]])
+@bot.poll_handler(func=lambda p: True)
+def on_poll_update(poll):
+    """Anonim (kanal) so'rovnomalar: kim javob berganini bilmaymiz, lekin ovozlar sonini bilamiz."""
+    try:
+        info = POLLS.get(poll.id)
+        if info and info.get("open", True):
+            info["votes"] = max(info.get("votes", 0), int(poll.total_voter_count or 0))
+    except Exception:  # noqa: BLE001
+        log_exc("poll_update")
 
 
-def open_lobby(chat_id, questions, duration, title, starter_id):
+@on_cb("qcont:", gated=False)
+def cb_continue(call):
+    st = PAUSES.get(call.data.split(":", 1)[1])
+    if not st or not st.get("paused"):
+        answer_cb(call, "Test allaqachon davom etmoqda yoki yakunlangan.")
+        return
+    st["resumed_by"] = display_name(call.from_user)
+    st["resume"].set()
+    answer_cb(call, "▶️ Test davom etmoqda!")
+
+
+# =====================================================================================
+#  Lobby: test faqat MIN_PLAYERS (standart: 2) kishi «Tayyorman»ni bosgach boshlanadi
+# =====================================================================================
+def _lobby_markup(mid, count, need, share=None):
+    rows = [[(f"✋ Men tayyorman ({count}/{need})", f"rdy:{mid}")]]
+    second = []
+    if share:
+        second.append(("📣 Do'stni chaqirish", share, "url"))
+    second.append(("📢 Kanal", config.CHANNEL_URL, "url"))
+    rows.append(second)
+    return kb(rows)
+
+
+def _share_link(chat_id, msg_id, title):
+    from urllib.parse import quote
+    url = _channel_post_url(chat_id, msg_id)
+    if not url:
+        return None
+    text = f"«{title}» boshlanmoqda — yana bir kishi «Tayyorman»ni bossa start! Birga ishlaymizmi?"
+    return f"https://t.me/share/url?url={quote(url, safe='')}&text={quote(text)}"
+
+
+def open_lobby(chat_id, questions, duration, title, starter_id, deadline=None, on_pause=None,
+               blocking=False, notify=False):
+    """Lobby ochadi. deadline — epoch soniya (shu vaqtgacha yig'ilmasa lobby yopiladi).
+    blocking=True bo'lsa, shu oqimda kutadi va testni yurgizadi (kanal jadvali uchun); natija: True/False."""
     mid = f"m{int(time.time()) % 100000}{random.randint(100, 999)}"
-    need = config.MIN_PLAYERS
-    LOBBIES[mid] = dict(chat_id=chat_id, questions=questions, duration=duration, title=title, starter=starter_id,
-                        ready={}, started=False, created=time.time(), need=need)
+    need = max(1, int(config.MIN_PLAYERS))
+    deadline = deadline or (time.time() + config.LOBBY_TTL_SEC)
+    is_channel = _chat_is_channel(chat_id)
+    m = dict(chat_id=chat_id, questions=questions, duration=duration, title=title, starter=starter_id,
+             ready={}, started=False, created=time.time(), deadline=deadline, need=need, go=threading.Event(),
+             on_pause=on_pause, channel=is_channel, share=None)
+    LOBBIES[mid] = m
+    until = datetime.fromtimestamp(deadline, config.TZ).strftime("%H:%M")
     text = (f"🧠 <b>{esc(title.upper())}</b>\n━━━━━━━━━━━━━━━\n"
             f"▫️ Savollar: <b>{len(questions)} ta</b>\n▫️ Har biriga: <b>⏳ {duration} soniya</b>\n"
-            f"▫️ Reyting: to'g'ri javoblar va tezlik bo'yicha\n\n"
-            f"⚠️ Start uchun kamida <b>{need} nafar</b> «Tayyorman»ni bosishi kerak — "
-            "yoki boshlovchi «Hozir boshlash»ni bosadi.")
+            f"▫️ Ketma-ket {PAUSE_AFTER_MISSES} ta savol javobsiz qolsa — pauza\n\n"
+            f"✋ Test <b>{need} kishi</b> «Men tayyorman»ni bosgach boshlanadi.\n"
+            f"⏰ Lobby <b>{until}</b> gacha ochiq.")
     msg = send_html(bot, chat_id, text, reply_markup=_lobby_markup(mid, 0, need))
-    LOBBIES[mid]["msg_id"] = msg.message_id
-    LOBBIES[mid]["chat_id_real"] = msg.chat.id
+    m["msg_id"] = msg.message_id
+    m["chat_id_real"] = msg.chat.id
+    share = _share_link(chat_id, msg.message_id, title)
+    if share:
+        m["share"] = share
+        try:
+            bot.edit_message_reply_markup(msg.chat.id, msg.message_id, reply_markup=_lobby_markup(mid, 0, need, share))
+        except Exception:  # noqa: BLE001
+            pass
+    if notify:
+        url = _channel_post_url(chat_id, msg.message_id)
+        if url:
+            try:
+                from app.handlers import growth
+                bg(growth.send_quiz_alerts, title, url)
+            except Exception:  # noqa: BLE001
+                log_exc("quiz alerts")
+    if blocking:
+        return _lobby_wait(mid)
+    bg(_lobby_wait, mid)
     return mid
 
 
-def _start_lobby(mid, names, countdown=5):
+def _lobby_wait(mid):
+    """Ishtirokchilar yig'ilishini (yoki muddat tugashini) kutadi. Test o'tkazilgan bo'lsa — True."""
     m = LOBBIES.get(mid)
     if not m:
-        return
-    chat_id = m.get("chat_id_real", m["chat_id"])
+        return False
+    chat_real = m.get("chat_id_real", m["chat_id"])
+    from app.textfmt import edit_html
+    while not m["go"].wait(1):
+        if time.time() >= m["deadline"]:
+            break
+    with _lobby_lock:
+        ready_now = m["go"].is_set()
+        m["started"] = True  # endi tugmalar qabul qilinmaydi
+        LOBBIES.pop(mid, None)
+    if not ready_now:
+        nxt = ""
+        if m["channel"]:
+            try:
+                from app import scheduler
+                line = scheduler.next_quiz_line()
+                nxt = f"\n⏭ Keyingi test: <b>{esc(line)}</b>" if line else ""
+            except Exception:  # noqa: BLE001
+                pass
+        try:
+            edit_html(bot, chat_real, m["msg_id"],
+                      f"⌛ <b>{esc(m['title'])}</b>\n\nBelgilangan vaqtgacha {m['need']} kishi yig'ilmadi — "
+                      f"test o'tkazilmadi ({len(m['ready'])}/{m['need']}).{nxt}\n\n"
+                      f"Yakka mashq qilish: @{config.BOT_USERNAME}", None)
+        except Exception:  # noqa: BLE001
+            pass
+        return False
+    names = list(m["ready"].values())
+    who = (f" ({esc(', '.join(names[:6]))})" if not m["channel"] else "")
     try:
-        from app.textfmt import edit_html
-        edit_html(bot, chat_id, m["msg_id"],
-                  f"🎉 <b>Ishtirokchilar yig'ildi!</b> ({esc(', '.join(names[:6]) or '—')})\n\n🚀 Bellashuv {countdown} soniyadan so'ng boshlanadi…")
+        edit_html(bot, chat_real, m["msg_id"],
+                  f"🎉 <b>{len(names)} kishi tayyor!</b>{who}\n\n🚀 «{esc(m['title'])}» {LOBBY_COUNTDOWN} soniyadan so'ng boshlanadi…",
+                  None)
     except Exception:  # noqa: BLE001
         pass
-    time.sleep(countdown)
-    LOBBIES.pop(mid, None)
-    run_quiz(chat_id, m["questions"], m["duration"], m["title"], m["starter"])
+    time.sleep(LOBBY_COUNTDOWN)
+    run_quiz(m["chat_id"], m["questions"], m["duration"], m["title"], m["starter"], on_pause=m.get("on_pause"))
+    return True
 
 
 @on_cb("rdy:", gated=False)
@@ -204,43 +417,30 @@ def cb_ready(call):
     mid = call.data.split(":", 1)[1]
     with _lobby_lock:
         m = LOBBIES.get(mid)
-        if not m or m["started"] or time.time() - m["created"] > config.LOBBY_TTL_SEC:
-            answer_cb(call, "Bu bellashuv boshlangan yoki eskirgan.", True)
+        if not m or m["started"] or m["go"].is_set() or time.time() > m["deadline"]:
+            answer_cb(call, "Bu test boshlangan yoki lobby yopilgan.", True)
             return
         uid = call.from_user.id
         if uid in m["ready"]:
-            answer_cb(call, "Siz tayyorsiz! Boshqalarni kutyapmiz…")
+            answer_cb(call, f"Siz tayyorsiz! Yana {m['need'] - len(m['ready'])} kishi kerak…")
             return
         m["ready"][uid] = call.from_user.first_name or "Ishtirokchi"
         count = len(m["ready"])
-        start_now = count >= m["need"]
-        if start_now:
-            m["started"] = True
+        if count >= m["need"]:
+            m["go"].set()
     answer_cb(call, f"Qabul qilindi! ({count}/{m['need']})")
-    if start_now:
-        bg(_start_lobby, mid, list(m["ready"].values()))
-    else:
+    if count < m["need"]:
         try:
             bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id,
-                                          reply_markup=_lobby_markup(mid, count, m["need"]))
+                                          reply_markup=_lobby_markup(mid, count, m["need"], m.get("share")))
         except Exception:  # noqa: BLE001
             pass
 
 
 @on_cb("gonow:", gated=False)
 def cb_go_now(call):
-    mid = call.data.split(":", 1)[1]
-    with _lobby_lock:
-        m = LOBBIES.get(mid)
-        if not m or m["started"]:
-            answer_cb(call, "Bu bellashuv boshlangan yoki eskirgan.", True)
-            return
-        if call.from_user.id not in (m["starter"], config.ADMIN_ID):
-            answer_cb(call, "Faqat boshlovchi (yoki admin) ishga tushira oladi.", True)
-            return
-        m["started"] = True
-    answer_cb(call, "Boshlanmoqda!")
-    bg(_start_lobby, mid, list(m["ready"].values()), 3)
+    """Eski xabarlardagi tugma uchun: endi test faqat yetarli ishtirokchi yig'ilgach boshlanadi."""
+    answer_cb(call, f"Test {config.MIN_PLAYERS} kishi «Tayyorman»ni bosgach avtomatik boshlanadi.", True)
 
 
 # =====================================================================================
@@ -319,7 +519,7 @@ def st_group_target(message, st):
         open_lobby(chat.id, item["questions"], item["duration"], item["title"], uid)
         send_html(bot, message.chat.id,
                   f"✅ <b>{esc(item['title'])}</b> «{esc(chat.title or target)}» ga yuborildi.\n"
-                  "Guruhda «Tayyorman» bosilgach (yoki «Hozir boshlash») test boshlanadi.")
+                  f"Guruhda {config.MIN_PLAYERS} kishi «Tayyorman»ni bosgach test boshlanadi.")
     except Exception as e:  # noqa: BLE001
         send_html(bot, message.chat.id,
                   "❌ Yuborib bo'lmadi. Bot o'sha guruhda <b>admin</b> ekanini va username/ID to'g'riligini tekshiring.\n"

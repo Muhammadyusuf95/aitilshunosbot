@@ -157,6 +157,7 @@ class Database:
         self._ensure_column("users", "reminders", "INTEGER DEFAULT 1")
         self._ensure_column("users", "exam_date", "TEXT")
         self._ensure_column("users", "exam_name", "TEXT")
+        self._ensure_column("users", "quiz_alerts", "INTEGER DEFAULT 0")  # kanal testi xabarnomasi (faqat rozilik bilan)
         self.execute(
             f"""CREATE TABLE IF NOT EXISTS quiz_results (
                 id {pk},
@@ -421,6 +422,12 @@ class Database:
 
     def set_reminders(self, uid, on):
         self.execute("UPDATE users SET reminders = ? WHERE user_id = ?", (1 if on else 0, uid))
+
+    def set_quiz_alerts(self, uid, on):
+        self.execute("UPDATE users SET quiz_alerts = ? WHERE user_id = ?", (1 if on else 0, uid))
+
+    def users_for_quiz_alert(self):
+        return self.all("SELECT user_id, first_name FROM users WHERE status != 'blocked' AND COALESCE(quiz_alerts, 0) = 1")
 
     def users_for_reminder(self, last_active_dates):
         marks = ",".join("?" for _ in last_active_dates)

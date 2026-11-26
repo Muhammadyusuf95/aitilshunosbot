@@ -30,7 +30,8 @@ def main():
         bot.set_my_commands([
             types.BotCommand("start", "Bosh sahifa"), types.BotCommand("daily", "Kun savoli"),
             types.BotCommand("profile", "Shaxsiy kabinet"), types.BotCommand("top", "Reyting"),
-            types.BotCommand("menu", "Asosiy menyu"), types.BotCommand("cancel", "Amalni bekor qilish"),
+            types.BotCommand("menu", "Asosiy menyu"), types.BotCommand("jadval", "Kanal testlari jadvali"),
+            types.BotCommand("testxabar", "Kanal testi xabarnomasi (yoqish/o'chirish)"), types.BotCommand("cancel", "Amalni bekor qilish"),
             types.BotCommand("help", "Yordam"),
         ])
         bot.remove_webhook()
@@ -40,7 +41,7 @@ def main():
     while True:
         try:
             bot.infinity_polling(skip_pending=True, timeout=30, long_polling_timeout=30,
-                                 allowed_updates=["message", "callback_query", "poll_answer", "inline_query"])
+                                 allowed_updates=["message", "callback_query", "poll", "poll_answer", "inline_query"])
         except Exception as e:  # noqa: BLE001
             print(f"[polling] xato: {e}; 5 soniyadan so'ng qayta ulanadi")
             time.sleep(5)

@@ -90,7 +90,7 @@ def test_group_quiz_polls():
     G.run_quiz(-100500, qs, 1, "Sinov", 777)
     polls = [c for c in f.CALLS if c[0] == "sendPoll"]
     assert len(polls) == 2
-    assert any("NATIJALAR" in t or "Hech kim" in t for t in f.texts())
+    assert any("NATIJALAR" in t or "ishtirokchi bo'lmadi" in t for t in f.texts())
 
 def test_poll_answer_scoring():
     f.reset()
@@ -175,6 +175,22 @@ def test_output_filter():
     finally:
         ai.generate_text = old
 
+def _wait_lobby(timeout=20):
+    t0 = time.time()
+    while time.time() - t0 < timeout:
+        if G.LOBBIES:
+            return next(iter(G.LOBBIES))
+        time.sleep(0.05)
+    raise AssertionError("lobby ochilmadi")
+
+
+def press(data, user=USER):
+    bot.process_new_updates([upd_cb(data, user)])
+
+
+USER2 = {"id": 888, "is_bot": False, "first_name": "Vali", "username": "vali"}
+
+
 def test_schedule_due_and_jobs():
     from datetime import datetime
     from app import scheduler as S
@@ -185,20 +201,26 @@ def test_schedule_due_and_jobs():
     assert S.due(mk(12, 0), lambda k: None) == []
     assert S.due(mk(7, 31), lambda k: "2026-11-24") == []  # bir kunda ikki marta emas
     S.DURATIONS.update(quick=1, theme=1, bmb=1, attest=1)
+    G.LOBBY_COUNTDOWN = 0; G.ANSWER_GRACE = 0
     for key in ("quick", "theme", "bmb", "attest"):
-        f.reset(); G.ACTIVE.clear()
-        qs_n = {"quick": 10, "theme": 30, "bmb": 30, "attest": 40}[key]
+        f.reset(); G.ACTIVE.clear(); G.LOBBIES.clear()
         ai.generate_quiz = lambda prompt, n, seed=None, passage=None: fake_quiz(n)
         # AI ishlamasa bazadan zaxira
         S.qmod.ai.generate_quiz = (lambda *a, **k: (_ for _ in ()).throw(ai.AIError("x"))) if key == "bmb" else ai.generate_quiz
         orig = G.run_quiz
-        G.run_quiz = lambda chat, qs, dur, title, st=None, _o=orig: _o(chat, qs[:2], 0.2, title, st)
+        G.run_quiz = lambda chat, qs, dur, title, st=None, on_pause=None, _o=orig: _o(chat, qs[:2], 0.2, title, st, on_pause)
         try:
-            S.run_slot(key, 0, wait=False)
+            t = threading.Thread(target=S.run_slot, args=(key, 0, False)); t.start()
+            mid = _wait_lobby()
+            assert not [c for c in f.CALLS if c[0] == "sendPoll"]  # 2 kishisiz boshlanmaydi
+            press(f"rdy:{mid}", USER); press(f"rdy:{mid}", USER2)
+            t.join(30)
         finally:
             G.run_quiz = orig
-        assert len([c for c in f.CALLS if c[0] == "sendPoll"]) == 2, key
-        assert all(c[1]["chat_id"] == config.CHANNEL_USERNAME for c in f.CALLS if c[0] == "sendPoll")
+        polls = [c for c in f.CALLS if c[0] == "sendPoll"]
+        assert len(polls) == 2, key
+        assert all(c[1]["chat_id"] == config.CHANNEL_USERNAME for c in polls)
+        assert all("open_period" not in c[1] for c in polls)  # so'rovnomalar yopilmaydi
     f.reset(); S.run_slot("daily", 0, wait=False)
     assert len([c for c in f.CALLS if c[0] == "sendPoll"]) == 1
 
@@ -272,3 +294,125 @@ def test_result_card_and_weekly():
     buf = growth.make_card(dict(name="Ali", title="Test", correct=8, answered=10, accuracy=80, level="Savodxon", streak=3))
     assert buf.read(8) == b"\x89PNG\r\n\x1a\n"
     f.reset(); assert growth.post_weekly() in (True, False)
+
+
+# ---------------- v12.2: lobby, pauza, ochiq savollar, jadval surilishi ----------------
+USER3 = {"id": 999001, "is_bot": False, "first_name": "Soli"}
+
+
+def _polls():
+    return [c for c in f.CALLS if c[0] == "sendPoll"]
+
+
+def test_lobby_needs_two_distinct_players():
+    G.LOBBY_COUNTDOWN = 0; G.ANSWER_GRACE = 0; G.ACTIVE.clear(); G.LOBBIES.clear()
+    f.reset()
+    mid = G.open_lobby(-100500, fake_quiz(1), 0.2, "Lobby sinovi", 777)
+    press(f"rdy:{mid}", USER); press(f"rdy:{mid}", USER)  # bir kishi ikki marta — hisoblanmaydi
+    time.sleep(1.2)
+    assert not _polls() and len(G.LOBBIES[mid]["ready"]) == 1
+    press(f"rdy:{mid}", USER2)
+    t0 = time.time()
+    while not _polls() and time.time() - t0 < 5:
+        time.sleep(0.1)
+    assert len(_polls()) == 1 and "open_period" not in _polls()[0][1]
+    time.sleep(1)
+
+
+def test_lobby_expires():
+    G.LOBBIES.clear(); f.reset()
+    mid = G.open_lobby(-100500, fake_quiz(2), 0.2, "Muddat", 777, deadline=time.time() + 1)
+    time.sleep(2.5)
+    assert mid not in G.LOBBIES and not _polls()
+    assert any("yig'ilmadi" in t for t in f.texts())
+
+
+def test_pause_after_two_unanswered_and_resume():
+    G.ANSWER_GRACE = 0; G.ACTIVE.clear(); f.reset()
+    shifts = []
+    t = threading.Thread(target=G.run_quiz, args=(-100500, fake_quiz(4), 0.2, "Pauza", 777),
+                         kwargs=dict(on_pause=shifts.append))
+    t.start()
+    t0 = time.time()
+    while not G.PAUSES and time.time() - t0 < 10:
+        time.sleep(0.05)
+    assert G.PAUSES and len(_polls()) == 2
+    time.sleep(1.2)
+    assert len(_polls()) == 2  # pauza paytida yangi savol yo'q
+    token = next(iter(G.PAUSES))
+    press(f"qcont:{token}", USER3)
+    t.join(20)
+    assert len(_polls()) == 4 and len(shifts) == 1 and shifts[0] >= 1
+    assert any("PAUZA" in t for t in f.texts()) and any("davom etmoqda" in t for t in f.texts())
+
+
+def test_pause_timeout_ends_quiz():
+    G.ANSWER_GRACE = 0; G.ACTIVE.clear(); f.reset()
+    old = G._pause_max_sec
+    G._pause_max_sec = lambda: 1
+    try:
+        G.run_quiz(-100500, fake_quiz(5), 0.2, "Uzilish", 777)
+    finally:
+        G._pause_max_sec = old
+    assert len(_polls()) == 2 and any("Pauza tugadi" in t for t in f.texts())
+
+
+def test_answers_prevent_pause_and_late_answers_ignored():
+    G.ANSWER_GRACE = 0; G.ACTIVE.clear(); f.reset()
+    stop = threading.Event()
+    seen = set()
+
+    def voter():  # kanal (anonim) rejimidagi kabi: faqat ovozlar soni keladi
+        n = 0
+        while not stop.is_set():
+            for pid in list(G.POLLS):
+                if pid not in seen:
+                    seen.add(pid); n += 1
+                    bot.process_new_updates([types.Update.de_json({"update_id": 50000 + n, "poll": {
+                        "id": pid, "question": "q", "options": [], "total_voter_count": 1, "is_closed": False,
+                        "is_anonymous": True, "type": "quiz", "allows_multiple_answers": False}})])
+            time.sleep(0.02)
+    th = threading.Thread(target=voter); th.start()
+    try:
+        G.run_quiz(-100500, fake_quiz(4), 0.3, "Ovoz", 777)
+    finally:
+        stop.set(); th.join()
+    assert len(_polls()) == 4 and not any("PAUZA" in t for t in f.texts())
+    # Vaqti o'tgan savolga javob reytingga kirmaydi
+    G.ACTIVE[-100500] = dict(cancel=threading.Event(), scores={}, starter=1, total=1, anonymous=False)
+    G.POLLS["late"] = dict(chat_id=-100500, correct=1, sent=time.time() - 60, open=False, votes=0)
+    bot.process_new_updates([types.Update.de_json({"update_id": 59999, "poll_answer": {"poll_id": "late", "user": USER, "option_ids": [1], "option_persistent_ids": ["a"]}})])
+    assert G.ACTIVE[-100500]["scores"] == {}
+    G.ACTIVE.clear(); G.POLLS.clear()
+
+
+def test_schedule_shift_only_by_pause():
+    from datetime import datetime
+    from app import scheduler as S
+    tz = config.TZ
+    mk = lambda h, m: tz.localize(datetime(2026, 11, 24, h, m))
+    kv = {"sched_shift:2026-11-24": "1800"}  # 30 daqiqa pauza
+    assert [k for k, _ in S.due(mk(19, 28), kv.get)] == []           # 19:30 -> 20:00 ga surilgan
+    assert [k for k, _ in S.due(mk(19, 58), kv.get)] == ["quick"]
+    assert "theme" in [k for k, _ in S.due(mk(20, 28), kv.get)]
+    assert [k for k, _ in S.due(mk(7, 28), kv.get)] == ["daily"]      # kun savoli surilmaydi
+    # Lobby keyingi testga ulguradigan qilib yopiladi
+    now = mk(19, 30)
+    d = S._lobby_deadline("quick", 10, 30, now=now)
+    assert d <= S.slot_time("theme", now, 0).timestamp() or d == now.timestamp() + S.MIN_LOBBY_SEC
+    # add_shift bazada yig'iladi
+    day = datetime.now(tz).strftime("%Y-%m-%d")
+    before = S.get_shift()
+    S.add_shift(90); S.add_shift(30)
+    assert S.get_shift() == before + 120
+    dbmod.get_db().kv_set(f"sched_shift:{day}", before)
+
+
+def test_jadval_and_quiz_alerts():
+    from app.handlers import growth
+    f.reset(); send(upd_msg("/jadval")); assert any("KANAL JADVALI" in t for t in f.texts())
+    f.reset(); send(upd_msg("/testxabar")); assert "yoqildi" in last_text()
+    growth._last_alert[0] = 0
+    f.reset(); assert growth.send_quiz_alerts("Sinov", "https://t.me/x/1") >= 1
+    assert growth.send_quiz_alerts("Sinov", "https://t.me/x/1") == 0  # spamga qarshi oraliq
+    send(upd_msg("/testxabar")); assert "o'chirildi" in last_text()

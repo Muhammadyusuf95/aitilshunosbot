@@ -1,4 +1,4 @@
-# AI Tilshunos v12
+# AI Tilshunos v12.2
 
 Ona tili va adabiyot bo'yicha Telegram bot: abituriyent, o'qituvchi, talaba va tadqiqotchilar uchun.
 
@@ -44,3 +44,13 @@ Kirish filtri (`app/security.py`) + AI tizim ko'rsatmasi (`OFFTOPIC_REFUSED`) + 
 - ⚔️ Do'st bilan bellashuv (`?start=duel_ID`)
 - 🏫 Sinf rejimi: o'qituvchi sinf kodi, topshiriq, natijalar; o'quvchi `?start=cls_KOD`
 Soddalashtirish: Aqliy mashq olib tashlandi, Qadimgi turkiy → etimologiyaga qo'shildi, Tadqiqotchi → Til asboblari ichida, asosiy menyu qisqartirildi.
+
+
+## v12.2 — quiz testlarining yangi tartibi
+- ✋ **Lobby:** har bir guruh/kanal testi kamida **2 kishi** «Men tayyorman»ni bosgach boshlanadi (`MIN_PLAYERS`). Bir kishi ikki marta bossa hisoblanmaydi; «Hozir boshlash» olib tashlandi.
+- ⏸ **Pauza:** ketma-ket 2 ta savolga hech kim javob bermasa, test to'xtaydi va kamida bir kishi «▶️ Davom etish»ni bosgach davom etadi. `QUIZ_PAUSE_MAX_MIN` (standart 60) daqiqa ichida bosilmasa, test yakunlanadi.
+- 🕒 **Jadval:** kanaldagi asosiy vaqtlar saqlanadi. Faqat pauza davomiyligi shu kungi keyingi testlarga qo'shiladi (kv: `sched_shift:SANA`). Lobby keyingi test vaqtiga ulguradigan qilib yopiladi, shuning uchun ishtirokchi kutish jadvalni surmaydi; oxirgi test lobbisi `LAST_LOBBY_MIN` daqiqa ochiq.
+- 📝 **Ochiq savollar:** so'rovnomalar endi yopilmaydi (`open_period` yo'q). Test tugagach kirgan odam avval o'z variantini belgilaydi, shundan so'ng to'g'ri javob va izohni ko'radi; javob belgilamaganga savol ishlanmagandek ko'rinadi. Reytingga faqat savol vaqti ichidagi javoblar kiradi.
+- 📅 `/jadval` — bugungi kanal jadvali (surilgan vaqtlar bilan); 🔔 `/testxabar` — lobby ochilganda xabar olish (faqat foydalanuvchi o'zi yoqsa; 20 daqiqada ko'pi bilan 1 ta xabar).
+- 📣 Lobbida «Do'stni chaqirish» tugmasi, yakuniy xabarda «Test boshiga o'tish» havolasi.
+- Kanal so'rovnomalaridagi ovozlarni bilish uchun bot `poll` yangilanishlarini ham qabul qiladi (`allowed_updates`).

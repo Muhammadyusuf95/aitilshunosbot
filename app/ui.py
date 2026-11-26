@@ -212,9 +212,12 @@ def view_more():
         [("⚔️ Do'st bilan bellashuv", "duel:new"), ("🏫 Sinf rejimi", "cls:hub")],
         [("📅 Imtihon sanasi", "exam:hub"), ("🛠 Quiz yaratish", "qb:start")],
         [rank_btn("🏆 Reyting"), ("🔔 Eslatmalar", "rem:toggle")],
+        [("📅 Kanal jadvali", "sched:view"), ("🧠 Test xabarnomasi", "qal:toggle")],
     ]
     body = ("▫️ <b>Bellashuv</b> — do'stingizni bir xil 10 savolda yenging\n"
             "▫️ <b>Sinf rejimi</b> — o'qituvchi topshiriq beradi, natijani ko'radi\n"
             "▫️ <b>Imtihon sanasi</b> — kunlar sanog'i va kunlik reja\n"
-            "▫️ <b>Eslatmalar</b> — seriya uzilmasligi uchun xabar")
+            "▫️ <b>Eslatmalar</b> — seriya uzilmasligi uchun xabar\n"
+            "▫️ <b>Kanal jadvali</b> — bugungi testlar vaqti (pauza hisobiga surilgan bo'lsa ham)\n"
+            "▫️ <b>Test xabarnomasi</b> — kanalda test lobbisi ochilganda xabar (ixtiyoriy)")
     return card("➕ YANA BO'LIMLAR", "Qo'shimcha imkoniyatlar", body), kb(rows)

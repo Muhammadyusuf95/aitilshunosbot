@@ -193,6 +193,87 @@ def send_reminders():
 
 
 # =====================================================================================
+#  2a. Kanal testi xabarnomasi (ixtiyoriy, faqat foydalanuvchi roziligi bilan) va /jadval
+# =====================================================================================
+_ALERT_GAP_SEC = 20 * 60
+_last_alert = [0.0]
+
+
+def _toggle_quiz_alerts(uid):
+    db = get_db()
+    row = db.get_user(uid) or {}
+    new = not bool(row.get("quiz_alerts") or 0)
+    db.set_quiz_alerts(uid, new)
+    return new
+
+
+def _alerts_text(on):
+    return ("🔔 Kanal testlari xabarnomasi <b>yoqildi</b>.\nKanalda test lobbisi ochilganda sizga qisqa xabar keladi — "
+            "«Tayyorman»ni bosib, testni boshlashga yordam berasiz.\n\n<i>O'chirish: /testxabar</i>"
+            if on else "🔕 Kanal testlari xabarnomasi <b>o'chirildi</b>. Qayta yoqish: /testxabar")
+
+
+@on_cb("qal:toggle")
+def cb_quiz_alerts(call):
+    on = _toggle_quiz_alerts(call.from_user.id)
+    answer_cb(call)
+    send_html(bot, call.message.chat.id, _alerts_text(on))
+
+
+@on_msg(commands=["testxabar"])
+def cmd_testxabar(message):
+    if message.chat.type != "private":
+        return
+    send_html(bot, message.chat.id, _alerts_text(_toggle_quiz_alerts(message.from_user.id)))
+
+
+def send_quiz_alerts(title, url):
+    """Lobby ochilganda roziligini bergan foydalanuvchilarga bitta xabar (spamga qarshi: 20 daqiqada 1 marta)."""
+    now = time.time()
+    if now - _last_alert[0] < _ALERT_GAP_SEC:
+        return 0
+    _last_alert[0] = now
+    db = get_db()
+    rows = db.users_for_quiz_alert()
+    sent = 0
+    for r in rows:
+        try:
+            bot.send_message(r["user_id"],
+                             f"🧠 Kanalda <b>{esc(title)}</b> lobbisi ochildi!\n"
+                             f"{config.MIN_PLAYERS} kishi «Tayyorman»ni bosgach test boshlanadi.\n\n"
+                             "<i>Xabarnomani o'chirish: /testxabar</i>",
+                             parse_mode="HTML", reply_markup=kb([[("✋ Lobbiga o'tish", url, "url")]]))
+            sent += 1
+        except ApiTelegramException as e:
+            if e.error_code == 403:
+                db.set_status(r["user_id"], "blocked")
+        except Exception:  # noqa: BLE001
+            pass
+        time.sleep(0.06)  # Telegram cheklovi: ~30 xabar/soniya dan oshmaslik
+    print(f"[test-xabar] {sent}/{len(rows)} yuborildi")
+    return sent
+
+
+def schedule_card():
+    from app import scheduler
+    return card("📅 KANAL JADVALI", f"Bugun · {config.CHANNEL_USERNAME}", scheduler.schedule_view())
+
+
+@on_msg(commands=["jadval"], gated=False)
+def cmd_jadval(message):
+    send_html(bot, message.chat.id, schedule_card(),
+              reply_markup=kb([[("📢 Kanalga o'tish", config.CHANNEL_URL, "url")],
+                               [("🔔 Test xabarnomasi", "qal:toggle")]]) if message.chat.type == "private" else None)
+
+
+@on_cb("sched:view")
+def cb_schedule(call):
+    answer_cb(call)
+    show(call, schedule_card(), kb([[("🔔 Test xabarnomasi", "qal:toggle"), ("📢 Kanal", config.CHANNEL_URL, "url")],
+                                    [("🔙 Yana bo'limlar", "hub:more")]]))
+
+
+# =====================================================================================
 #  3. Haftalik g'oliblar
 # =====================================================================================
 WEEKLY_XP = {1: 50, 2: 30, 3: 20}

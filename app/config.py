@@ -57,10 +57,12 @@ AI_COOLDOWN_SEC = _int("AI_COOLDOWN_SEC", 4)
 AI_DAILY_LIMIT = _int("AI_DAILY_LIMIT", 60)
 
 # Guruh bellashuvi
-MIN_PLAYERS = _int("MIN_PLAYERS", 3)
-LOBBY_TTL_SEC = 15 * 60
+MIN_PLAYERS = _int("MIN_PLAYERS", 2)          # test shuncha kishi «Tayyorman»ni bosgach boshlanadi
+LOBBY_TTL_SEC = 15 * 60                       # guruh lobbisi ochiq turadigan vaqt
+QUIZ_PAUSE_MAX_MIN = _int("QUIZ_PAUSE_MAX_MIN", 60)  # pauzada eng ko'p kutish (daqiqa), so'ng test yakunlanadi
+LAST_LOBBY_MIN = _int("LAST_LOBBY_MIN", 60)   # kunning oxirgi kanal testi lobbisi necha daqiqa ochiq
 
 TZ = pytz.timezone(os.environ.get("BOT_TZ", "Asia/Tashkent"))
 NUM_THREADS = _int("NUM_THREADS", 16)
 
-BOT_VERSION = "v12.1"
+BOT_VERSION = "v12.2"
