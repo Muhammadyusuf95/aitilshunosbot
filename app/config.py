@@ -65,4 +65,4 @@ LAST_LOBBY_MIN = _int("LAST_LOBBY_MIN", 60)   # kunning oxirgi kanal testi lobbi
 TZ = pytz.timezone(os.environ.get("BOT_TZ", "Asia/Tashkent"))
 NUM_THREADS = _int("NUM_THREADS", 16)
 
-BOT_VERSION = "v12.2"
+BOT_VERSION = "v12.3"

@@ -143,11 +143,20 @@ def run_quiz(chat_id, questions, duration, title, starter_id=None, on_pause=None
         return
     total = len(questions)
     anonymous = _chat_is_channel(chat_id)
+    channel_test = None
+    if anonymous:
+        # Kanal so'rovnomalari anonim: kim javob berganini bilib bo'lmaydi. Shu sababli test savollari
+        # saqlanadi va reyting botda, shu testni ishlaganlar orasida yuritiladi.
+        try:
+            channel_test = get_db().add_channel_test(title, questions, duration)
+        except Exception:  # noqa: BLE001
+            log_exc("save channel test")
     state = dict(cancel=threading.Event(), resume=threading.Event(), paused=False, scores={}, starter=starter_id,
-                 total=total, anonymous=anonymous, pause_total=0.0, first_msg=None, asked=0)
+                 total=total, anonymous=anonymous, pause_total=0.0, first_msg=None, asked=0,
+                 channel_test=channel_test)
     ACTIVE[chat_id] = state
     try:
-        mode_line = ("Kanal rejimi: so'rovnomalar anonim, reyting yuritilmaydi" if anonymous
+        mode_line = ("Kanal rejimi: so'rovnomalar anonim; reyting botda yuritiladi" if anonymous
                      else "Reyting: vaqtida berilgan to'g'ri javoblar soni va tezlik bo'yicha")
         start = send_html(bot, chat_id,
                           f"🏁 <b>{esc(title.upper())} BOSHLANDI!</b>\n\n"
@@ -221,8 +230,9 @@ def _finish_quiz(chat_id, state, title, total):
     nxt = f"\n⏭ Keyingi kanal testi: <b>{esc(nxt)}</b>" if nxt and state["anonymous"] else ""
 
     if state["anonymous"]:
-        text = (f"🏆 <b>{esc(title.upper())} YAKUNLANDI!</b>\n\nKanalda so'rovnomalar anonim — reyting yuritilmaydi.\n"
-                f"Shaxsiy natija va xatolar tahlili: @{config.BOT_USERNAME}" + later + nxt)
+        text = (f"🏆 <b>{esc(title.upper())} YAKUNLANDI!</b>\n\nKanalda so'rovnomalar anonim, shuning uchun reyting "
+                f"botda yuritiladi: testni botda ishlaganlar orasida.\n"
+                f"🏆 Jonli reytingni ko'rish uchun pastdagi tugmani bosing." + later + nxt)
     elif not scores:
         text = (f"🏆 <b>{esc(title.upper())} {'TO‘XTATILDI' if cancelled else 'YAKUNLANDI'}!</b>\n\n"
                 "Vaqtida javob belgilagan ishtirokchi bo'lmadi." + later)
@@ -251,6 +261,9 @@ def _finish_quiz(chat_id, state, title, total):
     if url:
         rows.append([("📌 Test boshiga o'tish", url, "url")])
     if state["anonymous"]:
+        tid = state.get("channel_test")
+        if tid:
+            rows.append([("🏆 Test reytingi (botda)", f"https://t.me/{config.BOT_USERNAME}?start=ct_{tid}", "url")])
         rows.append([("🚀 Natijamni botda bilaman", f"https://t.me/{config.BOT_USERNAME}?start=quick", "url")])
     else:
         rows += [[rank_btn("🏆 Umumiy reyting")], [("📢 Kanalga a'zo bo'lish", config.CHANNEL_URL, "url")]]

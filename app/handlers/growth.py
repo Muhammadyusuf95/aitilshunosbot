@@ -695,6 +695,111 @@ def _class_session_done(s, info):
     return "📨 Natijangiz o'qituvchiga yuborildi." if saved else ""
 
 
+# =====================================================================================
+#  Kanal testi reytingi (botda)
+#  Kanal so'rovnomalari anonim bo'lgani uchun, kanal testi yakunlangach uning savollari saqlanadi.
+#  Reyting shu testni BOTDA ishlaganlar orasida yuritiladi: har bir test o'z reytingiga ega,
+#  ishtirokchilar qo'shilgan sari o'rinlar o'zgaradi. Birinchi urinish hisobga olinadi.
+# =====================================================================================
+def _medal_i(i):
+    return {1: "🥇", 2: "🥈", 3: "🥉"}.get(i, f"<b>{i}.</b>")
+
+
+def channel_test_view(uid, tid):
+    """(sarlavha, matn, tugmalar) yoki None (test topilmasa)."""
+    db = get_db()
+    t = db.get_channel_test(tid)
+    if not t:
+        return None
+    total_q = len(t["questions"])
+    board = db.channel_board(tid, 10)
+    mine = db.channel_rank(tid, uid)
+    lines = [f"👥 Ishtirokchilar: <b>{db.channel_count(tid)}</b> · Savollar: <b>{total_q}</b>", ""]
+    if not board:
+        lines.append("Hozircha hech kim ishlamagan. Birinchi bo'lib ishlang!")
+    for i, r in enumerate(board, 1):
+        pct = round(100 * int(r["correct"]) / total_q) if total_q else 0
+        lines.append(f"{_medal_i(i)} <b>{esc(r['name'])}</b> — {r['correct']}/{total_q} ({pct}%) · "
+                     f"⏱ {float(r['duration']):.0f}s")
+    lines.append("")
+    if mine:
+        lines.append(f"📍 Sizning o'rningiz: <b>#{mine['rank']}</b> — {mine['correct']}/{total_q}")
+    else:
+        lines.append("📍 Siz hali bu testda ishtirok etmagansiz. Testni botda ishlab, reytingga kiring.")
+    rows = []
+    if not mine:
+        rows.append([("📝 Testni botda ishlash", f"ct:start:{tid}")])
+    rows.append([("🔄 Yangilash", f"ct:view:{tid}"), ("🏆 Umumiy reyting", "rank:top")])
+    return card("🏆 TEST REYTINGI", esc(t["title"]), "\n".join(lines)), kb(rows)
+
+
+@on_msg(commands=["testlar"], gated=False)
+def cmd_testlar(message):
+    if message.chat.type != "private":
+        send_html(bot, message.chat.id, f"Bu buyruq botda ishlaydi: @{config.BOT_USERNAME}")
+        return
+    rows = get_db().recent_channel_tests(8)
+    if not rows:
+        send_html(bot, message.chat.id, "Hozircha kanal testlari yo'q. Kanal testi tugagach, bu yerda reyting paydo bo'ladi.")
+        return
+    buttons = [[(f"🏆 {r['title'][:40]}", f"ct:view:{r['id']}")] for r in rows]
+    send_html(bot, message.chat.id, card("🧠 KANAL TESTLARI REYTINGI", "", "Reytingini ko'rmoqchi bo'lgan testingizni tanlang:"),
+              reply_markup=kb(buttons))
+
+
+def open_channel_test(chat_id, user, tid_raw):
+    tid = int(tid_raw) if str(tid_raw).isdigit() else None
+    view = channel_test_view(user.id, tid) if tid else None
+    if not view:
+        send_html(bot, chat_id, "⌛ Bu test topilmadi. Kanaldagi so'nggi test tagidagi tugmadan foydalaning yoki /testlar ni yozing.")
+        return
+    send_html(bot, chat_id, view[0], reply_markup=view[1])
+
+
+@on_cb("ct:view:")
+def cb_channel_view(call):
+    tid = int(call.data.split(":")[2])
+    view = channel_test_view(call.from_user.id, tid)
+    if not view:
+        answer_cb(call, "Test topilmadi.", True)
+        return
+    answer_cb(call, "Yangilandi ✅")
+    show(call, view[0], view[1])
+
+
+@on_cb("ct:start:")
+def cb_channel_start(call):
+    tid = int(call.data.split(":")[2])
+    db = get_db()
+    t = db.get_channel_test(tid)
+    if not t:
+        answer_cb(call, "Test topilmadi.", True)
+        return
+    if db.channel_rank(tid, call.from_user.id):
+        answer_cb(call, "Siz bu testda allaqachon ishtirok etgansiz.", True)
+        return
+    answer_cb(call)
+    from app.handlers.tests import start_practice
+    start_practice(call.message.chat.id, call.from_user, list(t["questions"]), t["title"],
+                   mode="channel", ctx=dict(channel_test=tid))
+
+
+def _channel_session_done(s, info):
+    tid = s.ctx["channel_test"]
+    db = get_db()
+    if not db.get_channel_test(tid):
+        return ""
+    if info.get("answered", 0) < s.total:
+        return "📊 <i>Test reytingiga kirish uchun savollarning hammasini oxirigacha ishlang.</i>"
+    if not db.save_channel_result(tid, s.uid, s.name, s.correct, s.total, s.time_spent):
+        return "📊 <i>Bu testda natijangiz avvaldan reytingga yozilgan.</i>"
+    mine = db.channel_rank(tid, s.uid)
+    if not mine:
+        return ""
+    return (f"🏆 <b>Test reytingida #{mine['rank']} o'rin</b> ({db.channel_count(tid)} ishtirokchi)\n"
+            "<i>Jonli reyting: /testlar</i>")
+
+
 def session_done(s, info):
     """Mashq tugagach: bellashuv/sinf natijasini qayd etadi. Qo'shimcha matn qaytaradi."""
     try:
@@ -702,6 +807,8 @@ def session_done(s, info):
             return _duel_session_done(s, info)
         if s.ctx.get("class_test"):
             return _class_session_done(s, info)
+        if s.ctx.get("channel_test"):
+            return _channel_session_done(s, info)
     except Exception:  # noqa: BLE001
         log_exc("session_done")
     return ""

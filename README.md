@@ -1,4 +1,4 @@
-# AI Tilshunos v12.2
+# AI Tilshunos v12.3
 
 Ona tili va adabiyot bo'yicha Telegram bot: abituriyent, o'qituvchi, talaba va tadqiqotchilar uchun.
 
@@ -54,3 +54,11 @@ Soddalashtirish: Aqliy mashq olib tashlandi, Qadimgi turkiy → etimologiyaga qo
 - 📅 `/jadval` — bugungi kanal jadvali (surilgan vaqtlar bilan); 🔔 `/testxabar` — lobby ochilganda xabar olish (faqat foydalanuvchi o'zi yoqsa; 20 daqiqada ko'pi bilan 1 ta xabar).
 - 📣 Lobbida «Do'stni chaqirish» tugmasi, yakuniy xabarda «Test boshiga o'tish» havolasi.
 - Kanal so'rovnomalaridagi ovozlarni bilish uchun bot `poll` yangilanishlarini ham qabul qiladi (`allowed_updates`).
+
+## v12.3 — kanal testi reytingi botda
+- 🏆 Kanal testi yakunlangach, kanal postidagi «Test reytingi (botda)» tugmasi botdagi shu testning reytingini ochadi.
+- Kanal so'rovnomalari anonim bo'lgani uchun, kanal ovozlari reytingga kirmaydi. Test savollari saqlanadi (`channel_tests`) va foydalanuvchi uni botda «📝 Testni botda ishlash» orqali ishlaydi.
+- Har bir test o'z reytingiga ega (`channel_results`): to'g'ri javoblar soni, teng bo'lsa — tezlik. Har kishi uchun faqat birinchi urinish hisobga olinadi. Ishtirokchilar ko'paygani sari o'rinlar o'zgaradi («🔄 Yangilash»).
+- Botda ishlangan natija umumiy reytingga ham qo'shiladi (XP va haftalik TOP).
+- `/testlar` — so'nggi kanal testlari ro'yxati va ularning reytingi.
+- Havola: `?start=ct_ID`.

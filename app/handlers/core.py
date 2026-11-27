@@ -90,6 +90,9 @@ def cmd_start(message):
     elif payload.startswith("cls_"):
         from app.handlers import growth
         growth.join_class(message.chat.id, u, payload[4:].upper())
+    elif payload.startswith("ct_"):
+        from app.handlers import growth
+        growth.open_channel_test(message.chat.id, u, payload[3:])
 
 
 @on_cb("check_sub", gated=False)

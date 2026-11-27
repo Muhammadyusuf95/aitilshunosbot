@@ -209,6 +209,16 @@ class Database:
                 test_id BIGINT NOT NULL, user_id BIGINT NOT NULL, name TEXT, correct INTEGER, total INTEGER,
                 duration REAL, created_at TEXT, PRIMARY KEY (test_id, user_id))"""
         )
+        # Kanal testlari (anonim so'rovnoma) — savollar saqlanadi, reyting esa botda ishlaganlar orasida yuritiladi
+        self.execute(
+            f"""CREATE TABLE IF NOT EXISTS channel_tests (
+                id {pk}, title TEXT, questions TEXT, duration INTEGER DEFAULT 30, created_at TEXT)"""
+        )
+        self.execute(
+            """CREATE TABLE IF NOT EXISTS channel_results (
+                test_id BIGINT NOT NULL, user_id BIGINT NOT NULL, name TEXT, correct INTEGER, total INTEGER,
+                duration REAL, created_at TEXT, PRIMARY KEY (test_id, user_id))"""
+        )
 
     # ---------- foydalanuvchilar ----------
     def get_user(self, uid):
@@ -491,6 +501,52 @@ class Database:
 
     def has_class_result(self, test_id, uid):
         return bool(self.one("SELECT 1 AS x FROM class_results WHERE test_id = ? AND user_id = ?", (test_id, uid)))
+
+    # ---------- kanal testlari reytingi ----------
+    def add_channel_test(self, title, questions, duration):
+        self.execute(
+            "INSERT INTO channel_tests (title, questions, duration, created_at) VALUES (?, ?, ?, ?)",
+            (title[:100], json.dumps(questions, ensure_ascii=False), int(duration), utcnow_str()),
+        )
+        r = self.one("SELECT MAX(id) AS id FROM channel_tests")
+        return int(r["id"])
+
+    def get_channel_test(self, tid):
+        r = self.one("SELECT * FROM channel_tests WHERE id = ?", (int(tid),))
+        if r:
+            r["questions"] = json.loads(r["questions"])
+        return r
+
+    def recent_channel_tests(self, limit=8):
+        return self.all("SELECT id, title, created_at FROM channel_tests ORDER BY id DESC LIMIT ?", (int(limit),))
+
+    def save_channel_result(self, tid, uid, name, correct, total, duration):
+        """Har bir kishi uchun faqat birinchi urinish. Yangi bo'lsa True."""
+        return bool(self.execute(
+            "INSERT INTO channel_results (test_id, user_id, name, correct, total, duration, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (test_id, user_id) DO NOTHING",
+            (int(tid), int(uid), name, int(correct), int(total), float(duration), utcnow_str())))
+
+    def channel_board(self, tid, limit=10):
+        return self.all(
+            "SELECT user_id, name, correct, total, duration FROM channel_results WHERE test_id = ? "
+            "ORDER BY correct DESC, duration ASC LIMIT ?", (int(tid), int(limit)))
+
+    def channel_count(self, tid):
+        r = self.one("SELECT COUNT(*) AS n FROM channel_results WHERE test_id = ?", (int(tid),))
+        return int(r["n"]) if r else 0
+
+    def channel_rank(self, tid, uid):
+        """Foydalanuvchining shu test ichidagi o'rni. Ishtirok etmagan bo'lsa None."""
+        me = self.one("SELECT correct, duration FROM channel_results WHERE test_id = ? AND user_id = ?",
+                      (int(tid), int(uid)))
+        if not me:
+            return None
+        better = self.one(
+            "SELECT COUNT(*) AS n FROM channel_results WHERE test_id = ? "
+            "AND (correct > ? OR (correct = ? AND duration < ?))",
+            (int(tid), me["correct"], me["correct"], me["duration"]))
+        return dict(rank=int(better["n"]) + 1, correct=int(me["correct"]), duration=float(me["duration"]))
 
     # ---------- admin ----------
     def user_counts(self):

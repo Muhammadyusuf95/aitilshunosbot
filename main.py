@@ -31,7 +31,7 @@ def main():
             types.BotCommand("start", "Bosh sahifa"), types.BotCommand("daily", "Kun savoli"),
             types.BotCommand("profile", "Shaxsiy kabinet"), types.BotCommand("top", "Reyting"),
             types.BotCommand("menu", "Asosiy menyu"), types.BotCommand("jadval", "Kanal testlari jadvali"),
-            types.BotCommand("testxabar", "Kanal testi xabarnomasi (yoqish/o'chirish)"), types.BotCommand("cancel", "Amalni bekor qilish"),
+            types.BotCommand("testlar", "Kanal testlari reytingi"), types.BotCommand("testlar", "Kanal testlari reytingi"), types.BotCommand("testxabar", "Kanal testi xabarnomasi (yoqish/o'chirish)"), types.BotCommand("cancel", "Amalni bekor qilish"),
             types.BotCommand("help", "Yordam"),
         ])
         bot.remove_webhook()
