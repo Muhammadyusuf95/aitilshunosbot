@@ -55,7 +55,7 @@ export async function runScheduled(ctx, cronExpr) {
     }
   }
 
-  if (cronExpr === "0 14 * * 0" || (dow === 0 && hhmm === "19:00")) {
+  if (cronExpr === "0 14 * * SUN" || (dow === 0 && hhmm === "19:00")) {
     const wk = `wk_${tashkentDate()}`;
     if (await ctx.db.kvGet("cron:weekly") !== wk) {
       await ctx.db.kvSet("cron:weekly", wk);
@@ -82,7 +82,7 @@ export async function runScheduled(ctx, cronExpr) {
     }
   }
 
-  if (cronExpr === "0,30 14-16 * * *" && ["19:30", "20:00", "20:30", "21:00"].includes(hhmm)) {
+  if (cronExpr === "0,30 14,15,16 * * *" && ["19:30", "20:00", "20:30", "21:00"].includes(hhmm)) {
     const slot = `${tashkentDate()}_${hhmm}`;
     if (await ctx.db.kvGet("cron:qalert") !== slot) {
       await ctx.db.kvSet("cron:qalert", slot);
