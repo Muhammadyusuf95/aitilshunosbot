@@ -5,7 +5,7 @@ compatibility_date = "2025-11-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "aitilshunos-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "bc4fb011-93e5-466f-8226-fd8ea29a358c"
 
 [[durable_objects.bindings]]
 name = "QUIZ_ROOM"
