@@ -1,0 +1,16 @@
+{
+  "name": "aitilshunosbot-cloudflare",
+  "version": "12.3.0",
+  "private": true,
+  "description": "AI Tilshunos Telegram Bot — Cloudflare Workers + D1 + Durable Objects",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute aitilshunos-db --remote --file=./schema.sql",
+    "db:init:local": "wrangler d1 execute aitilshunos-db --local --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

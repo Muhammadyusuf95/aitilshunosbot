@@ -1,0 +1,43 @@
+name = "aitilshunosbot"
+main = "src/index.js"
+compatibility_date = "2025-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aitilshunos-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[[durable_objects.bindings]]
+name = "QUIZ_ROOM"
+class_name = "QuizRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["QuizRoom"]
+
+[triggers]
+crons = [
+  "30 2 * * *",
+  "0 13 * * *",
+  "0 14 * * 0",
+  "30 14 * * *",
+  "0 15 * * *",
+  "30 15 * * *",
+  "0 16 * * *"
+]
+
+[vars]
+BOT_VERSION = "v12.3-cf"
+ADMIN_ID = "5423849679"
+CHANNEL_USERNAME = "@onatilidanyordam"
+CHANNEL_URL = "https://t.me/onatilidanyordam"
+BOT_USERNAME = "aitilshunosbot"
+GEMINI_MODELS = "gemini-2.5-flash,gemini-2.5-flash-lite"
+AI_COOLDOWN_SEC = "4"
+AI_DAILY_LIMIT = "60"
+MIN_PLAYERS = "2"
+LOBBY_TTL_SEC = "900"
+QUIZ_PAUSE_MAX_MIN = "60"
+LAST_LOBBY_MIN = "60"
+BOT_TZ = "Asia/Tashkent"
+WEEKLY_PRIZE = ""
