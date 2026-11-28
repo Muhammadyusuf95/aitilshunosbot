@@ -82,7 +82,7 @@ export async function runScheduled(ctx, cronExpr) {
     }
   }
 
-  if (["30 14 * * *", "0 15 * * *", "30 15 * * *", "0 16 * * *"].includes(cronExpr)) {
+  if (cronExpr === "0,30 14-16 * * *" && ["19:30", "20:00", "20:30", "21:00"].includes(hhmm)) {
     const slot = `${tashkentDate()}_${hhmm}`;
     if (await ctx.db.kvGet("cron:qalert") !== slot) {
       await ctx.db.kvSet("cron:qalert", slot);
